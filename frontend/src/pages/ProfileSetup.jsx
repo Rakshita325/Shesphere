@@ -1,0 +1,178 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { Camera, Layers, ArrowLeft } from 'lucide-react';
+import Input from '../components/ui/Input';
+import Button from '../components/ui/Button';
+import Select from '../components/ui/Select';
+import { useUser } from '../context/UserContext';
+
+const ProfileSetup = () => {
+  const { userData, updateUserData } = useUser();
+  const navigate = useNavigate();
+  const [previewImage, setPreviewImage] = useState(userData.profilePicture || null);
+  
+  const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm({
+    defaultValues: {
+      language: userData.language || '',
+      education: userData.education || '',
+      age: userData.age || '',
+      occupation: userData.occupation || '',
+      dailyFreeTime: userData.dailyFreeTime || ''
+    }
+  });
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const onSubmit = async (data) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const fullData = { ...data, profilePicture: previewImage };
+        updateUserData(fullData);
+        console.log("Profile Setup Data Saved to Context:", fullData);
+        resolve();
+        // Redirect to Interest Selection page after successful setup
+        navigate('/interests');
+      }, 1000);
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-pastel-pink/10 to-white flex flex-col font-poppins pb-12">
+      <div className="w-full bg-white/80 backdrop-blur-md shadow-sm p-4 flex justify-center mb-8 sticky top-0 z-10 border-b border-pastel-lavender/50">
+        <div className="flex items-center gap-2">
+          <Layers className="h-8 w-8 text-pink-400" />
+          <span className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-purple-400 bg-clip-text text-transparent">
+            SheSphere
+          </span>
+        </div>
+      </div>
+
+      <div className="max-w-3xl w-full mx-auto px-4 sm:px-6">
+        <div className="bg-white rounded-3xl shadow-lg border border-pastel-lavender/30 p-8 sm:p-12 relative overflow-hidden">
+          {/* Decorative background shape */}
+          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 rounded-full bg-pastel-lavender/20 blur-3xl pointer-events-none"></div>
+
+          <div className="text-center mb-10 relative z-10">
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">Complete Your Profile</h1>
+            <p className="text-gray-500 text-lg">Tell us a bit about yourself so we can personalize your experience.</p>
+          </div>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 relative z-10">
+            
+            {/* Profile Picture Upload */}
+            <div className="flex flex-col items-center justify-center mb-10">
+              <div className="relative group cursor-pointer transition-transform hover:scale-105">
+                <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-pastel-pink/30 overflow-hidden bg-pastel-lavender/10 flex items-center justify-center shadow-inner">
+                  {previewImage ? (
+                    <img src={previewImage} alt="Profile Preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <Camera className="w-12 h-12 text-gray-400 group-hover:text-pink-400 transition-colors" />
+                  )}
+                </div>
+                <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="text-white text-sm font-medium">Change Photo</span>
+                </div>
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  onChange={handleImageChange}
+                />
+              </div>
+              <p className="text-sm text-gray-500 mt-4 font-medium">Upload Profile Picture (Optional)</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+              <Select 
+                label="Preferred Language"
+                options={[
+                  { value: 'english', label: 'English' },
+                  { value: 'spanish', label: 'Spanish' },
+                  { value: 'french', label: 'French' },
+                  { value: 'hindi', label: 'Hindi' },
+                  { value: 'mandarin', label: 'Mandarin' }
+                ]}
+                {...register('language', { required: 'Language is required' })}
+                error={errors.language?.message}
+              />
+
+              <Select 
+                label="Highest Education"
+                options={[
+                  { value: 'high_school', label: 'High School' },
+                  { value: 'bachelors', label: 'Bachelor\'s Degree' },
+                  { value: 'masters', label: 'Master\'s Degree' },
+                  { value: 'phd', label: 'Ph.D.' },
+                  { value: 'other', label: 'Other' }
+                ]}
+                {...register('education', { required: 'Education is required' })}
+                error={errors.education?.message}
+              />
+
+              <Input 
+                label="Age" 
+                type="number" 
+                placeholder="e.g. 25"
+                {...register('age', { 
+                  required: 'Age is required',
+                  min: { value: 13, message: 'You must be at least 13' },
+                  max: { value: 120, message: 'Please enter a valid age' }
+                })}
+                error={errors.age?.message}
+              />
+
+              <Input 
+                label="Occupation" 
+                type="text" 
+                placeholder="e.g. Software Engineer, Student"
+                {...register('occupation', { required: 'Occupation is required' })}
+                error={errors.occupation?.message}
+              />
+            </div>
+
+            <div className="mt-4">
+              <Select 
+                label="Daily Free Time (for learning)"
+                options={[
+                  { value: 'under_1_hour', label: 'Less than 1 hour' },
+                  { value: '1_to_2_hours', label: '1 - 2 hours' },
+                  { value: '2_to_4_hours', label: '2 - 4 hours' },
+                  { value: 'over_4_hours', label: 'More than 4 hours' }
+                ]}
+                {...register('dailyFreeTime', { required: 'Please select your available time' })}
+                error={errors.dailyFreeTime?.message}
+              />
+            </div>
+
+            <div className="flex flex-col-reverse sm:flex-row items-center justify-between pt-8 border-t border-gray-100 gap-4">
+              <Button 
+                type="button" 
+                variant="ghost" 
+                onClick={() => navigate('/signup')}
+                className="w-full sm:w-auto px-6 py-3"
+                icon={<ArrowLeft className="w-4 h-4" />}
+              >
+                Back to Signup
+              </Button>
+              <Button type="submit" isLoading={isSubmitting} className="w-full sm:w-auto px-10 py-3 text-lg">
+                Complete Setup
+              </Button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ProfileSetup;
