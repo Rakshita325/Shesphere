@@ -1,25 +1,54 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { Layers } from 'lucide-react';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
 import heroIllustration from '../assets/hero_illustration.png';
+import api from '../services/api';
 
 const Signup = () => {
-  const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm();
+  const { register, handleSubmit, watch, setError, formState: { errors, isSubmitting } } = useForm();
   const navigate = useNavigate();
   const password = watch('password');
+  const [serverError, setServerError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const onSubmit = async (data) => {
-    // Simulate API call for signup
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        console.log("Signup submitted:", data);
-        resolve();
-        navigate('/profile-setup');
-      }, 1000);
-    });
+    setServerError('');
+    setSuccessMessage('');
+    try {
+      const response = await api.post('/auth/signup', {
+        fullName: data.fullName,
+        mobile: data.mobile,
+        email: data.email,
+        password: data.password,
+        confirmPassword: data.confirmPassword
+      });
+
+      if (response.data && response.data.token) {
+        // Store ONLY token in localStorage
+        localStorage.setItem('token', response.data.token);
+        setSuccessMessage('Account created successfully! Redirecting...');
+        
+        setTimeout(() => {
+          navigate('/profile-setup');
+        }, 500);
+      }
+    } catch (err) {
+      if (err.response && err.response.data) {
+        const { message, field } = err.response.data;
+        if (field && ['fullName', 'mobile', 'email', 'password', 'confirmPassword'].includes(field)) {
+          setError(field, { type: 'server', message: message || 'Validation error' });
+        } else {
+          setServerError(message || 'Registration failed. Please check your details.');
+        }
+      } else if (err.request) {
+        setServerError('Network error. Unable to connect to backend server.');
+      } else {
+        setServerError('Server error. Please try again later.');
+      }
+    }
   };
 
   return (
@@ -58,6 +87,18 @@ const Signup = () => {
           
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Create an account</h2>
           <p className="text-base text-gray-500 mb-8">Start your journey with SheSphere today.</p>
+
+          {serverError && (
+            <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm font-medium">
+              {serverError}
+            </div>
+          )}
+
+          {successMessage && (
+            <div className="mb-4 p-3 rounded-lg bg-green-50 border border-green-200 text-green-600 text-sm font-medium">
+              {successMessage}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-1">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
@@ -129,7 +170,7 @@ const Signup = () => {
             </div>
 
             <div className="pt-4">
-              <Button type="submit" isLoading={isSubmitting} className="py-3 text-lg">
+              <Button type="submit" isLoading={isSubmitting} disabled={isSubmitting} className="py-3 text-lg">
                 Sign Up
               </Button>
             </div>

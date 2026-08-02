@@ -6,6 +6,7 @@ import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
 import Select from '../components/ui/Select';
 import { useUser } from '../context/UserContext';
+import api from '../services/api';
 
 const ProfileSetup = () => {
   const { userData, updateUserData } = useUser();
@@ -34,16 +35,14 @@ const ProfileSetup = () => {
   };
 
   const onSubmit = async (data) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const fullData = { ...data, profilePicture: previewImage };
-        updateUserData(fullData);
-        console.log("Profile Setup Data Saved to Context:", fullData);
-        resolve();
-        // Redirect to Interest Selection page after successful setup
-        navigate('/interests');
-      }, 1000);
-    });
+    const fullData = { ...data, profilePicture: previewImage };
+    try {
+      await api.put('/auth/profile', fullData);
+      updateUserData(fullData);
+      navigate('/interests');
+    } catch (err) {
+      console.warn('Failed to update profile on server:', err.message);
+    }
   };
 
   return (

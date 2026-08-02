@@ -61,18 +61,7 @@ const Settings = () => {
 
   return (
     <div className="p-6 space-y-8 font-poppins bg-gradient-to-b from-pastel-blue/5 to-white min-h-screen dark:bg-gray-900">
-      {/* Account Settings */}
-      <CardBase className="bg-pink-50 border-pink-200 p-6">
-        <h2 className="text-xl font-semibold text-pink-600 mb-4">👤 Account Settings</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input label="Name" value={name} onChange={e => setName(e.target.value)} />
-          <Input label="Email" type="email" value={email} onChange={e => setEmail(e.target.value)} />
-          <Input label="Phone Number" type="tel" value={phone} onChange={e => setPhone(e.target.value)} />
-        </div>
-        <div className="mt-4 flex justify-end">
-          <Button onClick={handleSaveAccount}>Save Account</Button>
-        </div>
-      </CardBase>
+
 
       {/* Language Settings */}
       <CardBase className="p-6">

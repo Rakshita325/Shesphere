@@ -1,19 +1,20 @@
 // src/pages/Profile.jsx
 import React from 'react';
 import { useUser } from '../context/UserContext';
+import { useNavigate } from 'react-router-dom';
 import CardBase from '../components/dashboard/CardBase';
 import AchievementBadges from '../components/games/AchievementBadges';
-import LearningProgress from '../components/dashboard/LearningProgress';
 
 const Profile = () => {
   const { userData } = useUser();
+  const navigate = useNavigate();
   const {
     profilePicture,
     language = 'Not set',
     education = 'Not set',
     interest = 'Not set',
-    email = 'user@example.com',
-    name = 'Your Name',
+    email = '',
+    fullName = '',
     streak = 0,
   } = userData;
 
@@ -29,7 +30,7 @@ const Profile = () => {
           )}
         </div>
         <div className="flex-1">
-          <h2 className="text-2xl font-semibold text-gray-800">{name}</h2>
+          <h2 className="text-2xl font-semibold text-gray-800">{fullName}</h2>
           <p className="text-gray-600">{email}</p>
           <p className="mt-2 text-sm text-gray-500">Language: <span className="font-medium text-gray-700">{language}</span></p>
           <p className="text-sm text-gray-500">Education: <span className="font-medium text-gray-700">{education}</span></p>
@@ -37,16 +38,14 @@ const Profile = () => {
           <p className="text-sm text-gray-500 mt-2">Current Streak: <span className="font-medium text-pink-500">{streak} days</span></p>
           <button
             className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-pink-500 text-white rounded-md hover:bg-pink-600 transition"
-            // onClick could open a modal in the future
+            onClick={() => navigate('/edit-profile')}
           >
             Edit Profile
           </button>
         </div>
       </CardBase>
 
-      {/* Learning Statistics */}
-      <LearningProgress />
-
+      
       {/* Badges */}
       <AchievementBadges />
     </div>

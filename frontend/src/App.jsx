@@ -18,6 +18,9 @@ import Games from "./pages/Games";
 import Profile from "./pages/Profile";
 import Streaks from "./pages/Streaks";
 import Settings from "./pages/Settings";
+import Testimonials from "./components/Testimonials";
+import EditProfile from "./pages/EditProfile";
+
 
 function App() {
   return (
@@ -40,7 +43,21 @@ function App() {
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="games" element={<Games />} />
+            <Route path="journal" element={<Journal />} />
+            <Route path="community" element={<Community />} />
+            <Route path="streaks" element={<Streaks />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="settings" element={<Settings />} />
+            <Route path="edit-profile" element={<EditProfile />} />
+
+
+
+
           </Route>
+          <Route path="/testimonials" element={<Testimonials />} />
+          <Route path="/edit-profile" element={<EditProfile />} />
+
+
         </Routes>
       </Router>
     </UserProvider>

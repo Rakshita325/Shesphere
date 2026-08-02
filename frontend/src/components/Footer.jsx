@@ -3,7 +3,7 @@ import { Layers, Camera, MessageSquare, Share2, Globe } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer className="bg-white pt-16 pb-8 border-t border-pastel-lavender/50">
+    <footer id="contact" className="bg-white pt-16 pb-8 border-t border-pastel-lavender/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           {/* Brand */}

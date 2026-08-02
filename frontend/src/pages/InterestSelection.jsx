@@ -4,6 +4,7 @@ import { Layers, ChefHat, Palette, Leaf, Scissors, Laptop, Dumbbell, Music, Spar
 import { motion } from 'framer-motion';
 import Button from '../components/ui/Button';
 import { useUser } from '../context/UserContext';
+import api from '../services/api';
 
 const interestsList = [
   { id: 'cooking', label: 'Cooking', icon: ChefHat, color: 'text-orange-500', bgColor: 'bg-orange-50' },
@@ -22,17 +23,22 @@ const InterestSelection = () => {
   const [selectedInterest, setSelectedInterest] = useState(userData.interest || null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (!selectedInterest) return;
     
     setIsSubmitting(true);
-    // Simulate API delay
-    setTimeout(() => {
+    try {
+      const token = localStorage.getItem('token');
+      if (token) {
+        await api.put('/auth/profile', { interest: selectedInterest });
+      }
+    } catch (err) {
+      console.warn("Could not sync interest to backend profile:", err.message);
+    } finally {
       updateUserData({ interest: selectedInterest });
-      console.log("Interest Selected:", selectedInterest);
       setIsSubmitting(false);
       navigate('/dashboard');
-    }, 800);
+    }
   };
 
   return (

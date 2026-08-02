@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Bell, User, ChevronDown } from 'lucide-react';
+import { Search,  User, } from 'lucide-react';
 import { useUser } from '../context/UserContext';
-import Select from '../components/ui/Select';
+
 
 const interests = [
   { value: 'cooking', label: 'Cooking' },
@@ -32,26 +32,12 @@ const DashboardNavbar = () => {
         />
       </div>
       <div className="flex items-center gap-4">
-        <Select
-          label=""
-          value={selectedInterest}
-          onChange={handleInterestChange}
-          options={interests}
-          className="w-48"
-        />
-        <button className="relative text-gray-600 hover:text-pink-500 focus:outline-none">
-          <Bell className="w-5 h-5" />
+        
+        
           {/* placeholder badge */}
           <span className="absolute -top-1 -right-1 w-2 h-2 bg-pink-500 rounded-full" />
-        </button>
-        <div className="relative">
-          <button className="flex items-center gap-2 text-gray-600 hover:text-pink-500 focus:outline-none">
-            <User className="w-5 h-5" />
-            <span>{userData.fullName || 'User'}</span>
-            <ChevronDown className="w-4 h-4" />
-          </button>
-          {/* dropdown could be added later */}
-        </div>
+        
+        
       </div>
     </header>
   );

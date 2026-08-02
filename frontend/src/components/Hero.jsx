@@ -1,8 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import heroImage from '../assets/hero_illustration.png';
+import { useNavigate } from "react-router-dom";
 
 const Hero = () => {
+   const navigate = useNavigate();
   return (
     <section id="home" className="relative pt-20 pb-28 px-4 sm:px-6 lg:px-8 overflow-hidden bg-gradient-to-b from-[#FFF5F7] to-white">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-12 lg:gap-8">
@@ -25,12 +27,13 @@ const Hero = () => {
             Learn new skills, connect with like-minded women, and make productive use of your free time through personalized learning.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-            <button className="w-full sm:w-auto bg-pink-400 hover:bg-pink-500 text-white px-8 py-3 rounded-full font-medium shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
-              Get Started
-            </button>
-            <button className="w-full sm:w-auto bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 px-8 py-3 rounded-full font-medium shadow-sm hover:shadow transition-all">
-              Learn More
-            </button>
+            <button
+  onClick={() => navigate("/signup")}
+  className="w-full sm:w-auto bg-pink-400 hover:bg-pink-500 text-white px-8 py-3 rounded-full font-medium shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
+>
+  Get Started
+</button>
+            
           </div>
         </motion.div>
 

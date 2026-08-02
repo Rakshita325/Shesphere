@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Layers } from 'lucide-react';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
 import loginIllustration from '../assets/login_illustration.png';
+import api from '../services/api';
+
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
@@ -16,16 +18,38 @@ const GoogleIcon = () => (
 );
 
 const Login = () => {
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();
+  const { register, handleSubmit, setError, formState: { errors, isSubmitting } } = useForm();
+  const navigate = useNavigate();
+  const [serverError, setServerError] = useState('');
 
   const onSubmit = async (data) => {
-    // Simulate API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        console.log("Login submitted:", data);
-        resolve();
-      }, 1000);
-    });
+    setServerError('');
+    try {
+      const response = await api.post('/auth/login', {
+        email: data.email,
+        password: data.password
+      });
+
+      if (response.data && response.data.token) {
+        // Store JWT token in LocalStorage
+        localStorage.setItem('token', response.data.token);
+        // Redirect to Dashboard
+        navigate('/dashboard');
+      }
+    } catch (err) {
+      if (err.response && err.response.data) {
+        const { message, field } = err.response.data;
+        if (field && ['email', 'password'].includes(field)) {
+          setError(field, { type: 'server', message: message || 'Invalid credentials' });
+        } else {
+          setServerError(message || 'Login failed. Please check your details.');
+        }
+      } else if (err.request) {
+        setServerError('Network error. Unable to connect to backend server.');
+      } else {
+        setServerError('Server error. Please try again later.');
+      }
+    }
   };
 
   return (
@@ -65,6 +89,12 @@ const Login = () => {
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Log in to your account</h2>
           <p className="text-sm text-gray-500 mb-8">Enter your details below to continue.</p>
 
+          {serverError && (
+            <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm font-medium">
+              {serverError}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit(onSubmit)}>
             <Input 
               label="Email Address" 
@@ -101,19 +131,13 @@ const Login = () => {
               </div>
             </div>
 
-            <Button type="submit" isLoading={isSubmitting} className="mb-4">
+            <Button type="submit" isLoading={isSubmitting} disabled={isSubmitting} className="mb-4">
               Log In
             </Button>
 
-            <div className="flex items-center my-6">
-              <div className="flex-1 border-t border-gray-200"></div>
-              <span className="px-4 text-sm text-gray-400">or continue with</span>
-              <div className="flex-1 border-t border-gray-200"></div>
-            </div>
+            
 
-            <Button type="button" variant="outline" icon={<GoogleIcon />}>
-              Google
-            </Button>
+            
           </form>
 
           <p className="mt-8 text-center text-sm text-gray-600">

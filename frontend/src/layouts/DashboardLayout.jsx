@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import DashboardNavbar from '../components/DashboardNavbar';
+import TopNavbar from '../components/TopNavbar';
 import DashboardSidebar from '../components/DashboardSidebar';
 
 const DashboardLayout = () => {
@@ -8,7 +8,7 @@ const DashboardLayout = () => {
     <div className="flex h-screen bg-gray-50 font-poppins">
       <DashboardSidebar />
       <div className="flex flex-col flex-1 overflow-auto">
-        <DashboardNavbar />
+        <TopNavbar />
         <main className="flex-1 p-6 overflow-y-auto">
           <Outlet />
         </main>
