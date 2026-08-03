@@ -5,12 +5,16 @@ import gameService from '../services/gameService';
 import MemoryMatchGame from '../components/games/MemoryMatchGame';
 import WordleGame from '../components/games/WordleGame';
 import SudokuGame from '../components/games/SudokuGame';
+import Game2048 from '../components/games/Game2048';
+import FlipLearnGame from '../components/games/FlipLearnGame';
 import { ArrowLeft, Trophy, Gamepad2, Lock } from 'lucide-react';
 
 const GAME_COMPONENTS = {
   memory_match: MemoryMatchGame,
   wordle: WordleGame,
-  sudoku: SudokuGame
+  sudoku: SudokuGame,
+  '2048': Game2048,
+  flip_learn: FlipLearnGame,
 };
 
 const Games = () => {
