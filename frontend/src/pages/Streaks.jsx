@@ -1,25 +1,24 @@
 // src/pages/Streaks.jsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useUser } from '../context/UserContext';
 import CardBase from '../components/dashboard/CardBase';
 import { Calendar } from 'lucide-react';
-
-// Dummy data for the past 30 days (true = completed learning day)
-const generateMonthlyData = () => {
+import api from '../services/api';
+// Generate past 30 days dates and mark completed based on activeDates
+const generateMonthlyData = (activeDates = []) => {
   const days = [];
   const today = new Date();
   for (let i = 29; i >= 0; i--) {
     const date = new Date();
     date.setDate(today.getDate() - i);
+    const iso = date.toISOString().split('T')[0];
     days.push({
-      date: date.toISOString().split('T')[0],
-      completed: Math.random() > 0.3, // 70% chance completed
+      date: iso,
+      completed: activeDates.includes(iso),
     });
   }
   return days;
 };
-
-const monthlyData = generateMonthlyData();
 
 const milestones = [
   { days: 7, label: '7‑Day Learner' },
@@ -29,10 +28,18 @@ const milestones = [
 
 const Streaks = () => {
   const { userData, updateUserData } = useUser();
-  const streak = userData.streak || 0; // number of consecutive learning days
+  const [streakInfo, setStreakInfo] = useState(null);
 
-  // Ensure streak is at least 1 for demo if not set
-  const currentStreak = streak > 0 ? streak : 5;
+  // Fetch latest streak info from backend
+  useEffect(() => {
+    api.get('/streak')
+      .then((res) => setStreakInfo(res.data))
+      .catch((err) => console.error('Failed to fetch streak info', err));
+  }, []);
+
+  const currentStreak = streakInfo?.currentStreak ?? 0;
+  const activeDates = streakInfo?.activeDates ?? [];
+  const monthlyData = generateMonthlyData(activeDates);
 
   // Determine next milestone
   const nextMilestone = milestones.find(m => m.days > currentStreak) || milestones[milestones.length - 1];

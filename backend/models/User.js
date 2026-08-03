@@ -64,7 +64,34 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
-    badges: {
+    lastActiveDate: {
+      type: String,
+      default: ''
+    },
+    longestStreak: {
+      type: Number,
+      default: 0
+    },
+    totalActiveDays: {
+      type: Number,
+      default: 0
+    },
+    activeDates: {
+      type: [String],
+      default: []
+    },
+    badges: [
+      {
+        name: String,
+        icon: String,
+        description: String,
+        earnedAt: {
+          type: Date,
+          default: Date.now
+        }
+      }
+    ],
+    achievements: {
       type: Array,
       default: []
     },
