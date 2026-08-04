@@ -7,6 +7,7 @@ const videoRoutes = require('./routes/videoRoutes');
 const journalRoutes = require('./routes/journalRoutes');
 const streakRoutes = require('./routes/streakRoutes');
 const gameRoutes = require('./routes/gameRoutes');
+const aiRoutes = require('./routes/aiRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 8008;
@@ -24,6 +25,7 @@ app.use('/api/videos', videoRoutes);
 app.use('/api/journal', journalRoutes);
 app.use('/api/streak', streakRoutes);
 app.use('/api/games', gameRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Health check endpoints
 app.get('/ping', (req, res) => {
