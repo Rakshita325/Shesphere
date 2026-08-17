@@ -42,7 +42,7 @@ const TypingIndicator = () => (
     <div className="w-7 h-7 rounded-full bg-gradient-to-br from-pink-400 to-purple-400 flex items-center justify-center flex-shrink-0 shadow-sm">
       <Bot className="w-4 h-4 text-white" />
     </div>
-    <div className="bg-white border border-gray-100 rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm">
+    <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm text-gray-800 dark:text-gray-100">
       <div className="flex items-center gap-1.5">
         <span className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
         <span className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -86,7 +86,7 @@ const MessageBubble = ({ message }) => {
         className={`max-w-[82%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm whitespace-pre-wrap ${
           isUser
             ? 'bg-gradient-to-br from-pink-400 to-pink-500 text-white rounded-br-sm'
-            : 'bg-white border border-gray-100 text-gray-800 rounded-bl-sm'
+            : 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-750 text-gray-800 dark:text-gray-100 rounded-bl-sm'
         }`}
       >
         {isUser ? message.text : renderText(message.text)}
@@ -215,7 +215,7 @@ const AIChatbot = ({ isOpen, onClose }) => {
               inset-0
               /* Desktop / tablet: right-side drawer */
               md:inset-auto md:top-0 md:right-0 md:bottom-0 md:w-[400px]
-              bg-gray-50
+              bg-gray-50 dark:bg-gray-900 border-l border-gray-100 dark:border-gray-800
             `}
             style={{ fontFamily: "'Poppins', sans-serif" }}
           >
@@ -269,10 +269,10 @@ const AIChatbot = ({ isOpen, onClose }) => {
                     <Sparkles className="w-8 h-8 text-pink-500" />
                   </div>
 
-                  <h3 className="text-base font-semibold text-gray-800 mb-1">
+                  <h3 className="text-base font-semibold text-gray-800 dark:text-white mb-1">
                     Hi {userData?.fullName?.split(' ')[0] || 'there'}! 👋
                   </h3>
-                  <p className="text-sm text-gray-500 mb-5 px-4 leading-relaxed">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-5 px-4 leading-relaxed">
                     I'm your personal SheSphere AI mentor. Ask me anything about
                     learning, your progress, or starting a home business!
                   </p>
@@ -283,7 +283,7 @@ const AIChatbot = ({ isOpen, onClose }) => {
                       <button
                         key={chip}
                         onClick={() => handleSend(chip)}
-                        className="text-xs bg-white border border-pink-200 text-pink-600 rounded-full px-3 py-1.5 hover:bg-pink-50 hover:border-pink-300 transition-colors shadow-sm"
+                        className="text-xs bg-white dark:bg-gray-800 border border-pink-200 dark:border-pink-900/40 text-pink-600 dark:text-pink-400 rounded-full px-3 py-1.5 hover:bg-pink-50 dark:hover:bg-pink-900/10 hover:border-pink-300 dark:hover:border-pink-900/50 transition-colors shadow-sm"
                       >
                         {chip}
                       </button>
@@ -305,7 +305,7 @@ const AIChatbot = ({ isOpen, onClose }) => {
             </div>
 
             {/* ── Input area ────────────────────────────────────────── */}
-            <div className="flex-shrink-0 px-4 py-3 bg-white border-t border-gray-100 shadow-inner">
+            <div className="flex-shrink-0 px-4 py-3 bg-white dark:bg-gray-850 border-t border-gray-100 dark:border-gray-800 shadow-inner">
               <div className="flex items-end gap-2">
                 <textarea
                   ref={inputRef}
@@ -315,7 +315,7 @@ const AIChatbot = ({ isOpen, onClose }) => {
                   placeholder="Ask me anything..."
                   rows={1}
                   disabled={isTyping}
-                  className="flex-1 resize-none border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-transparent transition-all disabled:opacity-50 max-h-28 overflow-y-auto"
+                  className="flex-1 resize-none border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-xl px-3 py-2.5 text-sm text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-300 focus:border-transparent transition-all disabled:opacity-50 max-h-28 overflow-y-auto"
                   style={{ lineHeight: '1.5' }}
                   onInput={(e) => {
                     // Auto-grow textarea
@@ -332,7 +332,7 @@ const AIChatbot = ({ isOpen, onClose }) => {
                   <Send className="w-4 h-4" />
                 </button>
               </div>
-              <p className="text-center text-xs text-gray-400 mt-2">
+              <p className="text-center text-xs text-gray-400 dark:text-gray-500 mt-2">
                 Powered by Google Gemini · Press Enter to send
               </p>
             </div>

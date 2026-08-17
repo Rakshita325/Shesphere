@@ -46,8 +46,23 @@ export const UserProvider = ({ children }) => {
     setUserData((prev) => ({ ...prev, ...newData }));
   };
 
+  const logout = () => {
+    localStorage.removeItem('token');
+    setUserData({
+      profilePicture: null,
+      fullName: '',
+      email: '',
+      language: '',
+      education: '',
+      age: '',
+      occupation: '',
+      dailyFreeTime: '',
+      interest: ''
+    });
+  };
+
   return (
-    <UserContext.Provider value={{ userData, updateUserData }}>
+    <UserContext.Provider value={{ userData, updateUserData, logout }}>
       {children}
     </UserContext.Provider>
   );

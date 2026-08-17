@@ -19,8 +19,8 @@ const Journal = () => {
   }, []);
 
   return (
-    <CardBase className="p-6 max-w-5xl mx-auto bg-white rounded-xl shadow-lg">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">My Journal</h2>
+    <CardBase className="p-6 max-w-5xl mx-auto bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-100 dark:border-gray-700 shadow-lg transition-colors">
+      <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">My Journal</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Left Section — Editor (≈70%) */}
         <div className="md:col-span-2">

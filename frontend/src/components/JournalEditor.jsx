@@ -77,15 +77,15 @@ const JournalEditor = ({ selectedDate, onDateChange, onSaveSuccess }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-4">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 text-gray-900 dark:text-white transition-colors">
       {/* Date & Mood Row */}
       <div className="flex items-center gap-4 mb-4 flex-wrap">
-        <Calendar className="w-5 h-5 text-pink-400" />
+        <Calendar className="w-5 h-5 text-pink-400 dark:text-pink-300" />
         <input
           type="date"
           value={selectedDate}
           onChange={(e) => onDateChange && onDateChange(e.target.value)}
-          className="border border-gray-200 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-pink-300"
+          className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-pink-300"
         />
         <div className="flex items-center gap-2">
           {moods.map((m) => (
@@ -93,7 +93,7 @@ const JournalEditor = ({ selectedDate, onDateChange, onSaveSuccess }) => {
               key={m.value}
               type="button"
               onClick={() => setSelectedMood(m.value)}
-              className={`text-2xl p-1 rounded-md transition-colors ${selectedMood === m.value ? 'bg-pink-100 ring-2 ring-pink-300' : ''
+              className={`text-2xl p-1 rounded-md transition-colors ${selectedMood === m.value ? 'bg-pink-100 dark:bg-pink-900/40 ring-2 ring-pink-300' : 'hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
             >
               {m.label}
@@ -107,16 +107,16 @@ const JournalEditor = ({ selectedDate, onDateChange, onSaveSuccess }) => {
         value={content}
         onChange={(e) => setContent(e.target.value)}
         placeholder="Write your thoughts…"
-        className="w-full h-48 border border-gray-200 rounded-md p-3 resize-none focus:outline-none focus:ring-2 focus:ring-pink-300"
+        className="w-full h-48 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-md p-3 resize-none focus:outline-none focus:ring-2 focus:ring-pink-300"
       />
 
       {/* Footer */}
       <div className="flex items-center justify-between mt-4">
-        <span className="text-sm text-gray-500">{message}</span>
+        <span className="text-sm text-gray-500 dark:text-gray-400">{message}</span>
         <button
           onClick={handleSave}
           disabled={saving || !content.trim()}
-          className="px-5 py-2 bg-pink-400 text-white rounded-md hover:bg-pink-500 disabled:opacity-50 transition-colors"
+          className="px-5 py-2 bg-pink-400 dark:bg-pink-500 text-white rounded-md hover:bg-pink-500 dark:hover:bg-pink-600 disabled:opacity-50 transition-colors"
         >
           {saving ? 'Saving…' : 'Save Entry'}
         </button>

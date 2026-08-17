@@ -9,7 +9,7 @@ const Input = forwardRef(({ label, error, type = 'text', className = '', ...prop
   return (
     <div className="w-full flex flex-col gap-1.5 mb-4 relative">
       {label && (
-        <label className="text-sm font-medium text-gray-700">
+        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
           {label}
         </label>
       )}
@@ -17,8 +17,8 @@ const Input = forwardRef(({ label, error, type = 'text', className = '', ...prop
         <input
           ref={ref}
           type={inputType}
-          className={`w-full px-4 py-2.5 rounded-lg border bg-white focus:outline-none focus:ring-2 focus:ring-pastel-pink transition-all ${
-            error ? 'border-red-400 focus:border-red-400 focus:ring-red-200' : 'border-gray-200 focus:border-pastel-pink'
+          className={`w-full px-4 py-2.5 rounded-lg border bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pastel-pink dark:focus:ring-pink-900/50 transition-all ${
+            error ? 'border-red-400 focus:border-red-400 focus:ring-red-200' : 'border-gray-200 dark:border-gray-700 focus:border-pastel-pink dark:focus:border-pink-400'
           } ${className} ${isPassword ? 'pr-10' : ''}`}
           {...props}
         />
@@ -26,7 +26,7 @@ const Input = forwardRef(({ label, error, type = 'text', className = '', ...prop
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none"
           >
             {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
           </button>
