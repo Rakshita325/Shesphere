@@ -55,33 +55,33 @@ const JournalHistory = ({ selectedDate, onSelectDate, refreshKey }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-4 flex flex-col" style={{ maxHeight: '520px' }}>
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex flex-col text-gray-900 dark:text-white transition-colors" style={{ maxHeight: '520px' }}>
       {/* Header */}
       <div className="flex items-center gap-2 mb-3">
-        <BookOpen className="w-5 h-5 text-pink-400" />
-        <h3 className="text-lg font-semibold text-gray-800">Journal History</h3>
+        <BookOpen className="w-5 h-5 text-pink-400 dark:text-pink-300" />
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Journal History</h3>
       </div>
 
       {/* Search */}
       <div className="relative mb-3">
-        <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
         <input
           type="text"
           placeholder="Search by date (e.g. 2026-08)"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-8 pr-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-pink-300"
+          className="w-full pl-8 pr-3 py-2 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-pink-300"
         />
       </div>
 
       {/* Scrollable list */}
       <div className="flex-1 overflow-y-auto space-y-2 pr-1" style={{ scrollbarWidth: 'thin' }}>
         {loading && (
-          <p className="text-sm text-gray-400 text-center py-6">Loading…</p>
+          <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-6">Loading…</p>
         )}
 
         {!loading && filtered.length === 0 && (
-          <p className="text-sm text-gray-400 text-center py-6">No journal entries yet.</p>
+          <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-6">No journal entries yet.</p>
         )}
 
         {!loading &&
@@ -93,12 +93,12 @@ const JournalHistory = ({ selectedDate, onSelectDate, refreshKey }) => {
                 onClick={() => onSelectDate && onSelectDate(entry.date)}
                 className={`w-full text-left px-3 py-2.5 rounded-lg border transition-all duration-150 ${
                   isActive
-                    ? 'bg-pink-50 border-pink-300 shadow-sm'
-                    : 'bg-gray-50 border-transparent hover:bg-pink-50/60 hover:border-pink-200'
+                    ? 'bg-pink-50 dark:bg-pink-950/20 border-pink-300 dark:border-pink-900/50 shadow-sm'
+                    : 'bg-gray-50 dark:bg-gray-750 border-transparent dark:border-gray-700 hover:bg-pink-50/60 dark:hover:bg-pink-950/10 hover:border-pink-200 dark:hover:border-pink-900/30'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className={`text-sm font-medium ${isActive ? 'text-pink-600' : 'text-gray-700'}`}>
+                  <span className={`text-sm font-medium ${isActive ? 'text-pink-600 dark:text-pink-400' : 'text-gray-700 dark:text-gray-300'}`}>
                     {formatDate(entry.date)}
                   </span>
                   <span className="text-xl" title={entry.mood}>

@@ -53,11 +53,11 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-pastel-pink/20 via-white to-pastel-lavender/30 font-poppins">
-      <div className="w-full max-w-4xl bg-white rounded-2xl shadow-xl flex flex-col md:flex-row overflow-hidden border border-gray-100">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-pastel-pink/20 via-white to-pastel-lavender/30 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 font-poppins">
+      <div className="w-full max-w-4xl bg-white dark:bg-gray-800 rounded-2xl shadow-xl flex flex-col md:flex-row overflow-hidden border border-gray-100 dark:border-gray-700">
         
         {/* Left Side - Image/Branding */}
-        <div className="w-full md:w-1/2 bg-pastel-lavender/20 flex-col items-center justify-center p-10 relative hidden md:flex">
+        <div className="w-full md:w-1/2 bg-pastel-lavender/20 dark:bg-gray-900/60 flex-col items-center justify-center p-10 relative hidden md:flex">
           <div className="absolute top-8 left-8 flex items-center gap-2">
             <Link to="/" className="flex items-center gap-2">
               <Layers className="h-6 w-6 text-pink-400" />
@@ -70,8 +70,8 @@ const Login = () => {
             <img src={loginIllustration} alt="Login Illustration" className="w-full drop-shadow-lg rounded-2xl" />
           </div>
           <div className="mt-8 text-center">
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">Welcome Back</h3>
-            <p className="text-gray-500 text-sm leading-relaxed">
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">Welcome Back</h3>
+            <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
               Continue your journey of learning, growing, and connecting with inspiring women.
             </p>
           </div>
@@ -82,15 +82,15 @@ const Login = () => {
           <div className="md:hidden flex items-center gap-2 mb-8 justify-center">
             <Link to="/" className="flex items-center gap-2">
               <Layers className="h-6 w-6 text-pink-400" />
-              <span className="text-xl font-bold text-gray-900">SheSphere</span>
+              <span className="text-xl font-bold text-gray-900 dark:text-white">SheSphere</span>
             </Link>
           </div>
           
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Log in to your account</h2>
-          <p className="text-sm text-gray-500 mb-8">Enter your details below to continue.</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Log in to your account</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">Enter your details below to continue.</p>
 
           {serverError && (
-            <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm font-medium">
+            <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 text-sm font-medium">
               {serverError}
             </div>
           )}
@@ -140,7 +140,7 @@ const Login = () => {
             
           </form>
 
-          <p className="mt-8 text-center text-sm text-gray-600">
+          <p className="mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
             Don't have an account?{' '}
             <Link to="/signup" className="font-semibold text-pink-500 hover:text-pink-600 transition-colors">
               Sign up

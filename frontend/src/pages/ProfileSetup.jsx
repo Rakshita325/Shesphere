@@ -46,8 +46,8 @@ const ProfileSetup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-pastel-pink/10 to-white flex flex-col font-poppins pb-12">
-      <div className="w-full bg-white/80 backdrop-blur-md shadow-sm p-4 flex justify-center mb-8 sticky top-0 z-10 border-b border-pastel-lavender/50">
+    <div className="min-h-screen bg-gradient-to-b from-pastel-pink/10 to-white dark:from-gray-900 dark:to-gray-950 flex flex-col font-poppins pb-12 text-gray-900 dark:text-white transition-colors">
+      <div className="w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow-sm p-4 flex justify-center mb-8 sticky top-0 z-10 border-b border-pastel-lavender/50 dark:border-gray-800">
         <div className="flex items-center gap-2">
           <Layers className="h-8 w-8 text-pink-400" />
           <span className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-purple-400 bg-clip-text text-transparent">
@@ -57,13 +57,13 @@ const ProfileSetup = () => {
       </div>
 
       <div className="max-w-3xl w-full mx-auto px-4 sm:px-6">
-        <div className="bg-white rounded-3xl shadow-lg border border-pastel-lavender/30 p-8 sm:p-12 relative overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg border border-pastel-lavender/30 dark:border-gray-700 p-8 sm:p-12 relative overflow-hidden">
           {/* Decorative background shape */}
           <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 rounded-full bg-pastel-lavender/20 blur-3xl pointer-events-none"></div>
 
           <div className="text-center mb-10 relative z-10">
-            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">Complete Your Profile</h1>
-            <p className="text-gray-500 text-lg">Tell us a bit about yourself so we can personalize your experience.</p>
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-3">Complete Your Profile</h1>
+            <p className="text-gray-500 dark:text-gray-400 text-lg">Tell us a bit about yourself so we can personalize your experience.</p>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 relative z-10">
@@ -71,7 +71,7 @@ const ProfileSetup = () => {
             {/* Profile Picture Upload */}
             <div className="flex flex-col items-center justify-center mb-10">
               <div className="relative group cursor-pointer transition-transform hover:scale-105">
-                <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-pastel-pink/30 overflow-hidden bg-pastel-lavender/10 flex items-center justify-center shadow-inner">
+                <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-pastel-pink/30 overflow-hidden bg-pastel-lavender/10 dark:bg-gray-700/50 flex items-center justify-center shadow-inner">
                   {previewImage ? (
                     <img src={previewImage} alt="Profile Preview" className="w-full h-full object-cover" />
                   ) : (
@@ -88,7 +88,7 @@ const ProfileSetup = () => {
                   onChange={handleImageChange}
                 />
               </div>
-              <p className="text-sm text-gray-500 mt-4 font-medium">Upload Profile Picture (Optional)</p>
+              <p className="text-sm text-gray-500 dark:text-gray-450 mt-4 font-medium">Upload Profile Picture (Optional)</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
@@ -96,10 +96,8 @@ const ProfileSetup = () => {
                 label="Preferred Language"
                 options={[
                   { value: 'english', label: 'English' },
-                  { value: 'spanish', label: 'Spanish' },
-                  { value: 'french', label: 'French' },
                   { value: 'hindi', label: 'Hindi' },
-                  { value: 'mandarin', label: 'Mandarin' }
+                  { value: 'kannada', label: 'Kannada' }
                 ]}
                 {...register('language', { required: 'Language is required' })}
                 error={errors.language?.message}
@@ -123,7 +121,7 @@ const ProfileSetup = () => {
                 type="number" 
                 placeholder="e.g. 25"
                 {...register('age', { 
-                  required: 'Age is required',
+                   required: 'Age is required',
                   min: { value: 13, message: 'You must be at least 13' },
                   max: { value: 120, message: 'Please enter a valid age' }
                 })}
@@ -153,7 +151,7 @@ const ProfileSetup = () => {
               />
             </div>
 
-            <div className="flex flex-col-reverse sm:flex-row items-center justify-between pt-8 border-t border-gray-100 gap-4">
+            <div className="flex flex-col-reverse sm:flex-row items-center justify-between pt-8 border-t border-gray-100 dark:border-gray-700 gap-4">
               <Button 
                 type="button" 
                 variant="ghost" 

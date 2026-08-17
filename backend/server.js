@@ -8,6 +8,8 @@ const journalRoutes = require('./routes/journalRoutes');
 const streakRoutes = require('./routes/streakRoutes');
 const gameRoutes = require('./routes/gameRoutes');
 const aiRoutes = require('./routes/aiRoutes');
+const marketplaceRoutes = require('./routes/marketplaceRoutes');
+const orderRoutes = require('./routes/orderRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 8008;
@@ -26,6 +28,8 @@ app.use('/api/journal', journalRoutes);
 app.use('/api/streak', streakRoutes);
 app.use('/api/games', gameRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/marketplace', marketplaceRoutes);
+app.use('/api/marketplace/orders', orderRoutes);
 
 // Health check endpoints
 app.get('/ping', (req, res) => {
@@ -40,4 +44,4 @@ app.get('/', (req, res) => {
 // Start the Express Server
 app.listen(PORT, () => {
     console.log(`🚀 SheSphere Server running on http://localhost:${PORT}`);
-});
+});

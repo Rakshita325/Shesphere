@@ -10,8 +10,8 @@ const CommunityPostCard = ({ post }) => {
       <div className="flex items-center gap-3">
         <img src={post.avatar} alt={post.user} className="w-10 h-10 rounded-full" />
         <div>
-          <p className="font-medium text-gray-800">{post.user}</p>
-          <p className="text-sm text-gray-500">{post.date}</p>
+          <p className="font-medium text-gray-800 dark:text-white">{post.user}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{post.date}</p>
         </div>
       </div>
       {post.image && (
@@ -23,8 +23,8 @@ const CommunityPostCard = ({ post }) => {
           Your browser does not support the video tag.
         </video>
       )}
-      {post.caption && <p className="text-gray-800 whitespace-pre-wrap">{post.caption}</p>}
-      <div className="flex items-center gap-6 text-gray-600">
+      {post.caption && <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap">{post.caption}</p>}
+      <div className="flex items-center gap-6 text-gray-600 dark:text-gray-300">
         <button className="flex items-center gap-1 hover:text-pink-500 transition-colors">
           <Heart className="w-5 h-5" /> Like
         </button>
@@ -82,12 +82,12 @@ const Community = () => {
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
             placeholder="Write a caption..."
-            className="w-full border border-gray-200 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-pink-300"
+            className="w-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-850 text-gray-800 dark:text-white rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-pink-300"
             rows={3}
           />
           <div className="flex items-center gap-4">
-            <label className="flex items-center gap-1 text-gray-600 cursor-pointer">
-              <Image className="w-5 h-5" />
+            <label className="flex items-center gap-1 text-gray-600 dark:text-gray-300 cursor-pointer">
+              <Image className="w-5 h-5 text-pink-400 dark:text-pink-350" />
               <span>Image</span>
               <input
                 type="file"
@@ -96,8 +96,8 @@ const Community = () => {
                 className="hidden"
               />
             </label>
-            <label className="flex items-center gap-1 text-gray-600 cursor-pointer">
-              <Video className="w-5 h-5" />
+            <label className="flex items-center gap-1 text-gray-600 dark:text-gray-300 cursor-pointer">
+              <Video className="w-5 h-5 text-pink-400 dark:text-pink-350" />
               <span>Video</span>
               <input
                 type="file"
@@ -110,7 +110,7 @@ const Community = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-5 py-2 bg-pink-400 text-white rounded-md hover:bg-pink-500 transition-colors"
+            className="px-5 py-2 bg-pink-400 dark:bg-pink-500 text-white rounded-md hover:bg-pink-500 dark:hover:bg-pink-600 transition-colors"
           >
             {isSubmitting ? 'Sharing...' : 'Share'}
           </button>

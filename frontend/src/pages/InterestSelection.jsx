@@ -42,8 +42,8 @@ const InterestSelection = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-pastel-pink/10 to-white flex flex-col font-poppins pb-12">
-      <div className="w-full bg-white/80 backdrop-blur-md shadow-sm p-4 flex justify-center mb-8 sticky top-0 z-10 border-b border-pastel-lavender/50">
+    <div className="min-h-screen bg-gradient-to-b from-pastel-pink/10 to-white dark:from-gray-900 dark:to-gray-950 flex flex-col font-poppins pb-12 text-gray-900 dark:text-white transition-colors">
+      <div className="w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow-sm p-4 flex justify-center mb-8 sticky top-0 z-10 border-b border-pastel-lavender/50 dark:border-gray-800">
         <div className="flex items-center gap-2">
           <Layers className="h-8 w-8 text-pink-400" />
           <span className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-purple-400 bg-clip-text text-transparent">
@@ -54,8 +54,8 @@ const InterestSelection = () => {
 
       <div className="max-w-5xl w-full mx-auto px-4 sm:px-6 relative z-10">
         <div className="text-center mb-10">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">What do you want to learn?</h1>
-          <p className="text-gray-500 text-lg">Select your primary interest to tailor a personalized learning path.</p>
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">What do you want to learn?</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-lg">Select your primary interest to tailor a personalized learning path.</p>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 mb-12">
@@ -72,20 +72,20 @@ const InterestSelection = () => {
                 onClick={() => setSelectedInterest(interest.id)}
                 className={`relative cursor-pointer rounded-2xl p-6 sm:p-8 flex flex-col items-center text-center transition-all duration-300 ${
                   isSelected 
-                    ? 'border-2 border-pink-400 shadow-[0_8px_30px_rgb(244,114,182,0.2)] bg-white transform -translate-y-1' 
-                    : 'border border-gray-100 bg-white hover:border-pink-200 hover:shadow-md hover:-translate-y-1'
+                    ? 'border-2 border-pink-400 shadow-[0_8px_30px_rgb(244,114,182,0.2)] bg-white dark:bg-gray-800 transform -translate-y-1' 
+                    : 'border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-pink-200 dark:hover:border-pink-900/30 hover:shadow-md hover:-translate-y-1'
                 }`}
               >
                 {isSelected && (
                   <div className="absolute top-4 right-4">
-                    <div className="w-3 h-3 rounded-full bg-pink-400 ring-4 ring-pink-100" />
+                    <div className="w-3 h-3 rounded-full bg-pink-400 ring-4 ring-pink-100 dark:ring-pink-950" />
                   </div>
                 )}
                 
-                <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center mb-4 ${interest.bgColor} ${interest.color} transition-transform duration-300 ${isSelected ? 'scale-110' : ''}`}>
+                <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center mb-4 ${interest.bgColor} dark:bg-gray-700/50 ${interest.color} transition-transform duration-300 ${isSelected ? 'scale-110' : ''}`}>
                   <Icon className="w-8 h-8 sm:w-10 sm:h-10" />
                 </div>
-                <span className={`font-semibold sm:text-lg ${isSelected ? 'text-gray-900' : 'text-gray-600'}`}>
+                <span className={`font-semibold sm:text-lg ${isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-300'}`}>
                   {interest.label}
                 </span>
               </motion.div>

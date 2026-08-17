@@ -52,11 +52,11 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-pastel-pink/20 via-white to-pastel-lavender/30 font-poppins">
-      <div className="w-full max-w-5xl bg-white rounded-3xl shadow-xl flex flex-col md:flex-row overflow-hidden border border-gray-100 my-8">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-pastel-pink/20 via-white to-pastel-lavender/30 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 font-poppins">
+      <div className="w-full max-w-5xl bg-white dark:bg-gray-800 rounded-3xl shadow-xl flex flex-col md:flex-row overflow-hidden border border-gray-100 dark:border-gray-700 my-8">
         
         {/* Left Side - Image/Branding */}
-        <div className="w-full md:w-5/12 bg-pastel-pink/10 flex-col items-center justify-center p-10 relative hidden md:flex border-r border-gray-100">
+        <div className="w-full md:w-5/12 bg-pastel-pink/10 dark:bg-gray-900/60 flex-col items-center justify-center p-10 relative hidden md:flex border-r border-gray-100 dark:border-gray-700">
           <div className="absolute top-8 left-8 flex items-center gap-2">
             <Link to="/" className="flex items-center gap-2">
               <Layers className="h-6 w-6 text-pink-400" />
@@ -69,8 +69,8 @@ const Signup = () => {
             <img src={heroIllustration} alt="Women learning and growing" className="w-full drop-shadow-lg" />
           </div>
           <div className="mt-12 text-center max-w-xs">
-            <h3 className="text-2xl font-bold text-gray-800 mb-3">Join the Community</h3>
-            <p className="text-gray-500 text-sm leading-relaxed">
+            <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-3">Join the Community</h3>
+            <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
               Empower yourself through smart learning, connect with like-minded women, and track your progress daily.
             </p>
           </div>
@@ -81,21 +81,21 @@ const Signup = () => {
           <div className="md:hidden flex items-center gap-2 mb-8 justify-center">
             <Link to="/" className="flex items-center gap-2">
               <Layers className="h-6 w-6 text-pink-400" />
-              <span className="text-xl font-bold text-gray-900">SheSphere</span>
+              <span className="text-xl font-bold text-gray-900 dark:text-white">SheSphere</span>
             </Link>
           </div>
           
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Create an account</h2>
-          <p className="text-base text-gray-500 mb-8">Start your journey with SheSphere today.</p>
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Create an account</h2>
+          <p className="text-base text-gray-500 dark:text-gray-400 mb-8">Start your journey with SheSphere today.</p>
 
           {serverError && (
-            <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm font-medium">
+            <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 text-sm font-medium">
               {serverError}
             </div>
           )}
 
           {successMessage && (
-            <div className="mb-4 p-3 rounded-lg bg-green-50 border border-green-200 text-green-600 text-sm font-medium">
+            <div className="mb-4 p-3 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900 text-green-600 dark:text-green-400 text-sm font-medium">
               {successMessage}
             </div>
           )}
@@ -176,7 +176,7 @@ const Signup = () => {
             </div>
           </form>
 
-          <p className="mt-8 text-center text-sm text-gray-600">
+          <p className="mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
             Already have an account?{' '}
             <Link to="/login" className="font-semibold text-pink-500 hover:text-pink-600 transition-colors">
               Log in

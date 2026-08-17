@@ -35,7 +35,7 @@ const RecommendedVideos = () => {
   if (loading) {
     return (
       <CardBase className="col-span-1 md:col-span-2 lg:col-span-3">
-        <h3 className="text-xl font-semibold text-gray-800 mb-4">Recommended Videos</h3>
+        <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Recommended Videos</h3>
         <p>Loading videos...</p>
       </CardBase>
     );
@@ -44,7 +44,7 @@ const RecommendedVideos = () => {
   if (error) {
     return (
       <CardBase className="col-span-1 md:col-span-2 lg:col-span-3">
-        <h3 className="text-xl font-semibold text-gray-800 mb-4">Recommended Videos</h3>
+        <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Recommended Videos</h3>
         <p className="text-red-500">{error}</p>
       </CardBase>
     );
@@ -52,7 +52,7 @@ const RecommendedVideos = () => {
 
   return (
     <CardBase className="col-span-1 md:col-span-2 lg:col-span-3">
-      <h3 className="text-xl font-semibold text-gray-800 mb-4">Recommended Videos</h3>
+      <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Recommended Videos</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 h-96 overflow-y-auto">
         {videos.map((v) => (
           <MediaCard

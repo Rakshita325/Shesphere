@@ -7,8 +7,8 @@ const WelcomeCard = () => {
   const name = userData.fullName || 'Friend';
   return (
     <CardBase className="col-span-1 md:col-span-2 lg:col-span-3">
-      <h2 className="text-2xl font-semibold text-gray-800">Welcome back, {name}!</h2>
-      <p className="mt-2 text-gray-600">Ready to continue your learning journey today?</p>
+      <h2 className="text-2xl font-semibold text-gray-800 dark:text-white">Welcome back, {name}!</h2>
+      <p className="mt-2 text-gray-600 dark:text-gray-300">Ready to continue your learning journey today?</p>
     </CardBase>
   );
 };

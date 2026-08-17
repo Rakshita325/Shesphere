@@ -22,13 +22,13 @@ const DashboardNavbar = () => {
   };
 
   return (
-    <header className="flex items-center justify-between px-4 py-3 bg-white shadow-sm border-b border-pastel-lavender/30">
+    <header className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-900 shadow-sm border-b border-pastel-lavender/30 dark:border-gray-800 transition-colors">
       <div className="flex items-center gap-4 w-full max-w-md">
         <Search className="w-5 h-5 text-gray-500" />
         <input
           type="text"
           placeholder="Search..."
-          className="flex-1 border border-gray-200 rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-pink-300"
+          className="flex-1 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-white rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-pink-300"
         />
       </div>
       <div className="flex items-center gap-4">

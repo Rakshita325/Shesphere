@@ -71,14 +71,14 @@ const Games = () => {
         <div className="flex items-center gap-3 mb-6">
           <button
             onClick={handleBack}
-            className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl shadow-sm border border-gray-100 text-gray-600 hover:text-pink-500 hover:border-pink-200 transition-all duration-200"
+            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 hover:border-pink-200 dark:hover:border-pink-900/50 transition-all duration-200"
           >
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm font-medium">Back to Games</span>
           </button>
           <div className="flex items-center gap-2">
             <span className="text-2xl">{gameDef?.icon}</span>
-            <h2 className="text-xl font-bold text-gray-800">{gameDef?.name}</h2>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-white">{gameDef?.name}</h2>
           </div>
         </div>
         <GameComponent
@@ -108,15 +108,15 @@ const Games = () => {
         <div className="flex justify-center py-16">
           <div className="flex flex-col items-center gap-3">
             <div className="w-10 h-10 border-4 border-pink-200 border-t-pink-500 rounded-full animate-spin" />
-            <p className="text-gray-500 text-sm">Loading games…</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">Loading games…</p>
           </div>
         </div>
       )}
 
       {/* Error State */}
       {error && !loading && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-          <p className="text-red-600">{error}</p>
+        <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/50 rounded-xl p-6 text-center">
+          <p className="text-red-600 dark:text-red-400">{error}</p>
           <button
             onClick={() => window.location.reload()}
             className="mt-3 px-4 py-2 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600 transition-colors"
@@ -138,7 +138,7 @@ const Games = () => {
             return (
               <div
                 key={game.id}
-                className={`group relative bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${isPlayedToday ? 'opacity-80' : ''
+                className={`group relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-lg dark:hover:shadow-pink-950/20 hover:-translate-y-1 ${isPlayedToday ? 'opacity-80' : ''
                   }`}
               >
                 {/* Color gradient header */}
@@ -150,12 +150,12 @@ const Games = () => {
 
                 {/* Card Body */}
                 <div className="p-5">
-                  <h3 className="text-lg font-bold text-gray-800 mb-1">{game.name}</h3>
-                  <p className="text-sm text-gray-500 mb-3 leading-relaxed">{game.description}</p>
+                  <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-1">{game.name}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 leading-relaxed">{game.description}</p>
 
                   {/* Stats row */}
-                  <div className="flex items-center gap-4 mb-4 text-xs text-gray-400">
-                    <span className="bg-gray-100 px-2 py-1 rounded-full font-medium">
+                  <div className="flex items-center gap-4 mb-4 text-xs text-gray-400 dark:text-gray-500">
+                    <span className="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-2 py-1 rounded-full font-medium">
                       {game.difficulty}
                     </span>
                     {highScore > 0 && (
@@ -174,12 +174,12 @@ const Games = () => {
                     <div className="space-y-2">
                       <button
                         disabled
-                        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-100 text-gray-400 rounded-xl font-medium cursor-not-allowed"
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 rounded-xl font-medium cursor-not-allowed"
                       >
                         <Lock className="w-4 h-4" />
                         Completed Today
                       </button>
-                      <p className="text-xs text-center text-gray-400">
+                      <p className="text-xs text-center text-gray-400 dark:text-gray-500">
                         You've already played today's game. Come back tomorrow!
                       </p>
                     </div>
