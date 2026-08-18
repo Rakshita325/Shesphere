@@ -26,7 +26,7 @@ async function seedDatabase() {
 
     for (const [category, query] of Object.entries(categoryQueries)) {
       console.log(`🔍 Searching videos for category: "${category}"...`);
-      
+
       // Perform quota-free search using yt-search
       const searchResult = await yts(query);
       const videosFound = searchResult.videos.slice(0, 25); // Grab top 25 videos per category
