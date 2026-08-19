@@ -85,30 +85,39 @@ const Settings = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-4 sm:p-6 space-y-5 font-poppins min-h-screen">
-      
+    <div className="max-w-4xl mx-auto space-y-6 font-poppins min-h-screen pb-12">
       {/* Page Header */}
-      <div className="mb-2">
-        <h1 className="text-xl font-bold text-gray-900 dark:text-white">Settings</h1>
-        <p className="text-xs text-gray-500 dark:text-gray-400">Manage your language, theme, and security settings.</p>
+      <div className="flex items-center gap-3 border-b border-gray-100 dark:border-gray-800 pb-5">
+        <div className="p-3 rounded-2xl bg-pink-50 dark:bg-pink-950/60 border border-pink-100 dark:border-pink-900/50 text-pink-500 shrink-0">
+          <Globe className="w-6 h-6" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-[var(--text-main)]">Settings</h1>
+          <p className="text-sm text-[var(--text-muted)]">Manage your language preferences, theme appearance, and security settings.</p>
+        </div>
       </div>
 
       {/* 🌐 Section 1: Language */}
-      <CardBase className="p-4 sm:p-5 border border-gray-200 dark:border-gray-800 shadow-sm rounded-2xl bg-white dark:bg-gray-800 transition-colors">
-        <div className="flex items-center gap-2 mb-3">
-          <Globe className="w-4 h-4 text-pink-600 dark:text-pink-400" />
-          <h2 className="text-sm font-bold text-gray-800 dark:text-white">Language Preferences</h2>
+      <div className="glass-card rounded-3xl p-6 space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-xl bg-pink-50 dark:bg-pink-950/60 text-pink-500">
+            <Globe className="w-5 h-5" />
+          </div>
+          <div>
+            <h2 className="text-base font-bold text-[var(--text-main)]">Language Preferences</h2>
+            <p className="text-xs text-[var(--text-muted)]">Choose your preferred language for the SheSphere dashboard</p>
+          </div>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-4 pt-2">
           <div>
-            <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">
+            <label className="block text-xs font-semibold text-[var(--text-main)] mb-2">
               Display Language
             </label>
             <select
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
-              className="w-full sm:w-64 px-3 py-1.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-xs text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-400 cursor-pointer transition-colors"
+              className="w-full sm:w-72 h-12 px-4 bg-gray-50/60 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-2xl text-sm font-medium text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-pink-300 dark:focus:ring-pink-500/30 focus:border-pink-500 cursor-pointer transition-all"
             >
               <option value="english">English</option>
               <option value="hindi">Hindi</option>
@@ -117,10 +126,10 @@ const Settings = () => {
           </div>
 
           {langMessage.text && (
-            <div className={`flex items-center gap-1.5 text-xs font-medium ${
+            <div className={`flex items-center gap-2 text-xs font-semibold ${
               langMessage.type === 'success' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
             }`}>
-              {langMessage.type === 'success' ? <CheckCircle2 className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
+              {langMessage.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
               <span>{langMessage.text}</span>
             </div>
           )}
@@ -129,59 +138,95 @@ const Settings = () => {
             <button
               onClick={handleSaveLanguage}
               disabled={langSaving}
-              className="px-4 py-1.5 bg-pink-600 hover:bg-pink-700 text-white text-xs font-semibold rounded-xl shadow-sm transition disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+              className="px-6 py-2.5 bg-pink-500 hover:bg-pink-600 text-white text-xs font-bold rounded-full shadow-md transition disabled:opacity-50 flex items-center gap-2 cursor-pointer"
             >
-              {langSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
-              Save Language
+              {langSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              <span>Save Language</span>
             </button>
           </div>
         </div>
-      </CardBase>
+      </div>
 
       {/* 🎨 Section 2: Theme */}
-      <CardBase className="p-4 sm:p-5 border border-gray-200 dark:border-gray-800 shadow-sm rounded-2xl bg-white dark:bg-gray-800 transition-colors">
-        <div className="flex items-center gap-2 mb-3">
-          <Palette className="w-4 h-4 text-pink-600 dark:text-pink-400" />
-          <h2 className="text-sm font-bold text-gray-800 dark:text-white">Appearance Theme</h2>
+      <div className="glass-card rounded-3xl p-6 space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-500">
+            <Palette className="w-5 h-5" />
+          </div>
+          <div>
+            <h2 className="text-base font-bold text-[var(--text-main)]">Appearance Theme</h2>
+            <p className="text-xs text-[var(--text-muted)]">Switch between Light Mode ☀️ and Dark Mode 🌙</p>
+          </div>
         </div>
 
-        <div className="flex items-center gap-6">
-          <label className="inline-flex items-center gap-2 cursor-pointer">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+          <div
+            onClick={() => setTheme('light')}
+            className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-center justify-between ${
+              theme === 'light'
+                ? 'bg-pink-50/60 border-pink-400 dark:bg-gray-800 shadow-sm ring-2 ring-pink-300'
+                : 'bg-gray-50/50 dark:bg-gray-800/40 border-gray-200 dark:border-gray-700 hover:border-pink-300'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">☀️</span>
+              <div>
+                <span className="text-sm font-bold text-[var(--text-main)] block">Light Mode</span>
+                <span className="text-xs text-[var(--text-muted)]">Soft blush & pastel cream</span>
+              </div>
+            </div>
             <input
               type="radio"
               name="theme"
               value="light"
               checked={theme === 'light'}
               onChange={() => setTheme('light')}
-              className="w-4 h-4 text-pink-600 border-gray-300 focus:ring-pink-500 cursor-pointer"
+              className="w-4 h-4 text-pink-500 cursor-pointer"
             />
-            <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Light Mode</span>
-          </label>
+          </div>
 
-          <label className="inline-flex items-center gap-2 cursor-pointer">
+          <div
+            onClick={() => setTheme('dark')}
+            className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-center justify-between ${
+              theme === 'dark'
+                ? 'bg-purple-950/40 border-purple-400 shadow-sm ring-2 ring-purple-500'
+                : 'bg-gray-50/50 dark:bg-gray-800/40 border-gray-200 dark:border-gray-700 hover:border-purple-300'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">🌙</span>
+              <div>
+                <span className="text-sm font-bold text-[var(--text-main)] block">Dark Mode</span>
+                <span className="text-xs text-[var(--text-muted)]">Deep plum & navy tones</span>
+              </div>
+            </div>
             <input
               type="radio"
               name="theme"
               value="dark"
               checked={theme === 'dark'}
               onChange={() => setTheme('dark')}
-              className="w-4 h-4 text-pink-600 border-gray-300 focus:ring-pink-500 cursor-pointer"
+              className="w-4 h-4 text-purple-500 cursor-pointer"
             />
-            <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Dark Mode</span>
-          </label>
+          </div>
         </div>
-      </CardBase>
+      </div>
 
       {/* 🔐 Section 3: Change Password */}
-      <CardBase className="p-4 sm:p-5 border border-gray-200 dark:border-gray-800 shadow-sm rounded-2xl bg-white dark:bg-gray-800 transition-colors">
-        <div className="flex items-center gap-2 mb-3">
-          <Key className="w-4 h-4 text-pink-600 dark:text-pink-400" />
-          <h2 className="text-sm font-bold text-gray-800 dark:text-white">Change Password</h2>
+      <div className="glass-card rounded-3xl p-6 space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-500">
+            <Key className="w-5 h-5" />
+          </div>
+          <div>
+            <h2 className="text-base font-bold text-[var(--text-main)]">Change Password</h2>
+            <p className="text-xs text-[var(--text-muted)]">Update your login security credentials</p>
+          </div>
         </div>
 
-        <form onSubmit={handlePasswordChange} className="space-y-3 max-w-lg">
+        <form onSubmit={handlePasswordChange} className="space-y-4 pt-2 max-w-lg">
           <div>
-            <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">
+            <label className="block text-xs font-semibold text-[var(--text-main)] mb-1.5">
               Current Password
             </label>
             <input
@@ -189,13 +234,13 @@ const Settings = () => {
               value={passwords.current}
               onChange={(e) => setPasswords({ ...passwords, current: e.target.value })}
               placeholder="••••••••"
-              className="w-full px-3 py-1.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-xs text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-400 transition-colors"
+              className="w-full h-11 px-4 bg-gray-50/60 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-2xl text-xs font-medium text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-pink-300 dark:focus:ring-pink-500/30 focus:border-pink-500 transition-all"
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">
+              <label className="block text-xs font-semibold text-[var(--text-main)] mb-1.5">
                 New Password
               </label>
               <input
@@ -203,12 +248,12 @@ const Settings = () => {
                 value={passwords.new}
                 onChange={(e) => setPasswords({ ...passwords, new: e.target.value })}
                 placeholder="At least 8 characters"
-                className="w-full px-3 py-1.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-xs text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-400 transition-colors"
+                className="w-full h-11 px-4 bg-gray-50/60 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-2xl text-xs font-medium text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-pink-300 dark:focus:ring-pink-500/30 focus:border-pink-500 transition-all"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">
+              <label className="block text-xs font-semibold text-[var(--text-main)] mb-1.5">
                 Confirm New Password
               </label>
               <input
@@ -216,38 +261,38 @@ const Settings = () => {
                 value={passwords.confirm}
                 onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
                 placeholder="Re-enter new password"
-                className="w-full px-3 py-1.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-xs text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-400 transition-colors"
+                className="w-full h-11 px-4 bg-gray-50/60 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-2xl text-xs font-medium text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-pink-300 dark:focus:ring-pink-500/30 focus:border-pink-500 transition-all"
               />
             </div>
           </div>
 
           {pwdMessage.text && (
-            <div className={`flex items-center gap-1.5 text-xs font-medium ${
+            <div className={`flex items-center gap-2 text-xs font-semibold ${
               pwdMessage.type === 'success' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
             }`}>
-              {pwdMessage.type === 'success' ? <CheckCircle2 className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
+              {pwdMessage.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
               <span>{pwdMessage.text}</span>
             </div>
           )}
 
-          <div className="pt-1">
+          <div className="pt-2">
             <button
               type="submit"
               disabled={pwdLoading}
-              className="px-4 py-1.5 bg-pink-600 hover:bg-pink-700 text-white text-xs font-semibold rounded-xl shadow-sm transition disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+              className="px-6 py-2.5 bg-pink-500 hover:bg-pink-600 text-white text-xs font-bold rounded-full shadow-md transition disabled:opacity-50 flex items-center gap-2 cursor-pointer"
             >
-              {pwdLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
-              Update Password
+              {pwdLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              <span>Update Password</span>
             </button>
           </div>
         </form>
-      </CardBase>
+      </div>
 
       {/* 🚪 Section 4: Logout */}
       <div className="pt-2">
         <button
           onClick={handleLogout}
-          className="w-full py-2 px-4 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-900/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/50 text-xs font-semibold rounded-xl transition duration-200 flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+          className="w-full py-3 px-4 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-900/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/50 text-xs font-bold rounded-2xl transition duration-200 flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
         >
           <LogOut className="w-4 h-4" />
           <span>Logout</span>

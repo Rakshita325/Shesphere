@@ -10,6 +10,7 @@ const gameRoutes = require('./routes/gameRoutes');
 const aiRoutes = require('./routes/aiRoutes');
 const marketplaceRoutes = require('./routes/marketplaceRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const profileRoutes = require('./routes/profileRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 8008;
@@ -30,6 +31,7 @@ app.use('/api/games', gameRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
 app.use('/api/marketplace/orders', orderRoutes);
+app.use('/api/profile', profileRoutes);
 
 // Health check endpoints
 app.get('/ping', (req, res) => {

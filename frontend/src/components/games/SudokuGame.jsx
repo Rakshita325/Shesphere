@@ -148,7 +148,7 @@ const SudokuGame = ({ onComplete }) => {
 
       // Check if complete
       const isFilled = newBoard.every((row) => row.every((cell) => cell !== EMPTY));
-      if (isFilled && newErrors.size === 0) {
+      if (isFilled) {
         const isCorrect = newBoard.every((row, r) =>
           row.every((cell, c) => cell === solution[r][c])
         );
@@ -158,6 +158,19 @@ const SudokuGame = ({ onComplete }) => {
           setShowWin(true);
           const score = Math.max(1, 3600 - time);
           if (onComplete) onComplete(score);
+        } else {
+          // Highlight incorrect entries
+          const solErrors = new Set();
+          for (let r = 0; r < 9; r++) {
+            for (let c = 0; c < 9; c++) {
+              if (!initial[r][c] && newBoard[r][c] !== solution[r][c]) {
+                solErrors.add(`${r}-${c}`);
+              }
+            }
+          }
+          setErrors(solErrors);
+          setMessage('Some entries are incorrect! Check highlighted cells in red.');
+          setTimeout(() => setMessage(''), 4000);
         }
       }
     },

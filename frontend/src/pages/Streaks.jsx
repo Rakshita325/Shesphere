@@ -49,22 +49,65 @@ const Streaks = () => {
   const weeklyData = monthlyData.slice(-7);
 
   return (
-    <div className="p-6 space-y-6 font-poppins bg-gradient-to-b from-pastel-pink/5 via-white to-pastel-pink/5 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 min-h-screen text-gray-800 dark:text-gray-100">
-      {/* Current Streak */}
-      <CardBase className="bg-pink-50 dark:bg-pink-950/20 border-pink-200 dark:border-pink-900/50 p-6 text-gray-900 dark:text-white">
-        <h2 className="text-2xl font-bold text-pink-600 dark:text-pink-400 flex items-center">
-          <span role="img" aria-label="fire">🔥</span> Current Streak
-        </h2>
-        <p className="text-4xl font-extrabold text-pink-500 mt-2">{currentStreak} days</p>
-        <p className="mt-2 text-gray-600 dark:text-gray-300">Keep the momentum going! Every day counts.</p>
-      </CardBase>
+    <div className="max-w-6xl mx-auto space-y-8 font-poppins pb-12">
+      {/* ── 3D Hero Streaks Banner ─────────────────────────────────── */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-amber-500 via-orange-500 to-pink-500 p-8 text-white shadow-xl">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold mb-3 tracking-wide text-white">
+              <span>🔥 SheSphere Streak Tracker</span>
+            </div>
+            <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight">
+              {currentStreak} Day Streak 🔥
+            </h2>
+            <p className="mt-2 text-pink-100 text-sm md:text-base max-w-lg">
+              Keep your momentum going! Every day you log in, write, or learn brings you closer to your goals.
+            </p>
+          </div>
 
-      {/* Monthly Activity Calendar */}
-      <CardBase className="p-6">
-        <h3 className="text-xl font-semibold mb-4 flex items-center text-gray-900 dark:text-white">
-          <Calendar className="w-5 h-5 mr-2 text-pink-500 dark:text-pink-400" /> Monthly Activity
+          <div className="bg-white/15 backdrop-blur-md border border-white/25 rounded-2xl p-5 text-center min-w-[200px]">
+            <p className="text-xs font-bold uppercase tracking-wider text-amber-100">Next Milestone</p>
+            <p className="text-lg font-extrabold mt-1">{nextMilestone.label}</p>
+            <p className="text-xs text-white/90 mt-1">
+              {daysToNext > 0 ? `${daysToNext} days to go` : 'Milestone Unlocked! 🎉'}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Weekly Progress Row ────────────────────────────────────── */}
+      <div className="glass-card rounded-3xl p-6 md:p-8 space-y-4">
+        <h3 className="text-lg font-bold text-[var(--text-main)]">Weekly Streak Progress</h3>
+        <div className="grid grid-cols-7 gap-3">
+          {weeklyData.map((d) => {
+            const date = new Date(d.date);
+            const label = date.toLocaleDateString('en-US', { weekday: 'short' });
+            return (
+              <div key={d.date} className="flex flex-col items-center gap-2">
+                <div
+                  className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-sm transition-all ${
+                    d.completed
+                      ? 'bg-gradient-to-tr from-pink-500 to-amber-400 text-white shadow-md scale-105'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-400 border border-gray-200 dark:border-gray-700'
+                  }`}
+                >
+                  {d.completed ? '🔥' : '•'}
+                </div>
+                <span className="text-xs font-semibold text-[var(--text-muted)]">{label}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── Monthly Activity Grid ─────────────────────────────────── */}
+      <div className="glass-card rounded-3xl p-6 md:p-8 space-y-4">
+        <h3 className="text-lg font-bold text-[var(--text-main)] flex items-center gap-2">
+          <Calendar className="w-5 h-5 text-pink-500" />
+          <span>Monthly Activity</span>
         </h3>
-        <div className="grid grid-cols-7 gap-2 text-center text-sm">
+        <div className="grid grid-cols-7 gap-2.5 text-center text-xs font-semibold">
           {monthlyData.map((day) => {
             const dateObj = new Date(day.date);
             const dayNum = dateObj.getDate();
@@ -72,57 +115,49 @@ const Streaks = () => {
             return (
               <div
                 key={day.date}
-                className={`p-2 rounded ${day.completed ? 'bg-pink-200 dark:bg-pink-900/40 text-pink-700 dark:text-pink-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'} ${isToday ? 'ring-2 ring-pink-500' : ''}`}
+                className={`py-3 rounded-xl transition-all ${
+                  day.completed
+                    ? 'bg-pink-100 dark:bg-pink-950/60 text-pink-700 dark:text-pink-300 border border-pink-200 dark:border-pink-900/60 font-bold'
+                    : 'bg-gray-50 dark:bg-gray-800/50 text-[var(--text-muted)] border border-gray-100 dark:border-gray-800'
+                } ${isToday ? 'ring-2 ring-pink-500 scale-105 shadow-2xs' : ''}`}
               >
                 {dayNum}
               </div>
             );
           })}
         </div>
-      </CardBase>
+      </div>
 
-      {/* Weekly Progress */}
-      <CardBase className="p-6">
-        <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Weekly Progress</h3>
-        <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
-          {weeklyData.map((d) => {
-            const date = new Date(d.date);
-            const label = date.toLocaleDateString('en-US', { weekday: 'short' });
+      {/* ── Milestones Grid ───────────────────────────────────────── */}
+      <div className="glass-card rounded-3xl p-6 md:p-8 space-y-4">
+        <h3 className="text-lg font-bold text-[var(--text-main)]">Achievement Milestones</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          {milestones.map((m) => {
+            const isUnlocked = currentStreak >= m.days;
             return (
-              <div key={d.date} className="flex flex-col items-center">
-                <div className={`w-8 h-8 rounded-full ${d.completed ? 'bg-pink-500 dark:bg-pink-600' : 'bg-gray-200 dark:bg-gray-700'}`} />
-                <span className="mt-1 text-xs text-gray-600 dark:text-gray-300">{label}</span>
+              <div
+                key={m.days}
+                className={`p-6 rounded-2xl border transition-all text-center ${
+                  isUnlocked
+                    ? 'bg-gradient-to-br from-amber-500/10 via-pink-500/10 to-purple-500/10 dark:from-amber-950/40 dark:via-pink-950/40 dark:to-purple-950/40 border-amber-300 dark:border-amber-900/60 shadow-sm'
+                    : 'bg-gray-50/50 dark:bg-gray-800/30 border-gray-200 dark:border-gray-800'
+                }`}
+              >
+                <div className="text-3xl mb-2">{isUnlocked ? '🏆' : '🔒'}</div>
+                <span className="font-bold text-sm text-[var(--text-main)] block">{m.label}</span>
+                <p className="mt-1 text-xs font-medium text-[var(--text-muted)]">{m.days} days required</p>
+                <span className={`inline-block mt-3 text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full ${
+                  isUnlocked
+                    ? 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-900/60'
+                    : 'bg-gray-200 dark:bg-gray-700 text-gray-500'
+                }`}>
+                  {isUnlocked ? 'Unlocked' : 'Locked'}
+                </span>
               </div>
             );
           })}
         </div>
-      </CardBase>
-
-      {/* Milestones */}
-      <CardBase className="p-6">
-        <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Milestones</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {milestones.map((m) => (
-            <div
-              key={m.days}
-              className={`p-4 rounded-xl text-center ${currentStreak >= m.days ? 'bg-pink-200 dark:bg-pink-900/40 text-pink-700 dark:text-pink-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'} `}
-            >
-              <span className="text-pink-600 dark:text-pink-400 font-medium">{m.label}</span>
-              <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">{m.days} days</p>
-            </div>
-          ))}
-        </div>
-      </CardBase>
-
-      {/* Next Goal */}
-      <CardBase className="bg-pink-50 dark:bg-pink-950/20 border-pink-200 dark:border-pink-900/50 p-6">
-        <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">Next Goal</h3>
-        <p className="text-gray-700 dark:text-gray-300">
-          {daysToNext > 0
-            ? `${daysToNext} day${daysToNext > 1 ? 's' : ''} left to become a ${nextMilestone.label}`
-            : `Congratulations! You've reached the ${nextMilestone.label}`}
-        </p>
-      </CardBase>
+      </div>
     </div>
   );
 };

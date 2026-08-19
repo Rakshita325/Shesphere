@@ -42,10 +42,13 @@ const slideLeft = (line) => {
   return { merged, score };
 };
 
-const rotateRight = (grid) =>
-  grid[0].map((_, c) => grid.map((row) => row[c]).reverse());
-const rotateLeft = (grid) =>
-  grid[0].map((_, c) => grid.map((row) => row[GRID_SIZE - 1 - c]));
+// Column helpers
+const getCol = (grid, c) => grid.map((row) => row[c]);
+const setCol = (grid, c, colArr) => {
+  colArr.forEach((val, r) => {
+    grid[r][c] = val;
+  });
+};
 
 const moveLeft = (grid) => {
   let totalScore = 0;
@@ -56,6 +59,7 @@ const moveLeft = (grid) => {
   });
   return { grid: newGrid, score: totalScore };
 };
+
 const moveRight = (grid) => {
   let totalScore = 0;
   const newGrid = grid.map((row) => {
@@ -66,15 +70,29 @@ const moveRight = (grid) => {
   });
   return { grid: newGrid, score: totalScore };
 };
+
 const moveUp = (grid) => {
-  const rotated = rotateRight(grid);
-  const { grid: moved, score } = moveLeft(rotated);
-  return { grid: rotateLeft(moved), score };
+  let totalScore = 0;
+  const newGrid = createEmptyGrid();
+  for (let c = 0; c < GRID_SIZE; c++) {
+    const col = getCol(grid, c);
+    const { merged, score } = slideLeft(col);
+    totalScore += score;
+    setCol(newGrid, c, merged);
+  }
+  return { grid: newGrid, score: totalScore };
 };
+
 const moveDown = (grid) => {
-  const rotated = rotateLeft(grid);
-  const { grid: moved, score } = moveLeft(rotated);
-  return { grid: rotateRight(moved), score };
+  let totalScore = 0;
+  const newGrid = createEmptyGrid();
+  for (let c = 0; c < GRID_SIZE; c++) {
+    const col = getCol(grid, c).reverse();
+    const { merged, score } = slideLeft(col);
+    totalScore += score;
+    setCol(newGrid, c, merged.reverse());
+  }
+  return { grid: newGrid, score: totalScore };
 };
 
 const gridsEqual = (a, b) =>
