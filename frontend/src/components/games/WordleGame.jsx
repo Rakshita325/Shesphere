@@ -37,20 +37,28 @@ const WordleGame = ({ onComplete }) => {
 
   const getLetterState = useCallback(
     (letter, index, word) => {
-      if (!targetWord) return 'empty';
-      const target = targetWord.split('');
-      if (target[index] === letter) return 'correct';
-      if (target.includes(letter)) {
-        // Check if this letter is already matched elsewhere
-        let remainingTarget = [...target];
-        // First pass: mark correct letters
-        word.split('').forEach((l, i) => {
-          if (l === target[i]) remainingTarget[i] = null;
-        });
-        // Count remaining occurrences
-        if (remainingTarget.includes(letter)) return 'present';
+      if (!targetWord || !word) return 'empty';
+      const targetArr = targetWord.split('');
+      const wordArr = word.split('');
+
+      if (wordArr[index] === targetArr[index]) return 'correct';
+      if (!targetArr.includes(letter)) return 'absent';
+
+      let targetCount = 0;
+      targetArr.forEach((tChar, i) => {
+        if (tChar === letter && wordArr[i] !== letter) {
+          targetCount++;
+        }
+      });
+
+      let precedingPresentCount = 0;
+      for (let i = 0; i < index; i++) {
+        if (wordArr[i] === letter && wordArr[i] !== targetArr[i]) {
+          precedingPresentCount++;
+        }
       }
-      return 'absent';
+
+      return precedingPresentCount < targetCount ? 'present' : 'absent';
     },
     [targetWord]
   );
@@ -92,7 +100,6 @@ const WordleGame = ({ onComplete }) => {
       const score = (MAX_GUESSES - newGuesses.length + 1) * 100;
       if (onComplete) onComplete(score);
     } else if (newGuesses.length >= MAX_GUESSES) {
-      setGameOver(false);
       setGameOver(true);
       showMessage(`The word was ${targetWord}`, 5000);
       if (onComplete) onComplete(0);

@@ -23,6 +23,7 @@ const Games = () => {
   const [progress, setProgress] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Fetch progress on mount
   useEffect(() => {
@@ -83,120 +84,155 @@ const Games = () => {
         </div>
         <GameComponent
           onComplete={(score) => handleGameComplete(selectedGame, score)}
-          interest={userData.interest || 'cooking'}
+          interest={userData?.interest || 'cooking'}
         />
       </div>
     );
   }
 
+  const filteredGames = GAME_DEFINITIONS.filter(
+    (game) =>
+      game.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      game.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   // Render game cards grid
   return (
-    <div className="min-h-screen font-poppins space-y-6">
-      {/* Page Header */}
-      <div className="bg-gradient-to-r from-pink-500 via-rose-400 to-pink-400 rounded-2xl p-6 text-white shadow-lg">
-        <div className="flex items-center gap-3 mb-2">
-          <Gamepad2 className="w-8 h-8" />
-          <h1 className="text-2xl font-bold">Games Arena</h1>
-        </div>
-        <p className="text-pink-100 text-sm">
-          Play daily games to keep your streak alive and sharpen your mind!
-        </p>
+    <div className="relative min-h-screen font-poppins space-y-8 pb-12">
+      {/* Ambient 3D Animated Background Orbs */}
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-30 dark:opacity-20">
+        <div className="absolute top-10 left-10 w-72 h-72 rounded-full bg-pink-400/30 blur-3xl animate-blob" />
+        <div className="absolute top-1/2 right-10 w-80 h-80 rounded-full bg-purple-400/30 blur-3xl animate-blob-delayed" />
+        <div className="absolute bottom-10 left-1/3 w-64 h-64 rounded-full bg-indigo-400/30 blur-3xl animate-blob-reverse" />
       </div>
 
-      {/* Loading State */}
-      {loading && (
-        <div className="flex justify-center py-16">
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-10 h-10 border-4 border-pink-200 border-t-pink-500 rounded-full animate-spin" />
-            <p className="text-gray-500 dark:text-gray-400 text-sm">Loading games…</p>
+      <div className="relative z-10 space-y-6">
+        {/* Page Hero Header */}
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 p-8 text-white shadow-xl">
+          <div className="absolute -top-10 -right-10 w-48 h-48 bg-white/10 rounded-full blur-xl pointer-events-none" />
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2.5 rounded-2xl bg-white/20 backdrop-blur-md">
+                  <Gamepad2 className="w-8 h-8 text-white" />
+                </div>
+                <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
+                  Play. Learn. Grow. 🎮
+                </h1>
+              </div>
+              <p className="text-pink-100 text-sm md:text-base max-w-xl">
+                Play daily games to keep your streak alive, unlock achievements, and sharpen your mind!
+              </p>
+            </div>
+
+            {/* Search Bar for Games */}
+            <div className="w-full md:w-72 relative flex items-center">
+              <input
+                type="text"
+                placeholder="Search games..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full h-11 pl-4 pr-4 rounded-xl border border-white/30 bg-white/15 backdrop-blur-md text-white placeholder:text-pink-100 text-sm focus:outline-none focus:ring-2 focus:ring-white/50 transition-all shadow-inner"
+              />
+            </div>
           </div>
         </div>
-      )}
 
-      {/* Error State */}
-      {error && !loading && (
-        <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/50 rounded-xl p-6 text-center">
-          <p className="text-red-600 dark:text-red-400">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-3 px-4 py-2 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600 transition-colors"
-          >
-            Retry
-          </button>
-        </div>
-      )}
+        {/* Loading State */}
+        {loading && (
+          <div className="flex justify-center py-16">
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-10 h-10 border-4 border-pink-200 border-t-pink-500 rounded-full animate-spin" />
+              <p className="text-gray-500 dark:text-gray-400 text-sm">Loading games…</p>
+            </div>
+          </div>
+        )}
 
-      {/* Games Grid */}
-      {!loading && !error && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {GAME_DEFINITIONS.map((game) => {
-            const gameProgress = progress[game.id];
-            const isPlayedToday = gameProgress?.completedToday === true;
-            const highScore = gameProgress?.highScore || 0;
-            const totalPlayed = gameProgress?.totalGamesPlayed || 0;
+        {/* Error State */}
+        {error && !loading && (
+          <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/50 rounded-2xl p-6 text-center">
+            <p className="text-red-600 dark:text-red-400 font-medium">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-3 px-5 py-2 bg-red-500 text-white rounded-full text-sm font-semibold hover:bg-red-600 transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        )}
 
-            return (
-              <div
-                key={game.id}
-                className={`group relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-lg dark:hover:shadow-pink-950/20 hover:-translate-y-1 ${isPlayedToday ? 'opacity-80' : ''
+        {/* Games Grid */}
+        {!loading && !error && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredGames.map((game) => {
+              const gameProgress = progress[game.id];
+              const isPlayedToday = gameProgress?.completedToday === true;
+              const highScore = gameProgress?.highScore || 0;
+              const totalPlayed = gameProgress?.totalGamesPlayed || 0;
+
+              return (
+                <div
+                  key={game.id}
+                  className={`glass-card card-hover-3d rounded-3xl overflow-hidden transition-all duration-300 ${
+                    isPlayedToday ? 'opacity-85' : ''
                   }`}
-              >
-                {/* Color gradient header */}
-                <div className={`bg-gradient-to-r ${game.color} p-5 relative overflow-hidden`}>
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-8 translate-x-8" />
-                  <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/10 rounded-full translate-y-6 -translate-x-6" />
-                  <span className="text-5xl relative z-10 block">{game.icon}</span>
-                </div>
-
-                {/* Card Body */}
-                <div className="p-5">
-                  <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-1">{game.name}</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 leading-relaxed">{game.description}</p>
-
-                  {/* Stats row */}
-                  <div className="flex items-center gap-4 mb-4 text-xs text-gray-400 dark:text-gray-500">
-                    <span className="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-2 py-1 rounded-full font-medium">
-                      {game.difficulty}
-                    </span>
-                    {highScore > 0 && (
-                      <span className="flex items-center gap-1">
-                        <Trophy className="w-3 h-3 text-amber-500" />
-                        Best: {highScore}
-                      </span>
-                    )}
-                    {totalPlayed > 0 && (
-                      <span>Played: {totalPlayed}×</span>
-                    )}
+                >
+                  {/* Color gradient header */}
+                  <div className={`bg-gradient-to-r ${game.color} p-6 relative overflow-hidden`}>
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-white/15 rounded-full -translate-y-8 translate-x-8" />
+                    <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/15 rounded-full translate-y-6 -translate-x-6" />
+                    <span className="text-5xl relative z-10 block drop-shadow-md">{game.icon}</span>
                   </div>
 
-                  {/* Play / Locked button */}
-                  {isPlayedToday ? (
-                    <div className="space-y-2">
-                      <button
-                        disabled
-                        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 rounded-xl font-medium cursor-not-allowed"
-                      >
-                        <Lock className="w-4 h-4" />
-                        Completed Today
-                      </button>
-                      <p className="text-xs text-center text-gray-400 dark:text-gray-500">
-                        You've already played today's game. Come back tomorrow!
-                      </p>
+                  {/* Card Body */}
+                  <div className="p-6 space-y-3">
+                    <h3 className="text-xl font-bold text-[var(--text-main)]">{game.name}</h3>
+                    <p className="text-sm text-[var(--text-muted)] leading-relaxed">{game.description}</p>
+
+                    {/* Stats row */}
+                    <div className="flex items-center gap-3 pt-1 text-xs font-medium text-[var(--text-muted)]">
+                      <span className="bg-pink-50 dark:bg-gray-800 text-pink-600 dark:text-pink-300 px-3 py-1 rounded-full border border-pink-100 dark:border-gray-700">
+                        {game.difficulty}
+                      </span>
+                      {highScore > 0 && (
+                        <span className="flex items-center gap-1">
+                          <Trophy className="w-3.5 h-3.5 text-amber-500" />
+                          Best: {highScore}
+                        </span>
+                      )}
+                      {totalPlayed > 0 && <span>Played: {totalPlayed}×</span>}
                     </div>
-                  ) : (
-                    <button
-                      onClick={() => setSelectedGame(game.id)}
-                      className={`w-full px-4 py-2.5 bg-gradient-to-r ${game.color} text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]`}
-                    >
-                      ▶ Play Now
-                    </button>
-                  )}
+
+                    {/* Play / Replay button */}
+                    <div className="pt-2">
+                      {isPlayedToday ? (
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-center gap-1.5 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl border border-emerald-200 dark:border-emerald-900/50">
+                            <Trophy className="w-3.5 h-3.5" /> Completed Today
+                          </div>
+                          <button
+                            onClick={() => setSelectedGame(game.id)}
+                            className={`w-full py-2.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-pink-50 dark:hover:bg-gray-700 hover:text-pink-600 dark:hover:text-pink-400 rounded-2xl font-bold text-sm border border-gray-200 dark:border-gray-700 transition-all duration-200 cursor-pointer`}
+                          >
+                            ▶ Replay Game
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setSelectedGame(game.id)}
+                          className={`w-full py-3 bg-gradient-to-r ${game.color} text-white rounded-2xl font-bold text-sm shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer transform active:scale-98`}
+                        >
+                          ▶ Play Now
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

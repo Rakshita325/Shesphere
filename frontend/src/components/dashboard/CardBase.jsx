@@ -2,7 +2,7 @@ import React from 'react';
 
 const CardBase = ({ children, className = '' }) => {
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-gray-900 dark:text-gray-100 transition-colors ${className}`}> 
+    <div className={`glass-card card-hover-3d rounded-3xl p-6 transition-all duration-300 ${className}`}> 
       {children}
     </div>
   );

@@ -52,6 +52,18 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: ''
     },
+    videosWatched: {
+      type: Number,
+      default: 0
+    },
+    communityDiscussions: {
+      type: Number,
+      default: 0
+    },
+    learningTimeMinutes: {
+      type: Number,
+      default: 0
+    },
     xp: {
       type: Number,
       default: 0
