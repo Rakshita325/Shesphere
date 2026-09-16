@@ -42,6 +42,29 @@ const protect = (req, res, next) => {
   }
 };
 
+/**
+ * Middleware to optionally attach decoded user info if JWT token exists
+ */
+const optionalAuth = (req, res, next) => {
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    try {
+      const token = req.headers.authorization.split(' ')[1];
+      const jwtSecret = process.env.JWT_SECRET;
+      if (jwtSecret) {
+        const decoded = jwt.verify(token, jwtSecret);
+        req.user = decoded;
+      }
+    } catch (error) {
+      req.user = null;
+    }
+  }
+  return next();
+};
+
 module.exports = {
-  protect
+  protect,
+  optionalAuth
 };
