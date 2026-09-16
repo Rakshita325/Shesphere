@@ -31,6 +31,10 @@ import ProductDetails from "./pages/ProductDetails";
 import MyProducts from "./pages/MyProducts";
 import MyPurchases from "./pages/MyPurchases";
 
+import VideoDetail from "./pages/VideoDetail";
+import ArticleDetail from "./pages/ArticleDetail";
+import WriteArticle from "./pages/WriteArticle";
+
 function App() {
   return (
     <ThemeProvider>
@@ -52,6 +56,7 @@ function App() {
               <Route path="/interests" element={<InterestSelection />} />
               <Route path="/journal" element={<Journal />} />
               <Route path="/community" element={<Community />} />
+              <Route path="/community/:communityId" element={<Community />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/streaks" element={<Streaks />} />
               <Route path="/settings" element={<Settings />} />
@@ -70,9 +75,14 @@ function App() {
               {/* Dashboard routes */}
               <Route path="/dashboard" element={<DashboardLayout />}>
                 <Route index element={<Dashboard />} />
+                <Route path="videos/:videoId" element={<VideoDetail />} />
+                <Route path="articles/write" element={<WriteArticle />} />
+                <Route path="articles/:articleId" element={<ArticleDetail />} />
+
                 <Route path="games" element={<Games />} />
                 <Route path="journal" element={<Journal />} />
                 <Route path="community" element={<Community />} />
+                <Route path="community/:communityId" element={<Community />} />
                 <Route path="streaks" element={<Streaks />} />
                 <Route path="profile" element={<Profile />} />
                 <Route path="settings" element={<Settings />} />

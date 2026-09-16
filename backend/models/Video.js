@@ -34,6 +34,18 @@ const videoSchema = new mongoose.Schema({
     type: String, 
     default: 'hi' // e.g., 'hi', 'kn', 'en'
   },
+  subcategory: {
+    type: String,
+    default: ''
+  },
+  tags: {
+    type: [String],
+    default: []
+  },
+  duration: {
+    type: Number,
+    default: 0 // duration in seconds
+  },
   views: { 
     type: Number, 
     default: 0 
