@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import CardBase from './CardBase';
 import videoService from '../../services/videoService';
 import { useUser } from '../../context/UserContext';
-import { Play, Eye, Tag, ChevronLeft, ChevronRight, Video } from 'lucide-react';
+import { Play, Eye, Tag, ChevronLeft, ChevronRight, Video, Clock, Sparkles } from 'lucide-react';
 
 const RecommendedVideos = () => {
   const { userData } = useUser();
@@ -16,7 +16,7 @@ const RecommendedVideos = () => {
 
   useEffect(() => {
     fetchVideos();
-  }, [userData.interest]);
+  }, [userData.interest, userData.dailyFreeTime]);
 
   const fetchVideos = async () => {
     try {
@@ -25,6 +25,20 @@ const RecommendedVideos = () => {
       const response = await videoService.getRecommendedVideos();
       if (response && response.success) {
         setVideos(response.data);
+
+        if (response.data && response.data.length > 0) {
+          const firstVid = response.data[0];
+          const isCollab = !!(firstVid.cfScore > 0 || firstVid.isCollaborative || firstVid.recommendationSource === 'collaborative');
+          console.log('\n[COLLAB TEST] Frontend:');
+          console.log('Video displayed at index:', 0);
+          console.log('Video Title:', firstVid.title);
+          console.log('Video ID:', firstVid._id);
+          console.log('IsCollaborative:', isCollab);
+          console.log('PinkBorder:', isCollab);
+          console.log('CollaborativeScore:', firstVid.cfScore || 0);
+          console.log('FinalHybridScore:', (firstVid.matchScore ? firstVid.matchScore / 100 : 0).toFixed(2));
+          console.log('--------------------------------------------------\n');
+        }
       } else {
         setError('Failed to load recommended videos.');
       }
@@ -114,51 +128,87 @@ const RecommendedVideos = () => {
           className="flex gap-4 overflow-x-auto pb-3 pt-1 scrollbar-none snap-x snap-mandatory focus:outline-none"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {videos.map((v) => (
-            <div
-              key={v._id}
-              onClick={() => navigate(`/dashboard/videos/${v._id}`)}
-              className="snap-start shrink-0 w-60 sm:w-64 md:w-70 group cursor-pointer bg-white dark:bg-gray-800/80 border border-gray-100 dark:border-gray-700/70 rounded-2xl overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between"
-            >
-              <div>
-                {/* Aspect Ratio 16:9 Thumbnail Box */}
-                <div className="relative aspect-video w-full overflow-hidden bg-black">
-                  <img
-                    src={v.thumbnail}
-                    alt={v.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                    <div className="w-9 h-9 rounded-full bg-pink-500/90 text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-                      <Play className="w-4 h-4 fill-white ml-0.5" />
+          {videos.map((v) => {
+            const isCollab = !!(v.cfScore > 0 || v.isCollaborative || v.recommendationSource === 'collaborative');
+
+            return (
+              <div
+                key={v._id}
+                onClick={() => navigate(`/dashboard/videos/${v._id}`)}
+                className={`snap-start shrink-0 w-60 sm:w-64 md:w-70 group cursor-pointer bg-white dark:bg-gray-800/80 rounded-2xl overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between ${isCollab
+                    ? 'border-2 border-pink-300 ring-2 ring-pink-200 dark:border-pink-500/80 dark:ring-pink-500/30'
+                    : 'border border-gray-100 dark:border-gray-700/70'
+                  }`}
+              >
+                <div>
+                  {/* Aspect Ratio 16:9 Thumbnail Box */}
+                  <div className="relative aspect-video w-full overflow-hidden bg-black">
+                    <img
+                      src={v.thumbnail}
+                      alt={v.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                      <div className="w-9 h-9 rounded-full bg-pink-500/90 text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                        <Play className="w-4 h-4 fill-white ml-0.5" />
+                      </div>
                     </div>
+
+                    {/* Duration Badge */}
+                    {v.duration > 0 && (
+                      <div className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-black/75 text-[10px] font-medium text-white flex items-center gap-1">
+                        <Clock className="w-2.5 h-2.5" />
+                        {Math.ceil(v.duration / 60)}m
+                      </div>
+                    )}
+
+                    {/* Collaborative Recommendation Badge */}
+                    {isCollab ? (
+                      <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-pink-500 text-[10px] font-bold text-white shadow-md flex items-center gap-1 z-10">
+                        <Sparkles className="w-3 h-3 fill-white" />
+                        <span>Collaborative Recommendation</span>
+                      </div>
+                    ) : (
+                      v.fitsInTime && (
+                        <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-emerald-500/90 text-[10px] font-semibold text-white shadow-sm">
+                          Fits {userData.dailyFreeTime || 'Time'}
+                        </div>
+                      )
+                    )}
+
+                    {/* ML Match Score Badge */}
+                    {v.matchScore > 0 && (
+                      <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-pink-600/90 text-[10px] font-bold text-white shadow-sm">
+                        {v.matchScore}% match
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Video Title & Category */}
+                  <div className="p-3">
+                    <div className="inline-flex items-center gap-1 text-[11px] font-medium text-pink-600 dark:text-pink-400 mb-1">
+                      <Tag className="w-3 h-3" />
+                      <span>{v.category}</span>
+                    </div>
+                    <h4 className="text-xs font-bold text-gray-900 dark:text-white line-clamp-2 leading-snug group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors">
+                      {v.title}
+                    </h4>
                   </div>
                 </div>
 
-                {/* Video Title & Category */}
-                <div className="p-3">
-                  <div className="inline-flex items-center gap-1 text-[11px] font-medium text-pink-600 dark:text-pink-400 mb-1">
-                    <Tag className="w-3 h-3" />
-                    <span>{v.category}</span>
-                  </div>
-                  <h4 className="text-xs font-bold text-gray-900 dark:text-white line-clamp-2 leading-snug group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors">
-                    {v.title}
-                  </h4>
+                {/* Footer Metadata */}
+                <div className="px-3 pb-3 pt-0 flex items-center justify-between text-[11px] text-gray-400 dark:text-gray-500">
+                  <span className="flex items-center gap-1">
+                    <Eye className="w-3 h-3" />
+                    {v.views ? v.views.toLocaleString() : '0'} views
+                  </span>
+                  <span className="font-semibold text-pink-500 hover:underline">
+                    Watch →
+                  </span>
                 </div>
               </div>
-
-              {/* Footer Metadata */}
-              <div className="px-3 pb-3 pt-0 flex items-center justify-between text-[11px] text-gray-400 dark:text-gray-500">
-                <span className="flex items-center gap-1">
-                  <Eye className="w-3 h-3" />
-                  {v.views ? v.views.toLocaleString() : '0'} views
-                </span>
-                <span className="font-semibold text-pink-500 hover:underline">
-                  Watch →
-                </span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </CardBase>

@@ -55,7 +55,7 @@ const DB_RESOLVERS = [
       `🎓 **Education:** ${user.education || 'Not set'}\n` +
       `💼 **Occupation:** ${user.occupation || 'Not set'}\n` +
       `🌟 **Interests:** ${user.interest || 'Not selected'}\n` +
-      `⏰ **Daily Free Time:** ${user.dailyFreeTime ? user.dailyFreeTime + ' minutes' : 'Not set'}\n` +
+      `⏰ **Daily Free Time:** ${user.dailyFreeTime || 'Not set'}\n` +
       `⚡ **XP:** ${user.xp || 0} | **Level:** ${user.level || 1} | **Streak:** ${user.streak || 0} days`,
   },
   {

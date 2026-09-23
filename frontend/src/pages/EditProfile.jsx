@@ -13,7 +13,8 @@ import {
   ChevronDown,
   Loader2,
   Pencil,
-  Sparkles
+  Sparkles,
+  Clock
 } from 'lucide-react';
 
 const EditProfile = () => {
@@ -27,6 +28,7 @@ const EditProfile = () => {
     language: '',
     education: '',
     interest: '',
+    dailyFreeTime: '',
     profilePicture: null,
   });
   const [loading, setLoading] = useState(false);
@@ -39,6 +41,7 @@ const EditProfile = () => {
       language: userData.language || '',
       education: userData.education || '',
       interest: userData.interest || '',
+      dailyFreeTime: userData.dailyFreeTime || '',
       profilePicture: userData.profilePicture || null,
     });
   }, [userData]);
@@ -81,6 +84,7 @@ const EditProfile = () => {
         language: form.language,
         education: form.education,
         interest: form.interest,
+        dailyFreeTime: form.dailyFreeTime,
         profilePicture: form.profilePicture,
       });
       updateUserData(updated);
@@ -251,32 +255,54 @@ const EditProfile = () => {
               </div>
             </div>
 
-            {/* Row 3: Current Interest */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Current Interest
-              </label>
-              <div className="relative flex items-center">
-                <Sparkle className="w-5 h-5 absolute left-3.5 text-gray-400 dark:text-gray-500 pointer-events-none" />
-                <select
-                  name="interest"
-                  value={form.interest}
-                  onChange={handleChange}
-                  className="w-full h-12 pl-11 pr-10 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/60 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-300 dark:focus:ring-pink-500/30 focus:border-pink-500 transition-all text-sm font-medium appearance-none cursor-pointer"
-                >
-                  <option value="">Select an interest</option>
-                  <option value="Digital Skills">Digital Skills</option>
-                  <option value="Cooking">Cooking</option>
-                  <option value="Arts & Crafts">Arts & Crafts</option>
-                  <option value="Gardening">Gardening</option>
-                  <option value="Sewing & Fashion">Sewing & Fashion</option>
-                  <option value="Health & Fitness">Health & Fitness</option>
-                  <option value="Music & Instruments">Music & Instruments</option>
-                  <option value="Skincare">Skincare</option>
-                  {/* Additional ID mappings for compatibility */}
+            {/* Row 3: Current Interest & Daily Free Time */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Current Interest
+                </label>
+                <div className="relative flex items-center">
+                  <Sparkle className="w-5 h-5 absolute left-3.5 text-gray-400 dark:text-gray-500 pointer-events-none" />
+                  <select
+                    name="interest"
+                    value={form.interest}
+                    onChange={handleChange}
+                    className="w-full h-12 pl-11 pr-10 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/60 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-300 dark:focus:ring-pink-500/30 focus:border-pink-500 transition-all text-sm font-medium appearance-none cursor-pointer"
+                  >
+                    <option value="">Select an interest</option>
+                    <option value="Digital Skills">Digital Skills</option>
+                    <option value="Cooking">Cooking</option>
+                    <option value="Arts & Crafts">Arts & Crafts</option>
+                    <option value="Gardening">Gardening</option>
+                    <option value="Sewing & Fashion">Sewing & Fashion</option>
+                    <option value="Health & Fitness">Health & Fitness</option>
+                    <option value="Music & Instruments">Music & Instruments</option>
+                    <option value="Skincare">Skincare</option>
+                  </select>
+                  <ChevronDown className="w-4 h-4 absolute right-3.5 text-gray-400 dark:text-gray-500 pointer-events-none" />
+                </div>
+              </div>
 
-                </select>
-                <ChevronDown className="w-4 h-4 absolute right-3.5 text-gray-400 dark:text-gray-500 pointer-events-none" />
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Daily Free Time (for learning)
+                </label>
+                <div className="relative flex items-center">
+                  <Clock className="w-5 h-5 absolute left-3.5 text-gray-400 dark:text-gray-500 pointer-events-none" />
+                  <select
+                    name="dailyFreeTime"
+                    value={form.dailyFreeTime}
+                    onChange={handleChange}
+                    className="w-full h-12 pl-11 pr-10 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/60 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-300 dark:focus:ring-pink-500/30 focus:border-pink-500 transition-all text-sm font-medium appearance-none cursor-pointer"
+                  >
+                    <option value="">Select daily free time</option>
+                    <option value="15 minutes">15 minutes</option>
+                    <option value="30 minutes">30 minutes</option>
+                    <option value="45 minutes">45 minutes</option>
+                    <option value="1 hour">1 hour</option>
+                  </select>
+                  <ChevronDown className="w-4 h-4 absolute right-3.5 text-gray-400 dark:text-gray-500 pointer-events-none" />
+                </div>
               </div>
             </div>
 

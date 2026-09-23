@@ -141,10 +141,10 @@ const ProfileSetup = () => {
               <Select 
                 label="Daily Free Time (for learning)"
                 options={[
-                  { value: 'under_1_hour', label: 'Less than 1 hour' },
-                  { value: '1_to_2_hours', label: '1 - 2 hours' },
-                  { value: '2_to_4_hours', label: '2 - 4 hours' },
-                  { value: 'over_4_hours', label: 'More than 4 hours' }
+                  { value: '15 minutes', label: '15 minutes' },
+                  { value: '30 minutes', label: '30 minutes' },
+                  { value: '45 minutes', label: '45 minutes' },
+                  { value: '1 hour', label: '1 hour' }
                 ]}
                 {...register('dailyFreeTime', { required: 'Please select your available time' })}
                 error={errors.dailyFreeTime?.message}
