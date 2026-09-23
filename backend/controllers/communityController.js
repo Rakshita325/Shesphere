@@ -761,6 +761,58 @@ const deletePost = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Get members in a community with similar K-Means cluster / learning interests
+ * @route   GET /api/communities/:communityId/similar-learners
+ * @access  Private
+ */
+const getSimilarLearnersInCommunity = async (req, res) => {
+  try {
+    const { communityId } = req.params;
+    const userId = req.user.id;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // Get all memberships in this community (excluding current user)
+    const memberships = await CommunityMembership.find({
+      community: communityId,
+      user: { $ne: userId }
+    }).populate('user', 'fullName email interest age education occupation dailyFreeTime profilePicture clusterId xp level');
+
+    const members = memberships.map(m => m.user).filter(Boolean);
+
+    // If current user is assigned to a K-Means cluster, prioritize cluster matches
+    let sortedMembers = [];
+    if (user.clusterId !== null && user.clusterId !== undefined) {
+      const clusterMatches = members.filter(m => m.clusterId === user.clusterId);
+      const otherMembers = members.filter(m => m.clusterId !== user.clusterId);
+      sortedMembers = [...clusterMatches, ...otherMembers];
+    } else {
+      // Fallback: match by interest / free time
+      sortedMembers = members.sort((a, b) => {
+        const aMatch = (a.interest === user.interest ? 1 : 0) + (a.dailyFreeTime === user.dailyFreeTime ? 1 : 0);
+        const bMatch = (b.interest === user.interest ? 1 : 0) + (b.dailyFreeTime === user.dailyFreeTime ? 1 : 0);
+        return bMatch - aMatch;
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      count: sortedMembers.length,
+      data: sortedMembers.slice(0, 10)
+    });
+  } catch (error) {
+    console.error('❌ Error fetching similar learners:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error while fetching similar learners'
+    });
+  }
+};
+
 module.exports = {
   seedCommunities,
   getAllCommunities,
@@ -774,5 +826,6 @@ module.exports = {
   toggleLikePost,
   getPostComments,
   addComment,
-  getKMeansFeatureMatrix
+  getKMeansFeatureMatrix,
+  getSimilarLearnersInCommunity
 };

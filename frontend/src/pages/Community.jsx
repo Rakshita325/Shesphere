@@ -6,6 +6,7 @@ import CommunityCard from '../components/community/CommunityCard';
 import CommunityHeader from '../components/community/CommunityHeader';
 import PostComposer from '../components/community/PostComposer';
 import CommunityPostCard from '../components/community/CommunityPostCard';
+import SimilarLearnersWidget from '../components/community/SimilarLearnersWidget';
 
 const Community = () => {
   const { communityId } = useParams();
@@ -169,6 +170,9 @@ const Community = () => {
           onJoinToggle={() => handleJoinToggle(activeCommunity)}
           isActionLoading={actionLoadingId === activeCommunity._id}
         />
+
+        {/* K-Means Powered Similar Learners Widget */}
+        <SimilarLearnersWidget communityId={activeCommunity._id} />
 
         {/* 2. Create Post Section at the Top */}
         <PostComposer

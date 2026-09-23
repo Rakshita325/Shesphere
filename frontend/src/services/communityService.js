@@ -77,6 +77,12 @@ export const communityService = {
   addComment: async (postId, content) => {
     const res = await api.post(`/communities/posts/${postId}/comments`, { content });
     return res.data;
+  },
+
+  // Get similar learners inside a community based on K-Means cluster / feature similarity
+  getSimilarLearners: async (communityId) => {
+    const res = await api.get(`/communities/${communityId}/similar-learners`);
+    return res.data;
   }
 };
 

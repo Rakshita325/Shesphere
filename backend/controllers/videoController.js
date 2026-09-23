@@ -3,6 +3,8 @@ const User = require('../models/User');
 const WatchHistory = require('../models/WatchHistory');
 const VideoLike = require('../models/VideoLike');
 const VideoComment = require('../models/VideoComment');
+const { calculateTimeCompatibilityScore, parseFreeTimeToSeconds } = require('../services/ml/timeAwareService');
+const { getHybridRecommendations } = require('../services/ml/hybridRecommendationService');
 
 // Mapping interest IDs and labels to Video collection categories
 const INTEREST_TO_CATEGORY_MAP = {
@@ -38,34 +40,9 @@ const INTEREST_TO_CATEGORY_MAP = {
 const getRecommendedVideos = async (req, res) => {
   try {
     const userId = req.user.id;
-    const user = await User.findById(userId);
+    const recommendationPayload = await getHybridRecommendations(userId, 20);
 
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
-    }
-
-    const userInterest = user.interest;
-    let targetCategory = null;
-
-    if (userInterest) {
-      targetCategory = INTEREST_TO_CATEGORY_MAP[userInterest] || userInterest;
-    }
-
-    // Build query based strictly on user's interest
-    const query = targetCategory ? { category: targetCategory } : {};
-
-    const videos = await Video.find(query).limit(20);
-
-    return res.status(200).json({
-      success: true,
-      count: videos.length,
-      userInterest: userInterest || 'None selected',
-      matchedCategory: targetCategory || 'All',
-      data: videos
-    });
+    return res.status(200).json(recommendationPayload);
   } catch (error) {
     console.error('❌ Error fetching recommended videos:', error);
     return res.status(500).json({

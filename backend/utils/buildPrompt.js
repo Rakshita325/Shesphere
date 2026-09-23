@@ -39,7 +39,7 @@ const buildPrompt = (user, userMessage) => {
 
   // ── Format daily free time ────────────────────────────────────────────────
   const freeTime = user.dailyFreeTime
-    ? `${user.dailyFreeTime} minutes`
+    ? user.dailyFreeTime
     : 'Not specified';
 
   // ── Assemble prompt ───────────────────────────────────────────────────────

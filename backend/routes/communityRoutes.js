@@ -15,15 +15,17 @@ const {
   toggleLikePost,
   getPostComments,
   addComment,
-  getKMeansFeatureMatrix
+  getKMeansFeatureMatrix,
+  getSimilarLearnersInCommunity
 } = require('../controllers/communityController');
 
 // Community List and Analytics
 router.get('/', optionalAuth, getAllCommunities);
 router.get('/analytics/kmeans-features', protect, getKMeansFeatureMatrix);
 
-// Community Details, Join & Leave
+// Community Details, Join, Leave & Similar Learners
 router.get('/:communityId', optionalAuth, getCommunityById);
+router.get('/:communityId/similar-learners', protect, getSimilarLearnersInCommunity);
 router.post('/:communityId/join', protect, joinCommunity);
 router.post('/:communityId/leave', protect, leaveCommunity);
 

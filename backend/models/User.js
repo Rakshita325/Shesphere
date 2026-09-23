@@ -46,11 +46,19 @@ const userSchema = new mongoose.Schema(
     },
     dailyFreeTime: {
       type: String,
-      default: ''
+      default: '' // '15 minutes', '30 minutes', '45 minutes', '1 hour'
     },
     interest: {
       type: String,
       default: ''
+    },
+    clusterId: {
+      type: Number,
+      default: null
+    },
+    lastClusteredAt: {
+      type: Date,
+      default: null
     },
     videosWatched: {
       type: Number,
