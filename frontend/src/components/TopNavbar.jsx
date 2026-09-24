@@ -3,7 +3,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Search, Bell, Bot, Settings as Gear, User as UserIcon, Sun, Moon, ChevronDown } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import { useTheme } from '../context/ThemeContext';
+import { useNotifications } from '../context/NotificationContext';
 import AIChatbot from './AIChatbot';
+import NotificationDropdown from './NotificationDropdown';
 
 // Mapping of route paths to readable page titles
 const pageTitles = {
@@ -29,9 +31,12 @@ const TopNavbar = ({ onMenuClick }) => {
   const navigate = useNavigate();
   const { userData } = useUser();
   const { theme, toggleTheme } = useTheme();
+  const { unreadCount } = useNotifications();
 
   // ── AI Chatbot panel state ────────────────────────────────────────────────
   const [isChatOpen, setIsChatOpen] = useState(false);
+  // ── Notification dropdown state ─────────────────────────────────────────
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
   let title = pageTitles[location.pathname];
   if (!title) {
@@ -80,12 +85,26 @@ const TopNavbar = ({ onMenuClick }) => {
         {/* Right – Icon controls with balanced spacing */}
         <div className="flex items-center gap-2 sm:gap-3">
 
-          {/* Notification bell */}
-          <div className="relative p-2.5 rounded-2xl hover:bg-pink-50/80 dark:hover:bg-gray-800 transition-colors cursor-pointer group" title="Notifications">
-            <Bell className="w-5 h-5 text-[var(--text-muted)] group-hover:text-pink-500 transition-colors" />
-            <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-pink-500 text-[10px] font-bold text-white shadow-xs">
-              3
-            </span>
+          {/* Notification bell & dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setIsNotificationsOpen((prev) => !prev)}
+              className="relative p-2.5 rounded-2xl hover:bg-pink-50/80 dark:hover:bg-gray-800 transition-colors cursor-pointer group focus:outline-none"
+              title="Notifications"
+              aria-label="Toggle notifications"
+            >
+              <Bell className={`w-5 h-5 transition-colors ${isNotificationsOpen ? 'text-pink-500' : 'text-[var(--text-muted)] group-hover:text-pink-500'}`} />
+              {unreadCount > 0 && (
+                <span className="absolute top-1.5 right-1.5 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-pink-500 text-[10px] font-bold text-white shadow-xs">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
+            </button>
+
+            <NotificationDropdown
+              isOpen={isNotificationsOpen}
+              onClose={() => setIsNotificationsOpen(false)}
+            />
           </div>
 
           {/* Theme toggle icon button */}

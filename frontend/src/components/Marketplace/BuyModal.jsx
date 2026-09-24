@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
-import { X, ShoppingBag, ShieldCheck, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { X, ShoppingBag, ShieldCheck, Loader2, CheckCircle2, AlertCircle, CreditCard, Lock } from 'lucide-react';
 import { useMarketplace } from '../../context/MarketplaceContext';
+import { marketplaceService } from '../../services/marketplaceService';
+import loadRazorpay from '../../utils/loadRazorpay';
 
 const BuyModal = ({ product, defaultQty = 1, onClose, onSuccess }) => {
-  const { buyProduct } = useMarketplace();
+  const { loadPurchases, loadProducts, showToast } = useMarketplace();
 
-  const [step, setStep] = useState(1); // 1 = qty+address, 2 = success
+  const [step, setStep] = useState(1); // 1 = Address & Checkout, 2 = Payment Success Screen
   const [qty, setQty] = useState(defaultQty);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [paymentInfo, setPaymentInfo] = useState(null);
 
   const [address, setAddress] = useState({
     name: '',
@@ -24,37 +27,118 @@ const BuyModal = ({ product, defaultQty = 1, onClose, onSuccess }) => {
     setAddress((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleConfirm = async () => {
+  const handleProceedToPayment = async () => {
     setError('');
     if (!address.name.trim() || !address.phone.trim() || !address.addressLine.trim() ||
         !address.city.trim() || !address.state.trim() || !address.pincode.trim()) {
       setError('Please fill in all shipping address fields.');
       return;
     }
-    if (!/^\d{6}$/.test(address.pincode)) {
+    if (!/^\d{6}$/.test(address.pincode.trim())) {
       setError('Please enter a valid 6-digit pincode.');
       return;
     }
 
     setIsLoading(true);
+
     try {
-      await buyProduct(product, qty, {
+      // 1. Dynamically load Razorpay SDK script
+      const sdkReady = await loadRazorpay();
+      if (!sdkReady) {
+        throw new Error('Failed to load Razorpay SDK. Please check your internet connection.');
+      }
+
+      // 2. Create Razorpay Test Order + SheSphere Order on backend
+      const res = await marketplaceService.createRazorpayOrder({
+        productId: product.id || product._id,
+        quantity: qty,
         shippingAddress: address,
         invoiceAddress: address
       });
-      setStep(2);
-      setTimeout(() => {
-        onSuccess?.();
-        onClose();
-      }, 2000);
+
+      if (!res.success) {
+        throw new Error(res.message || 'Failed to initialize payment order.');
+      }
+
+      const { orderId, razorpayOrderId, amount, currency, keyId, user } = res;
+
+      // 3. Configure Razorpay options
+      const options = {
+        key: keyId,
+        amount: amount, // in paise
+        currency: currency || 'INR',
+        name: 'SheSphere Marketplace',
+        description: `Payment for ${product.name || product.productName}`,
+        image: product.images?.[0] || 'https://placehold.co/128x128?text=SheSphere',
+        order_id: razorpayOrderId,
+        handler: async (response) => {
+          // Triggered on successful payment completion in Razorpay Checkout modal
+          try {
+            setIsLoading(true);
+            const verifyRes = await marketplaceService.verifyRazorpayPayment({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              orderId: orderId
+            });
+
+            if (verifyRes.success) {
+              setPaymentInfo({
+                paymentId: response.razorpay_payment_id,
+                razorpayOrderId: response.razorpay_order_id,
+                orderId: orderId,
+                amountPaid: (amount / 100).toLocaleString('en-IN')
+              });
+              setStep(2);
+              loadPurchases();
+              loadProducts();
+              showToast('🎉 Payment Successful! Order confirmed.');
+            } else {
+              setError(verifyRes.message || 'Payment verification failed on server.');
+            }
+          } catch (verifyErr) {
+            console.error('❌ Verification Error:', verifyErr);
+            setError(verifyErr.response?.data?.message || 'Payment verification failed.');
+          } finally {
+            setIsLoading(false);
+          }
+        },
+        prefill: {
+          name: address.name,
+          email: user?.email || '',
+          contact: address.phone
+        },
+        notes: {
+          sheSphereOrderId: orderId
+        },
+        theme: {
+          color: '#ec4899' // SheSphere Pink
+        },
+        modal: {
+          ondismiss: () => {
+            setIsLoading(false);
+            setError('Payment was cancelled. You can retry payment anytime.');
+          }
+        }
+      };
+
+      // 4. Launch Razorpay Checkout Modal
+      const razorpayInstance = new window.Razorpay(options);
+      razorpayInstance.on('payment.failed', function (response) {
+        setIsLoading(false);
+        setError(`Payment failed: ${response.error?.description || 'Transaction declined'}`);
+      });
+
+      razorpayInstance.open();
     } catch (err) {
-      setError(err.message || 'Something went wrong. Please try again.');
-    } finally {
+      console.error('❌ Razorpay Setup Error:', err);
+      setError(err.response?.data?.message || err.message || 'Failed to launch checkout.');
       setIsLoading(false);
     }
   };
 
-  const totalPrice = (product.price * qty).toLocaleString('en-IN');
+  const unitPrice = product.price || 0;
+  const totalPriceFormatted = (unitPrice * qty).toLocaleString('en-IN');
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
@@ -73,26 +157,62 @@ const BuyModal = ({ product, defaultQty = 1, onClose, onSuccess }) => {
             </div>
             <div>
               <h2 className="text-lg font-extrabold">
-                {step === 2 ? 'Order Placed! 🎉' : 'Confirm Your Order'}
+                {step === 2 ? 'Payment Successful! 🎉' : 'Checkout & Payment'}
               </h2>
               <p className="text-pink-100 text-xs mt-0.5">
-                {step === 2 ? 'Thank you for supporting women artisans.' : 'Review and confirm your purchase.'}
+                {step === 2 ? 'Thank you for supporting women artisans.' : 'Secure Razorpay Test Mode Payment.'}
               </p>
             </div>
           </div>
         </div>
 
         {step === 2 ? (
-          /* Success State */
-          <div className="p-8 flex flex-col items-center gap-4 text-center">
-            <CheckCircle2 className="w-16 h-16 text-emerald-500" />
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Order Confirmed!</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Your order for <strong>{product.name || product.productName}</strong> has been placed.
-              Track it in <strong>My Purchases</strong>.
-            </p>
+          /* Step 2: Success State */
+          <div className="p-6 space-y-5 flex flex-col items-center text-center">
+            <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center">
+              <CheckCircle2 className="w-10 h-10" />
+            </div>
+            <div>
+              <h3 className="text-xl font-extrabold text-gray-900 dark:text-white">Order Confirmed & Paid!</h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Your payment was processed securely via Razorpay Test Mode.
+              </p>
+            </div>
+
+            {/* Payment receipt box */}
+            <div className="w-full bg-gray-50 dark:bg-gray-900/60 p-4 rounded-2xl border border-gray-200 dark:border-gray-700 text-left space-y-2 text-xs">
+              <div className="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
+                <span className="text-gray-500 dark:text-gray-400">Payment Status:</span>
+                <span className="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                  <Lock className="w-3 h-3" /> Paid (Test Mode)
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500 dark:text-gray-400">Razorpay Payment ID:</span>
+                <span className="font-mono text-gray-800 dark:text-gray-200 font-semibold">{paymentInfo?.paymentId}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500 dark:text-gray-400">Order ID:</span>
+                <span className="font-mono text-gray-800 dark:text-gray-200">{paymentInfo?.orderId}</span>
+              </div>
+              <div className="flex justify-between pt-1 border-t border-gray-200 dark:border-gray-700">
+                <span className="font-bold text-gray-700 dark:text-gray-300">Amount Paid:</span>
+                <span className="font-extrabold text-pink-600 dark:text-pink-400 text-sm">₹{paymentInfo?.amountPaid}</span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                onSuccess?.();
+                onClose();
+              }}
+              className="w-full py-3 bg-pink-600 hover:bg-pink-700 text-white font-bold rounded-xl shadow-md transition"
+            >
+              Done & View Purchases
+            </button>
           </div>
         ) : (
+          /* Step 1: Product summary + Shipping address + Razorpay button */
           <div className="p-5 space-y-5">
             {/* Product summary */}
             <div className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-700">
@@ -104,7 +224,7 @@ const BuyModal = ({ product, defaultQty = 1, onClose, onSuccess }) => {
               />
               <div className="min-w-0">
                 <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{product.name || product.productName}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">₹{product.price?.toLocaleString('en-IN')} per item</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">₹{unitPrice.toLocaleString('en-IN')} per item</p>
               </div>
             </div>
 
@@ -134,7 +254,7 @@ const BuyModal = ({ product, defaultQty = 1, onClose, onSuccess }) => {
                 {[
                   { name: 'name', placeholder: 'Full Name', colSpan: 2 },
                   { name: 'phone', placeholder: 'Phone Number', colSpan: 1 },
-                  { name: 'pincode', placeholder: 'Pincode', colSpan: 1 },
+                  { name: 'pincode', placeholder: 'Pincode (6 digits)', colSpan: 1 },
                   { name: 'addressLine', placeholder: 'Address Line (House, Street, Area)', colSpan: 2 },
                   { name: 'city', placeholder: 'City', colSpan: 1 },
                   { name: 'state', placeholder: 'State', colSpan: 1 }
@@ -153,13 +273,18 @@ const BuyModal = ({ product, defaultQty = 1, onClose, onSuccess }) => {
               </div>
             </div>
 
-            {/* Total */}
-            <div className="flex items-center justify-between p-3 bg-pink-50 dark:bg-pink-950/30 rounded-xl border border-pink-100 dark:border-pink-900/30">
-              <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Total Amount</span>
-              <span className="text-xl font-extrabold text-pink-600">₹{totalPrice}</span>
+            {/* Total Amount */}
+            <div className="flex items-center justify-between p-3.5 bg-pink-50 dark:bg-pink-950/30 rounded-xl border border-pink-100 dark:border-pink-900/30">
+              <div>
+                <span className="text-xs text-gray-500 dark:text-gray-400 block">Total Amount</span>
+                <span className="text-xl font-extrabold text-pink-600 dark:text-pink-400">₹{totalPriceFormatted}</span>
+              </div>
+              <div className="flex items-center gap-1.5 px-3 py-1 bg-pink-100 dark:bg-pink-900/50 rounded-lg text-pink-700 dark:text-pink-300 text-xs font-bold">
+                <CreditCard className="w-4 h-4" /> Razorpay Test Mode
+              </div>
             </div>
 
-            {/* Error */}
+            {/* Error banner */}
             {error && (
               <div className="flex items-center gap-2 p-3 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 rounded-xl text-rose-700 dark:text-rose-400 text-xs font-medium">
                 <AlertCircle className="w-4 h-4 shrink-0" />
@@ -168,28 +293,31 @@ const BuyModal = ({ product, defaultQty = 1, onClose, onSuccess }) => {
             )}
 
             {/* Trust badge */}
-            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-              <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
-              <span>Secure purchase • Artisan verified • Handmade guaranteed</span>
+            <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+              <div className="flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
+                <span>256-bit SSL Encrypted • Test Cards Accepted</span>
+              </div>
             </div>
 
             {/* Actions */}
-            <div className="flex gap-3 pt-2">
+            <div className="flex gap-3 pt-1">
               <button
                 onClick={onClose}
+                disabled={isLoading}
                 className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 text-sm font-semibold rounded-xl transition"
               >
                 Cancel
               </button>
               <button
-                onClick={handleConfirm}
+                onClick={handleProceedToPayment}
                 disabled={isLoading}
-                className="flex-1 flex items-center justify-center gap-2 py-3 bg-pink-600 hover:bg-pink-700 text-white text-sm font-semibold rounded-xl shadow-md transition disabled:opacity-60"
+                className="flex-2 flex items-center justify-center gap-2 py-3 px-5 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-pink-500/25 transition disabled:opacity-60"
               >
                 {isLoading ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" /> Placing…</>
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Preparing Payment…</>
                 ) : (
-                  <><ShoppingBag className="w-4 h-4" /> Place Order</>
+                  <><Lock className="w-4 h-4" /> Pay ₹{totalPriceFormatted}</>
                 )}
               </button>
             </div>

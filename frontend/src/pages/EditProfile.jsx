@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
-import { updateUserProfile } from '../services/userService';
+import { updateUserProfile, uploadProfilePicture } from '../services/userService';
 import {
   User,
   Mail,
@@ -55,16 +55,34 @@ const EditProfile = () => {
     return errs;
   };
 
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     const { name, value, files } = e.target;
     if (name === 'profilePicture') {
       const file = files?.[0];
       if (!file) return;
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setForm((prev) => ({ ...prev, profilePicture: reader.result }));
-      };
-      reader.readAsDataURL(file);
+
+      console.log('\n================ [PROFILE PHOTO FRONTEND] ================');
+      console.log('Selected file:', file.name, file.type, file.size, 'bytes');
+
+      const tempPreview = URL.createObjectURL(file);
+      setForm((prev) => ({ ...prev, profilePicture: tempPreview }));
+
+      try {
+        const uploadRes = await uploadProfilePicture(file);
+        console.log('Upload response:', uploadRes);
+        if (uploadRes && uploadRes.success && uploadRes.profilePicture) {
+          console.log('Saved profilePicture:', uploadRes.profilePicture.startsWith('data:') ? `${uploadRes.profilePicture.substring(0, 50)}... [Base64]` : uploadRes.profilePicture);
+          setForm((prev) => ({ ...prev, profilePicture: uploadRes.profilePicture }));
+          if (uploadRes.user) {
+            updateUserData(uploadRes.user);
+            console.log('Current user profilePicture:', uploadRes.user.profilePicture.startsWith('data:') ? `${uploadRes.user.profilePicture.substring(0, 50)}... [Base64]` : uploadRes.user.profilePicture);
+          }
+        }
+      } catch (err) {
+        console.error('❌ [PROFILE PHOTO FRONTEND] Failed to upload image:', err);
+      } finally {
+        console.log('========================================================\n');
+      }
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
@@ -87,7 +105,9 @@ const EditProfile = () => {
         dailyFreeTime: form.dailyFreeTime,
         profilePicture: form.profilePicture,
       });
-      updateUserData(updated);
+      if (updated) {
+        updateUserData(updated);
+      }
       navigate('/dashboard/profile');
     } catch (err) {
       console.error('Update failed', err);

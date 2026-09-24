@@ -7,11 +7,14 @@ import Button from '../components/ui/Button';
 import Select from '../components/ui/Select';
 import { useUser } from '../context/UserContext';
 import api from '../services/api';
+import { uploadProfilePicture } from '../services/userService';
 
 const ProfileSetup = () => {
   const { userData, updateUserData } = useUser();
   const navigate = useNavigate();
+  const [selectedFile, setSelectedFile] = useState(null);
   const [previewImage, setPreviewImage] = useState(userData.profilePicture || null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   
   const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm({
     defaultValues: {
@@ -23,25 +26,61 @@ const ProfileSetup = () => {
     }
   });
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewImage(reader.result);
-      };
-      reader.readAsDataURL(file);
+      console.log('\n================ [PROFILE PHOTO FRONTEND] ================');
+      console.log('Selected file:', file.name, file.type, file.size, 'bytes');
+      setSelectedFile(file);
+      const localUrl = URL.createObjectURL(file);
+      setPreviewImage(localUrl);
+
+      setUploadingImage(true);
+      try {
+        const uploadRes = await uploadProfilePicture(file);
+        console.log('Upload response:', uploadRes);
+        if (uploadRes && uploadRes.success && uploadRes.profilePicture) {
+          console.log('Saved profilePicture:', uploadRes.profilePicture.startsWith('data:') ? `${uploadRes.profilePicture.substring(0, 50)}... [Base64]` : uploadRes.profilePicture);
+          setPreviewImage(uploadRes.profilePicture);
+          if (uploadRes.user) {
+            updateUserData(uploadRes.user);
+            console.log('Current user profilePicture:', uploadRes.user.profilePicture.startsWith('data:') ? `${uploadRes.user.profilePicture.substring(0, 50)}... [Base64]` : uploadRes.user.profilePicture);
+          }
+        }
+      } catch (err) {
+        console.error('❌ [PROFILE PHOTO FRONTEND] Image upload failed:', err);
+      } finally {
+        setUploadingImage(false);
+        console.log('========================================================\n');
+      }
     }
   };
 
   const onSubmit = async (data) => {
-    const fullData = { ...data, profilePicture: previewImage };
+    let finalPicture = previewImage;
+
+    if (selectedFile && previewImage && previewImage.startsWith('blob:')) {
+      try {
+        const uploadRes = await uploadProfilePicture(selectedFile);
+        if (uploadRes && uploadRes.profilePicture) {
+          finalPicture = uploadRes.profilePicture;
+        }
+      } catch (err) {
+        console.error('Failed uploading photo during submit:', err);
+      }
+    }
+
+    const fullData = { ...data, profilePicture: finalPicture };
     try {
-      await api.put('/auth/profile', fullData);
-      updateUserData(fullData);
+      const response = await api.put('/auth/profile', fullData);
+      if (response.data && response.data.user) {
+        updateUserData(response.data.user);
+      } else {
+        updateUserData(fullData);
+      }
       navigate('/interests');
     } catch (err) {
-      console.warn('Failed to update profile on server:', err.message);
+      console.error('Failed to update profile on server:', err.message);
     }
   };
 

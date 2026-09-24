@@ -6,6 +6,7 @@ import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
 import loginIllustration from '../assets/login_illustration.png';
 import api from '../services/api';
+import { useUser } from '../context/UserContext';
 
 
 const GoogleIcon = () => (
@@ -20,6 +21,7 @@ const GoogleIcon = () => (
 const Login = () => {
   const { register, handleSubmit, setError, formState: { errors, isSubmitting } } = useForm();
   const navigate = useNavigate();
+  const { fetchProfile } = useUser();
   const [serverError, setServerError] = useState('');
 
   const onSubmit = async (data) => {
@@ -33,6 +35,8 @@ const Login = () => {
       if (response.data && response.data.token) {
         // Store JWT token in LocalStorage
         localStorage.setItem('token', response.data.token);
+        // Fetch fresh user profile into context before redirecting
+        await fetchProfile();
         // Redirect to Dashboard
         navigate('/dashboard');
       }
