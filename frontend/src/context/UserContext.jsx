@@ -1,35 +1,9 @@
-import React, { createContext, useState, useContext } from 'react';
-import { useEffect } from "react";
-import axios from "axios";
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import { getUserProfile } from '../services/userService';
 
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-  useEffect(() => {
-    const fetchProfile = async () => {
-        const token = localStorage.getItem("token");
-
-        if (!token) return;
-
-        try {
-            const res = await axios.get(
-                "http://localhost:8008/api/auth/profile",
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-
-            setUserData(res.data.user);
-
-        } catch (err) {
-            console.log(err);
-        }
-    };
-
-    fetchProfile();
-}, []);
   const [userData, setUserData] = useState({
     profilePicture: null,
     fullName: '',
@@ -41,6 +15,26 @@ export const UserProvider = ({ children }) => {
     dailyFreeTime: '',
     interest: ''
   });
+
+  const fetchProfile = useCallback(async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+
+    try {
+      const user = await getUserProfile();
+      if (user) {
+        setUserData(user);
+        return user;
+      }
+    } catch (err) {
+      console.error('Error fetching user profile in UserContext:', err);
+    }
+    return null;
+  }, []);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   const updateUserData = (newData) => {
     setUserData((prev) => ({ ...prev, ...newData }));
@@ -62,7 +56,7 @@ export const UserProvider = ({ children }) => {
   };
 
   return (
-    <UserContext.Provider value={{ userData, updateUserData, logout }}>
+    <UserContext.Provider value={{ userData, setUserData, updateUserData, fetchProfile, logout }}>
       {children}
     </UserContext.Provider>
   );

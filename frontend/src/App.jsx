@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { UserProvider } from "./context/UserContext";
 import { MarketplaceProvider } from "./context/MarketplaceContext";
 import { ThemeProvider } from "./context/ThemeContext";
+import { NotificationProvider } from "./context/NotificationContext";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -39,8 +40,9 @@ function App() {
   return (
     <ThemeProvider>
       <UserProvider>
-        <MarketplaceProvider>
-        <Router>
+        <NotificationProvider>
+          <MarketplaceProvider>
+            <Router>
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<MainLayout />}>
@@ -99,9 +101,10 @@ function App() {
             </Route>
           </Routes>
         </Router>
-      </MarketplaceProvider>
-    </UserProvider>
-  </ThemeProvider>
+          </MarketplaceProvider>
+        </NotificationProvider>
+      </UserProvider>
+    </ThemeProvider>
   );
 }
 

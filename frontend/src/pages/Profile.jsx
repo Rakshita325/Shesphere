@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
-import { updateUserProfile, getProfileStats } from '../services/userService';
+import { updateUserProfile, getProfileStats, uploadProfilePicture } from '../services/userService';
 import {
   Camera,
   CheckCircle,
@@ -79,21 +79,33 @@ const Profile = () => {
     }
   };
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const base64Image = reader.result;
-      updateUserData({ profilePicture: base64Image });
-      try {
-        await updateUserProfile({ profilePicture: base64Image });
-      } catch (err) {
-        console.error('Failed to sync profile picture with backend:', err);
+    console.log('\n================ [PROFILE PHOTO FRONTEND] ================');
+    console.log('Selected file:', file.name, file.type, file.size, 'bytes');
+
+    const tempUrl = URL.createObjectURL(file);
+    updateUserData({ profilePicture: tempUrl });
+
+    try {
+      const uploadRes = await uploadProfilePicture(file);
+      console.log('Upload response:', uploadRes);
+      if (uploadRes && uploadRes.success && uploadRes.profilePicture) {
+        console.log('Saved profilePicture:', uploadRes.profilePicture.startsWith('data:') ? `${uploadRes.profilePicture.substring(0, 50)}... [Base64]` : uploadRes.profilePicture);
+        if (uploadRes.user) {
+          updateUserData(uploadRes.user);
+          console.log('Current user profilePicture:', uploadRes.user.profilePicture.startsWith('data:') ? `${uploadRes.user.profilePicture.substring(0, 50)}... [Base64]` : uploadRes.user.profilePicture);
+        } else {
+          updateUserData({ profilePicture: uploadRes.profilePicture });
+        }
       }
-    };
-    reader.readAsDataURL(file);
+    } catch (err) {
+      console.error('❌ [PROFILE PHOTO FRONTEND] Failed to upload profile picture:', err);
+    } finally {
+      console.log('========================================================\n');
+    }
   };
 
   // Preset configuration for badge visual themes

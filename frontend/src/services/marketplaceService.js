@@ -152,5 +152,20 @@ export const marketplaceService = {
   getProductReviews: async (productId) => {
     const res = await axios.get(`${API_BASE_URL}/products/${productId}/reviews`);
     return res.data;
+  },
+
+  // Razorpay Test Mode Payments
+  createRazorpayOrder: async (orderData) => {
+    const res = await axios.post(`${API_BASE_URL}/payment/create-order`, orderData, {
+      headers: getAuthHeader()
+    });
+    return res.data;
+  },
+
+  verifyRazorpayPayment: async (paymentData) => {
+    const res = await axios.post(`${API_BASE_URL}/payment/verify`, paymentData, {
+      headers: getAuthHeader()
+    });
+    return res.data;
   }
 };

@@ -4,7 +4,7 @@ import { useMarketplace } from '../context/MarketplaceContext';
 import MarketplaceHeader from '../components/Marketplace/MarketplaceHeader';
 import {
   ShoppingCart, PackageCheck, Clock, Truck, CheckCircle2,
-  XCircle, AlertCircle, Loader2, ArrowRight, X
+  XCircle, AlertCircle, Loader2, ArrowRight, X, CreditCard
 } from 'lucide-react';
 
 const MyPurchases = () => {
@@ -188,7 +188,18 @@ const MyPurchases = () => {
                   <div className="text-base font-extrabold text-pink-600">
                     ₹{order.totalPrice?.toLocaleString('en-IN')}
                   </div>
-                  <div className="mt-1">{getStatusBadge(order.status)}</div>
+                  <div className="mt-1 flex items-center gap-1.5 justify-start md:justify-end flex-wrap">
+                    {getStatusBadge(order.status)}
+                    {order.paymentStatus === 'paid' ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-bold rounded-full">
+                        <CreditCard className="w-3.5 h-3.5 text-emerald-600" /> Paid
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-600 text-xs font-medium rounded-full">
+                        Unpaid
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Buyer actions */}

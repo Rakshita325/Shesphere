@@ -55,6 +55,9 @@ const mapOrder = (o, type) => ({
   priceAtPurchase: o.priceAtPurchase || o.totalAmount / (o.quantity || 1),
   totalPrice: o.totalAmount,
   status: o.status,
+  paymentStatus: o.paymentStatus || 'pending',
+  razorpayOrderId: o.razorpayOrderId || '',
+  razorpayPaymentId: o.razorpayPaymentId || '',
   shippingAddress: o.shippingAddress || {},
   invoiceAddress: o.invoiceAddress || {},
   date: new Date(o.createdAt).toLocaleDateString('en-IN', {
