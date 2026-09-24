@@ -8,9 +8,12 @@ import PostComposer from '../components/community/PostComposer';
 import CommunityPostCard from '../components/community/CommunityPostCard';
 import SimilarLearnersWidget from '../components/community/SimilarLearnersWidget';
 
+import { useSearch } from '../context/SearchContext';
+
 const Community = () => {
   const { communityId } = useParams();
   const navigate = useNavigate();
+  const { searchQuery } = useSearch();
 
   // List View State
   const [communities, setCommunities] = useState([]);
@@ -23,6 +26,17 @@ const Community = () => {
   const [loadingCommunity, setLoadingCommunity] = useState(false);
   const [loadingPosts, setLoadingPosts] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+
+  const filteredCommunities = searchQuery.trim()
+    ? communities.filter((c) => {
+        const q = searchQuery.toLowerCase().trim();
+        const nameMatch = c.name?.toLowerCase().includes(q);
+        const descMatch = c.description?.toLowerCase().includes(q);
+        const interestMatch = c.interest?.toLowerCase().includes(q);
+        const catMatch = c.category?.toLowerCase().includes(q);
+        return nameMatch || descMatch || interestMatch || catMatch;
+      })
+    : communities;
 
   useEffect(() => {
     if (communityId) {
@@ -251,10 +265,16 @@ const Community = () => {
         <div className="text-center py-12 text-red-500 font-medium">
           {errorMsg}
         </div>
+      ) : filteredCommunities.length === 0 ? (
+        <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-3xl border border-dashed border-gray-200 dark:border-gray-700 p-8">
+          <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">
+            No community groups found matching '{searchQuery}'.
+          </p>
+        </div>
       ) : (
-        /* 8 Interest Communities Cards Grid */
+        /* Interest Communities Cards Grid */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {communities.map((comm) => (
+          {filteredCommunities.map((comm) => (
             <CommunityCard
               key={comm._id}
               community={comm}

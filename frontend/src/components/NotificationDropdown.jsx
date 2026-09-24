@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingBag, Flame, MessageSquare, Bell, CheckCheck, X, Trash2 } from 'lucide-react';
+import { ShoppingBag, Flame, MessageSquare, MessageCircle, Bell, CheckCheck, X, Trash2 } from 'lucide-react';
 import { useNotifications } from '../context/NotificationContext';
 
 // Helper for human-readable relative time format
@@ -61,6 +61,8 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
         return <Flame className="w-4 h-4 text-amber-500" />;
       case 'COMMUNITY':
         return <MessageSquare className="w-4 h-4 text-purple-500" />;
+      case 'MESSAGE':
+        return <MessageCircle className="w-4 h-4 text-pink-500" />;
       default:
         return <Bell className="w-4 h-4 text-pink-500" />;
     }
@@ -74,6 +76,8 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
         return 'bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border-amber-200/50 dark:border-amber-900/40';
       case 'COMMUNITY':
         return 'bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 border-purple-200/50 dark:border-purple-900/40';
+      case 'MESSAGE':
+        return 'bg-pink-50 dark:bg-pink-950/40 text-pink-600 dark:text-pink-400 border-pink-200/50 dark:border-pink-900/40';
       default:
         return 'bg-pink-50 dark:bg-pink-950/40 text-pink-600 dark:text-pink-400 border-pink-200/50 dark:border-pink-900/40';
     }
@@ -93,6 +97,10 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
       onClose();
     } else if (n.type === 'COMMUNITY') {
       navigate('/dashboard/community');
+      onClose();
+    } else if (n.type === 'MESSAGE') {
+      // Navigate to orders page where the user can open the relevant chat
+      navigate('/marketplace/orders');
       onClose();
     }
   };

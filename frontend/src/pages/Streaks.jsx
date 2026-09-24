@@ -1,9 +1,10 @@
-// src/pages/Streaks.jsx
 import React, { useEffect, useState } from 'react';
 import { useUser } from '../context/UserContext';
 import CardBase from '../components/dashboard/CardBase';
 import { Calendar } from 'lucide-react';
 import api from '../services/api';
+import { useSearch } from '../context/SearchContext';
+
 // Generate past 30 days dates and mark completed based on activeDates
 const generateMonthlyData = (activeDates = []) => {
   const days = [];
@@ -28,6 +29,7 @@ const milestones = [
 
 const Streaks = () => {
   const { userData, updateUserData } = useUser();
+  const { searchQuery } = useSearch();
   const [streakInfo, setStreakInfo] = useState(null);
 
   // Fetch latest streak info from backend
@@ -47,6 +49,16 @@ const Streaks = () => {
 
   // Weekly progress: last 7 days from monthlyData
   const weeklyData = monthlyData.slice(-7);
+
+  const q = searchQuery.toLowerCase().trim();
+  const filteredMilestones = q
+    ? milestones.filter((m) => {
+        const labelMatch = m.label.toLowerCase().includes(q);
+        const daysMatch = `${m.days}`.includes(q) || `${m.days} day`.includes(q) || `${m.days}-day`.includes(q);
+        const keywordMatch = q.includes('milestone') || q.includes('streak') || q.includes('learner') || q.includes('learning');
+        return labelMatch || daysMatch || keywordMatch;
+      })
+    : milestones;
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 font-poppins pb-12">
@@ -131,32 +143,40 @@ const Streaks = () => {
       {/* ── Milestones Grid ───────────────────────────────────────── */}
       <div className="glass-card rounded-3xl p-6 md:p-8 space-y-4">
         <h3 className="text-lg font-bold text-[var(--text-main)]">Achievement Milestones</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-          {milestones.map((m) => {
-            const isUnlocked = currentStreak >= m.days;
-            return (
-              <div
-                key={m.days}
-                className={`p-6 rounded-2xl border transition-all text-center ${
-                  isUnlocked
-                    ? 'bg-gradient-to-br from-amber-500/10 via-pink-500/10 to-purple-500/10 dark:from-amber-950/40 dark:via-pink-950/40 dark:to-purple-950/40 border-amber-300 dark:border-amber-900/60 shadow-sm'
-                    : 'bg-gray-50/50 dark:bg-gray-800/30 border-gray-200 dark:border-gray-800'
-                }`}
-              >
-                <div className="text-3xl mb-2">{isUnlocked ? '🏆' : '🔒'}</div>
-                <span className="font-bold text-sm text-[var(--text-main)] block">{m.label}</span>
-                <p className="mt-1 text-xs font-medium text-[var(--text-muted)]">{m.days} days required</p>
-                <span className={`inline-block mt-3 text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full ${
-                  isUnlocked
-                    ? 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-900/60'
-                    : 'bg-gray-200 dark:bg-gray-700 text-gray-500'
-                }`}>
-                  {isUnlocked ? 'Unlocked' : 'Locked'}
-                </span>
-              </div>
-            );
-          })}
-        </div>
+        {filteredMilestones.length === 0 ? (
+          <div className="py-8 text-center bg-gray-50 dark:bg-gray-800/40 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
+            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+              No streak milestones found for '{searchQuery}'.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            {filteredMilestones.map((m) => {
+              const isUnlocked = currentStreak >= m.days;
+              return (
+                <div
+                  key={m.days}
+                  className={`p-6 rounded-2xl border transition-all text-center ${
+                    isUnlocked
+                      ? 'bg-gradient-to-br from-amber-500/10 via-pink-500/10 to-purple-500/10 dark:from-amber-950/40 dark:via-pink-950/40 dark:to-purple-950/40 border-amber-300 dark:border-amber-900/60 shadow-sm'
+                      : 'bg-gray-50/50 dark:bg-gray-800/30 border-gray-200 dark:border-gray-800'
+                  }`}
+                >
+                  <div className="text-3xl mb-2">{isUnlocked ? '🏆' : '🔒'}</div>
+                  <span className="font-bold text-sm text-[var(--text-main)] block">{m.label}</span>
+                  <p className="mt-1 text-xs font-medium text-[var(--text-muted)]">{m.days} days required</p>
+                  <span className={`inline-block mt-3 text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full ${
+                    isUnlocked
+                      ? 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-900/60'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-500'
+                  }`}>
+                    {isUnlocked ? 'Unlocked' : 'Locked'}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

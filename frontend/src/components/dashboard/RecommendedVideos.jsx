@@ -5,8 +5,11 @@ import videoService from '../../services/videoService';
 import { useUser } from '../../context/UserContext';
 import { Play, Eye, Tag, ChevronLeft, ChevronRight, Video, Clock, Sparkles } from 'lucide-react';
 
+import { useSearch } from '../../context/SearchContext';
+
 const RecommendedVideos = () => {
   const { userData } = useUser();
+  const { searchQuery } = useSearch();
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -53,6 +56,20 @@ const RecommendedVideos = () => {
     }
   };
 
+  const filteredVideos = searchQuery.trim()
+    ? videos.filter((v) => {
+        const q = searchQuery.toLowerCase().trim();
+        const titleMatch = v.title?.toLowerCase().includes(q);
+        const catMatch = v.category?.toLowerCase().includes(q);
+        const subcatMatch = v.subcategory?.toLowerCase().includes(q);
+        const descMatch = v.description?.toLowerCase().includes(q);
+        const tagsMatch = Array.isArray(v.tags)
+          ? v.tags.some((t) => t.toLowerCase().includes(q))
+          : v.tags?.toLowerCase().includes(q);
+        return titleMatch || catMatch || subcatMatch || descMatch || tagsMatch;
+      })
+    : videos;
+
   const scrollLeft = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollBy({ left: -300, behavior: 'smooth' });
@@ -93,7 +110,7 @@ const RecommendedVideos = () => {
         </div>
 
         {/* Scroll Controls */}
-        {videos.length > 0 && (
+        {filteredVideos.length > 0 && (
           <div className="flex items-center gap-2">
             <button
               onClick={scrollLeft}
@@ -115,10 +132,12 @@ const RecommendedVideos = () => {
 
       {error ? (
         <p className="text-xs text-red-500 py-4">{error}</p>
-      ) : videos.length === 0 ? (
+      ) : filteredVideos.length === 0 ? (
         <div className="py-8 text-center bg-gray-50 dark:bg-gray-800/40 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
           <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-            No content available for your selected interest yet.
+            {searchQuery.trim()
+              ? `No videos found for '${searchQuery}'.`
+              : 'No content available for your selected interest yet.'}
           </p>
         </div>
       ) : (
@@ -128,7 +147,7 @@ const RecommendedVideos = () => {
           className="flex gap-4 overflow-x-auto pb-3 pt-1 scrollbar-none snap-x snap-mandatory focus:outline-none"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {videos.map((v) => {
+          {filteredVideos.map((v) => {
             const isCollab = !!(v.cfScore > 0 || v.isCollaborative || v.recommendationSource === 'collaborative');
 
             return (

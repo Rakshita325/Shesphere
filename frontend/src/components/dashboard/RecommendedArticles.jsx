@@ -5,8 +5,11 @@ import articleService from '../../services/articleService';
 import { useUser } from '../../context/UserContext';
 import { ChevronLeft, ChevronRight, PenTool, BookOpen, Clock } from 'lucide-react';
 
+import { useSearch } from '../../context/SearchContext';
+
 const RecommendedArticles = () => {
   const { userData } = useUser();
+  const { searchQuery } = useSearch();
   const [articlesList, setArticlesList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -17,6 +20,10 @@ const RecommendedArticles = () => {
   useEffect(() => {
     fetchArticles();
   }, [userData.interest]);
+
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, [searchQuery]);
 
   const fetchArticles = async () => {
     try {
@@ -33,19 +40,32 @@ const RecommendedArticles = () => {
     }
   };
 
+  const filteredArticles = searchQuery.trim()
+    ? articlesList.filter((a) => {
+        const q = searchQuery.toLowerCase().trim();
+        const titleMatch = a.title?.toLowerCase().includes(q);
+        const catMatch = a.category?.toLowerCase().includes(q);
+        const contentMatch = a.content?.toLowerCase().includes(q);
+        const tagsMatch = Array.isArray(a.tags)
+          ? a.tags.some((t) => t.toLowerCase().includes(q))
+          : a.tags?.toLowerCase().includes(q);
+        return titleMatch || catMatch || contentMatch || tagsMatch;
+      })
+    : articlesList;
+
   const handlePrev = () => {
     setCurrentIndex((prev) => Math.max(0, prev - CARDS_PER_SET));
   };
 
   const handleNext = () => {
     setCurrentIndex((prev) =>
-      Math.min(articlesList.length - CARDS_PER_SET, prev + CARDS_PER_SET)
+      Math.min(filteredArticles.length - CARDS_PER_SET, prev + CARDS_PER_SET)
     );
   };
 
-  const currentSet = articlesList.slice(currentIndex, currentIndex + CARDS_PER_SET);
+  const currentSet = filteredArticles.slice(currentIndex, currentIndex + CARDS_PER_SET);
   const isPrevDisabled = currentIndex === 0;
-  const isNextDisabled = currentIndex + CARDS_PER_SET >= articlesList.length;
+  const isNextDisabled = currentIndex + CARDS_PER_SET >= filteredArticles.length;
 
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
@@ -70,7 +90,7 @@ const RecommendedArticles = () => {
         </div>
 
         {/* Set Navigation Controls */}
-        {articlesList.length > 0 && (
+        {filteredArticles.length > 0 && (
           <div className="flex items-center gap-2">
             <button
               onClick={handlePrev}
@@ -81,7 +101,7 @@ const RecommendedArticles = () => {
               <ChevronLeft className="w-4 h-4" />
             </button>
             <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 px-1">
-              {`${Math.floor(currentIndex / CARDS_PER_SET) + 1} / ${Math.ceil(articlesList.length / CARDS_PER_SET)}`}
+              {`${Math.floor(currentIndex / CARDS_PER_SET) + 1} / ${Math.ceil(filteredArticles.length / CARDS_PER_SET)}`}
             </span>
             <button
               onClick={handleNext}
@@ -102,10 +122,12 @@ const RecommendedArticles = () => {
             <div key={i} className="bg-gray-100 dark:bg-gray-800 rounded-2xl h-52 w-full" />
           ))}
         </div>
-      ) : articlesList.length === 0 ? (
+      ) : filteredArticles.length === 0 ? (
         <div className="py-8 text-center bg-gray-50 dark:bg-gray-800/40 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 mb-6">
           <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-            No articles available for your selected interest yet.
+            {searchQuery.trim()
+              ? `No articles found for '${searchQuery}'.`
+              : 'No articles available for your selected interest yet.'}
           </p>
         </div>
       ) : (

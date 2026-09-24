@@ -9,6 +9,8 @@ import Game2048 from '../components/games/Game2048';
 import FlipLearnGame from '../components/games/FlipLearnGame';
 import { ArrowLeft, Trophy, Gamepad2, Lock } from 'lucide-react';
 
+import { useSearch } from '../context/SearchContext';
+
 const GAME_COMPONENTS = {
   memory_match: MemoryMatchGame,
   wordle: WordleGame,
@@ -19,6 +21,7 @@ const GAME_COMPONENTS = {
 
 const Games = () => {
   const { userData } = useUser();
+  const { searchQuery: globalSearchQuery } = useSearch();
   const [selectedGame, setSelectedGame] = useState(null);
   const [progress, setProgress] = useState({});
   const [loading, setLoading] = useState(true);
@@ -90,10 +93,14 @@ const Games = () => {
     );
   }
 
+  const activeQuery = globalSearchQuery.trim() || searchQuery.trim();
+
   const filteredGames = GAME_DEFINITIONS.filter(
     (game) =>
-      game.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      game.description.toLowerCase().includes(searchQuery.toLowerCase())
+      game.name.toLowerCase().includes(activeQuery.toLowerCase()) ||
+      game.description.toLowerCase().includes(activeQuery.toLowerCase()) ||
+      (game.difficulty && game.difficulty.toLowerCase().includes(activeQuery.toLowerCase())) ||
+      (game.id && game.id.toLowerCase().includes(activeQuery.toLowerCase()))
   );
 
   // Render game cards grid
@@ -163,8 +170,15 @@ const Games = () => {
 
         {/* Games Grid */}
         {!loading && !error && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredGames.map((game) => {
+          filteredGames.length === 0 ? (
+            <div className="py-12 text-center bg-white/60 dark:bg-gray-800/40 rounded-3xl border border-dashed border-gray-200 dark:border-gray-700">
+              <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">
+                No games found matching '{activeQuery}'.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredGames.map((game) => {
               const gameProgress = progress[game.id];
               const isPlayedToday = gameProgress?.completedToday === true;
               const highScore = gameProgress?.highScore || 0;
@@ -230,7 +244,8 @@ const Games = () => {
                 </div>
               );
             })}
-          </div>
+            </div>
+          )
         )}
       </div>
     </div>

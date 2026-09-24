@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Search, Bell, Bot, Settings as Gear, User as UserIcon, Sun, Moon, ChevronDown } from 'lucide-react';
+import { Search, X, Bell, Bot, Settings as Gear, User as UserIcon, Sun, Moon, ChevronDown } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import { useTheme } from '../context/ThemeContext';
 import { useNotifications } from '../context/NotificationContext';
+import { useSearch } from '../context/SearchContext';
 import AIChatbot from './AIChatbot';
 import NotificationDropdown from './NotificationDropdown';
 
@@ -26,12 +27,25 @@ const pageTitles = {
   '/dashboard/marketplace/orders': 'Orders & Purchases',
 };
 
+const getSearchPlaceholder = (pathname) => {
+  const path = pathname.toLowerCase();
+  if (path.includes('/marketplace')) return 'Search marketplace products...';
+  if (path.includes('/community')) return 'Search community groups...';
+  if (path.includes('/journal')) return 'Search journal entries or dates...';
+  if (path.includes('/streaks')) return 'Search streak milestones & info...';
+  if (path.includes('/games')) return 'Search available games...';
+  if (path.includes('/settings')) return 'Search settings options...';
+  if (path.includes('/profile')) return 'Search profile sections...';
+  return 'Search videos & articles...';
+};
+
 const TopNavbar = ({ onMenuClick }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { userData } = useUser();
   const { theme, toggleTheme } = useTheme();
   const { unreadCount } = useNotifications();
+  const { searchQuery, setSearchQuery, clearSearch } = useSearch();
 
   // ── AI Chatbot panel state ────────────────────────────────────────────────
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -50,6 +64,8 @@ const TopNavbar = ({ onMenuClick }) => {
   const handleProfileClick = () => {
     navigate('/dashboard/profile');
   };
+
+  const placeholder = getSearchPlaceholder(location.pathname);
 
   return (
     <>
@@ -70,15 +86,27 @@ const TopNavbar = ({ onMenuClick }) => {
           {title}
         </div>
 
-        {/* Center – Search (visible on md+) */}
-        <div className="hidden md:flex items-center gap-2 flex-1 max-w-md mx-6">
+        {/* Center – Search (visible on sm+) */}
+        <div className="hidden sm:flex items-center gap-2 flex-1 max-w-md mx-4 md:mx-6">
           <div className="relative w-full flex items-center">
             <Search className="w-4.5 h-4.5 absolute left-3.5 text-gray-400 dark:text-gray-500 pointer-events-none" />
             <input
               type="text"
-              placeholder="Search for courses, videos, and more..."
-              className="w-full border border-gray-200/80 dark:border-gray-750 bg-gray-50/60 dark:bg-gray-800/60 text-[var(--text-main)] rounded-2xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 dark:focus:ring-pink-500/30 focus:border-pink-500 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 shadow-2xs"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={placeholder}
+              className="w-full border border-gray-200/80 dark:border-gray-750 bg-gray-50/60 dark:bg-gray-800/60 text-[var(--text-main)] rounded-2xl pl-10 pr-9 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 dark:focus:ring-pink-500/30 focus:border-pink-500 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 shadow-2xs"
             />
+            {searchQuery && (
+              <button
+                onClick={clearSearch}
+                className="absolute right-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer p-0.5 rounded-full hover:bg-gray-200/50 dark:hover:bg-gray-700/50"
+                title="Clear search"
+                aria-label="Clear search"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
 

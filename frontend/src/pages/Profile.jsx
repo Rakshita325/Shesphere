@@ -23,8 +23,11 @@ import {
   AlertCircle
 } from 'lucide-react';
 
+import { useSearch } from '../context/SearchContext';
+
 const Profile = () => {
   const { userData, updateUserData } = useUser();
+  const { searchQuery } = useSearch();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
@@ -180,6 +183,26 @@ const Profile = () => {
     },
   ];
 
+  const q = searchQuery.toLowerCase().trim();
+
+  const filteredAchievements = q
+    ? backendAchievements.filter((a) => {
+        const nameMatch = a.name?.toLowerCase().includes(q);
+        const descMatch = a.description?.toLowerCase().includes(q);
+        const progMatch = a.progressText?.toLowerCase().includes(q);
+        const keywordMatch = q.includes('achievement') || q.includes('badge');
+        return nameMatch || descMatch || progMatch || keywordMatch;
+      })
+    : backendAchievements;
+
+  const filteredProgressItems = q
+    ? progressItems.filter((item) => {
+        const labelMatch = item.label?.toLowerCase().includes(q);
+        const keywordMatch = q.includes('progress') || q.includes('activity');
+        return labelMatch || keywordMatch;
+      })
+    : progressItems;
+
   return (
     <div className="max-w-6xl mx-auto space-y-6 font-poppins text-gray-800 dark:text-gray-100 pb-8">
       {/* Hidden file input for picture upload */}
@@ -324,71 +347,79 @@ const Profile = () => {
 
           {/* 2 x 2 Large Spacious Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
-            {backendAchievements.map((badge) => {
-              const badgeKey = (badge.id || badge.name || '').toLowerCase();
-              const theme = badgeThemeMap[badgeKey] || badgeThemeMap.beginner;
-              const isUnlocked = badge.unlocked;
+            {filteredAchievements.length === 0 ? (
+              <div className="col-span-2 py-8 text-center bg-gray-50 dark:bg-gray-800/40 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
+                <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+                  No achievements found for '{searchQuery}'.
+                </p>
+              </div>
+            ) : (
+              filteredAchievements.map((badge) => {
+                const badgeKey = (badge.id || badge.name || '').toLowerCase();
+                const theme = badgeThemeMap[badgeKey] || badgeThemeMap.beginner;
+                const isUnlocked = badge.unlocked;
 
-              return (
-                <div
-                  key={badge.id || badge.name}
-                  className={`flex flex-col justify-between p-4.5 rounded-2xl border transition-all ${
-                    isUnlocked
-                      ? `${theme.unlockedBg} shadow-sm hover:-translate-y-0.5`
-                      : 'bg-gray-50/80 dark:bg-gray-800/40 border-gray-200/60 dark:border-gray-800/80 opacity-80'
-                  }`}
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div
-                      className={`p-3 rounded-2xl shrink-0 ${
-                        isUnlocked
-                          ? 'bg-white/90 dark:bg-gray-800/90 shadow-2xs'
-                          : 'bg-gray-200/70 dark:bg-gray-700/60 text-gray-400'
-                      }`}
-                    >
-                      <Trophy
-                        className={`w-6 h-6 ${
-                          isUnlocked ? theme.unlockedIconColor : 'text-gray-400 dark:text-gray-500'
+                return (
+                  <div
+                    key={badge.id || badge.name}
+                    className={`flex flex-col justify-between p-4.5 rounded-2xl border transition-all ${
+                      isUnlocked
+                        ? `${theme.unlockedBg} shadow-sm hover:-translate-y-0.5`
+                        : 'bg-gray-50/80 dark:bg-gray-800/40 border-gray-200/60 dark:border-gray-800/80 opacity-80'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div
+                        className={`p-3 rounded-2xl shrink-0 ${
+                          isUnlocked
+                            ? 'bg-white/90 dark:bg-gray-800/90 shadow-2xs'
+                            : 'bg-gray-200/70 dark:bg-gray-700/60 text-gray-400'
                         }`}
-                      />
+                      >
+                        <Trophy
+                          className={`w-6 h-6 ${
+                            isUnlocked ? theme.unlockedIconColor : 'text-gray-400 dark:text-gray-500'
+                          }`}
+                        />
+                      </div>
+                      <div
+                        className={`p-1.5 rounded-full shrink-0 ${
+                          isUnlocked
+                            ? 'bg-white/80 dark:bg-gray-800/80 shadow-2xs'
+                            : 'bg-gray-200/60 dark:bg-gray-700/60'
+                        }`}
+                      >
+                        {isUnlocked ? (
+                          <Star className={`w-4 h-4 ${theme.unlockedStarColor} fill-current`} />
+                        ) : (
+                          <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                        )}
+                      </div>
                     </div>
-                    <div
-                      className={`p-1.5 rounded-full shrink-0 ${
-                        isUnlocked
-                          ? 'bg-white/80 dark:bg-gray-800/80 shadow-2xs'
-                          : 'bg-gray-200/60 dark:bg-gray-700/60'
-                      }`}
-                    >
-                      {isUnlocked ? (
-                        <Star className={`w-4 h-4 ${theme.unlockedStarColor} fill-current`} />
-                      ) : (
-                        <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                      )}
-                    </div>
-                  </div>
 
-                  <div>
-                    <h3 className="font-bold text-gray-900 dark:text-white text-base">
-                      {badge.name}
-                    </h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-0.5">
-                      {badge.description || (isUnlocked ? 'Milestone achieved' : 'In progress')}
-                    </p>
-                    
-                    <div className="mt-3 pt-2.5 border-t border-gray-200/40 dark:border-gray-700/40 flex items-center justify-between">
-                      <span className={`text-xs font-semibold ${isUnlocked ? 'text-pink-600 dark:text-pink-400' : 'text-gray-500 dark:text-gray-400'}`}>
-                        {isUnlocked ? 'Unlocked' : badge.progressText || 'Locked'}
-                      </span>
-                      {isUnlocked && (
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-200/60 dark:border-emerald-900/50">
-                          Active
+                    <div>
+                      <h3 className="font-bold text-gray-900 dark:text-white text-base">
+                        {badge.name}
+                      </h3>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-0.5">
+                        {badge.description || (isUnlocked ? 'Milestone achieved' : 'In progress')}
+                      </p>
+                      
+                      <div className="mt-3 pt-2.5 border-t border-gray-200/40 dark:border-gray-700/40 flex items-center justify-between">
+                        <span className={`text-xs font-semibold ${isUnlocked ? 'text-pink-600 dark:text-pink-400' : 'text-gray-500 dark:text-gray-400'}`}>
+                          {isUnlocked ? 'Unlocked' : badge.progressText || 'Locked'}
                         </span>
-                      )}
+                        {isUnlocked && (
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-200/60 dark:border-emerald-900/50">
+                            Active
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
         </div>
 
@@ -406,31 +437,39 @@ const Profile = () => {
 
           {/* Progress Rows */}
           <div className="space-y-3 flex-1 flex flex-col justify-around">
-            {progressItems.map((item, idx) => {
-              const IconComponent = item.icon;
-              return (
-                <div
-                  key={idx}
-                  className="flex items-center justify-between p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors border border-transparent hover:border-gray-100 dark:hover:border-gray-800"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-xl bg-pink-50/70 dark:bg-gray-800 text-pink-500 shrink-0">
-                      <IconComponent className="w-4 h-4" />
+            {filteredProgressItems.length === 0 ? (
+              <div className="py-8 text-center bg-gray-50 dark:bg-gray-800/40 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
+                <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+                  No progress items found for '{searchQuery}'.
+                </p>
+              </div>
+            ) : (
+              filteredProgressItems.map((item, idx) => {
+                const IconComponent = item.icon;
+                return (
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors border border-transparent hover:border-gray-100 dark:hover:border-gray-800"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 rounded-xl bg-pink-50/70 dark:bg-gray-800 text-pink-500 shrink-0">
+                        <IconComponent className="w-4 h-4" />
+                      </div>
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                        {item.label}
+                      </span>
                     </div>
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                      {item.label}
+                    <span className={`text-xs font-bold px-3 py-1.5 rounded-full shrink-0 ${item.badgeColor}`}>
+                      {loading ? (
+                        <span className="inline-block w-6 h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                      ) : (
+                        item.value
+                      )}
                     </span>
                   </div>
-                  <span className={`text-xs font-bold px-3 py-1.5 rounded-full shrink-0 ${item.badgeColor}`}>
-                    {loading ? (
-                      <span className="inline-block w-6 h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-                    ) : (
-                      item.value
-                    )}
-                  </span>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
         </div>
 

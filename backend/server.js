@@ -14,6 +14,8 @@ const profileRoutes = require('./routes/profileRoutes');
 const communityRoutes = require('./routes/communityRoutes');
 const articleRoutes = require('./routes/articleRoutes');
 const recommendationRoutes = require('./routes/recommendationRoutes');
+const messageRoutes = require('./routes/messageRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 const { seedCommunities } = require('./controllers/communityController');
 const { trainAndClusterUsers } = require('./services/ml/kmeansService');
 
@@ -62,6 +64,8 @@ app.use('/api/marketplace/orders', orderRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/communities', communityRoutes);
 app.use('/api/recommendations', recommendationRoutes);
+app.use('/api/messages', messageRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Health check endpoints
 app.get('/ping', (req, res) => {
