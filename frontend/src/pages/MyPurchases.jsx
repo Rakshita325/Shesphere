@@ -2,10 +2,26 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMarketplace } from '../context/MarketplaceContext';
 import MarketplaceHeader from '../components/Marketplace/MarketplaceHeader';
+import OrderChat from '../components/Marketplace/OrderChat';
 import {
   ShoppingCart, PackageCheck, Clock, Truck, CheckCircle2,
-  XCircle, AlertCircle, Loader2, ArrowRight, X, CreditCard
+  XCircle, AlertCircle, Loader2, ArrowRight, X, CreditCard, MessageCircle
 } from 'lucide-react';
+
+// ─── Decode JWT to extract userId without an external lib ────────────────────
+const getCurrentUserId = () => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload?.id || payload?.userId || payload?.sub || null;
+  } catch {
+    return null;
+  }
+};
+
+// ─── Messaging eligibility: only Shipped or Delivered ────────────────────────
+const canChat = (status) => ['Shipped', 'Delivered'].includes(status);
 
 const MyPurchases = () => {
   const navigate = useNavigate();
@@ -18,6 +34,9 @@ const MyPurchases = () => {
   const [activeTab, setActiveTab] = useState('purchases'); // 'purchases' or 'sellerOrders'
   const [cancellingId, setCancellingId] = useState(null);
   const [updatingId, setUpdatingId] = useState(null);
+  const [chatOrder, setChatOrder] = useState(null); // order currently open in chat
+
+  const currentUserId = getCurrentUserId();
 
   useEffect(() => {
     loadPurchases();
@@ -87,7 +106,7 @@ const MyPurchases = () => {
       <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm mb-6">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Orders & Purchases</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Orders &amp; Purchases</h2>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
               Track items you've bought as a Buyer or manage customer orders received as a Seller.
             </p>
@@ -202,9 +221,9 @@ const MyPurchases = () => {
                   </div>
                 </div>
 
-                {/* Buyer actions */}
+                {/* ── Buyer actions ── */}
                 {activeTab === 'purchases' && (
-                  <div>
+                  <div className="flex items-center gap-2">
                     {order.status === 'Pending' ? (
                       <button
                         onClick={() => handleCancel(order.id)}
@@ -226,10 +245,22 @@ const MyPurchases = () => {
                         View Craft <ArrowRight className="w-3.5 h-3.5" />
                       </button>
                     )}
+
+                    {/* Contact Artisan — only when Shipped or Delivered */}
+                    {canChat(order.status) && (
+                      <button
+                        onClick={() => setChatOrder(order)}
+                        className="flex items-center gap-1 px-3 py-1.5 bg-pink-50 hover:bg-pink-100 text-pink-600 border border-pink-200 text-xs font-semibold rounded-xl transition"
+                        title="Message the artisan about this order"
+                      >
+                        <MessageCircle className="w-3.5 h-3.5" />
+                        Contact Artisan
+                      </button>
+                    )}
                   </div>
                 )}
 
-                {/* Seller status update actions */}
+                {/* ── Seller status update actions ── */}
                 {activeTab === 'sellerOrders' && (
                   <div className="flex items-center gap-2">
                     {order.status === 'Pending' && (
@@ -253,12 +284,33 @@ const MyPurchases = () => {
                         Mark Delivered
                       </button>
                     )}
+
+                    {/* Message Buyer — only when Shipped or Delivered */}
+                    {canChat(order.status) && (
+                      <button
+                        onClick={() => setChatOrder(order)}
+                        className="flex items-center gap-1 px-3 py-1.5 bg-pink-50 hover:bg-pink-100 text-pink-600 border border-pink-200 text-xs font-semibold rounded-xl transition"
+                        title="Message the buyer about this order"
+                      >
+                        <MessageCircle className="w-3.5 h-3.5" />
+                        Message Buyer
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
             </div>
           ))}
         </div>
+      )}
+
+      {/* OrderChat modal — rendered at page root level to avoid stacking issues */}
+      {chatOrder && (
+        <OrderChat
+          order={chatOrder}
+          currentUserId={currentUserId}
+          onClose={() => setChatOrder(null)}
+        />
       )}
     </div>
   );

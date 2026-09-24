@@ -68,7 +68,7 @@ const updateJournal = asyncHandler(async (req, res) => {
 // @access  Private
 const getJournalSummaries = asyncHandler(async (req, res) => {
   const journals = await Journal.find({ userId: req.user.id })
-    .select('_id date mood')
+    .select('_id date mood content')
     .sort({ date: -1 });
 
   res.json({

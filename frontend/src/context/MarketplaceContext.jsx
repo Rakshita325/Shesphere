@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { marketplaceService } from '../services/marketplaceService';
 
+import { useSearch } from './SearchContext';
+
 const MarketplaceContext = createContext();
 
 // Decode JWT payload to get current userId without a library
@@ -76,9 +78,14 @@ export const MarketplaceProvider = ({ children }) => {
   const [purchasesLoading, setPurchasesLoading] = useState(false);
   const [sellerOrdersLoading, setSellerOrdersLoading] = useState(false);
 
+  const { searchQuery: globalSearchQuery } = useSearch();
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('Newest');
+
+  useEffect(() => {
+    setSearchQuery(globalSearchQuery);
+  }, [globalSearchQuery]);
 
   const [draftProduct, setDraftProduct] = useState(() => {
     try {

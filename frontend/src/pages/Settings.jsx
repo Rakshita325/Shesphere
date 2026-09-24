@@ -5,16 +5,27 @@ import CardBase from '../components/dashboard/CardBase';
 import { useUser } from '../context/UserContext';
 import { useTheme } from '../context/ThemeContext';
 import api from '../services/api';
+import { useSearch } from '../context/SearchContext';
 
 const Settings = () => {
   const navigate = useNavigate();
   const { userData, updateUserData, logout } = useUser();
   const { theme, setTheme } = useTheme();
+  const { searchQuery } = useSearch();
 
   // ── 1. Language State ───────────────────────────────────────────────────────
   const [language, setLanguage] = useState(userData.language || 'english');
   const [langSaving, setLangSaving] = useState(false);
   const [langMessage, setLangMessage] = useState({ text: '', type: '' });
+
+  const q = searchQuery.toLowerCase().trim();
+
+  const showLanguage = !q || 'language preferences display english hindi kannada'.includes(q) || q.includes('lang');
+  const showTheme = !q || 'appearance theme light mode dark mode color palette'.includes(q) || q.includes('theme') || q.includes('light') || q.includes('dark') || q.includes('appear');
+  const showPassword = !q || 'change password security update password credentials'.includes(q) || q.includes('pass') || q.includes('security');
+  const showLogout = !q || 'logout sign out account session profile'.includes(q) || q.includes('log') || q.includes('sign') || q.includes('account') || q.includes('profile');
+
+  const hasMatch = showLanguage || showTheme || showPassword || showLogout;
 
   useEffect(() => {
     if (userData.language) {
@@ -97,207 +108,225 @@ const Settings = () => {
         </div>
       </div>
 
-      {/* 🌐 Section 1: Language */}
-      <div className="glass-card rounded-3xl p-6 space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-pink-50 dark:bg-pink-950/60 text-pink-500">
-            <Globe className="w-5 h-5" />
-          </div>
-          <div>
-            <h2 className="text-base font-bold text-[var(--text-main)]">Language Preferences</h2>
-            <p className="text-xs text-[var(--text-muted)]">Choose your preferred language for the SheSphere dashboard</p>
-          </div>
+      {!hasMatch ? (
+        <div className="glass-card rounded-3xl p-12 text-center my-6">
+          <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">
+            No settings options found matching '{searchQuery}'.
+          </p>
         </div>
+      ) : (
+        <>
+          {/* 🌐 Section 1: Language */}
+          {showLanguage && (
+            <div className="glass-card rounded-3xl p-6 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-pink-50 dark:bg-pink-950/60 text-pink-500">
+                  <Globe className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-[var(--text-main)]">Language Preferences</h2>
+                  <p className="text-xs text-[var(--text-muted)]">Choose your preferred language for the SheSphere dashboard</p>
+                </div>
+              </div>
 
-        <div className="space-y-4 pt-2">
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-main)] mb-2">
-              Display Language
-            </label>
-            <select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              className="w-full sm:w-72 h-12 px-4 bg-gray-50/60 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-2xl text-sm font-medium text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-pink-300 dark:focus:ring-pink-500/30 focus:border-pink-500 cursor-pointer transition-all"
-            >
-              <option value="english">English</option>
-              <option value="hindi">Hindi</option>
-              <option value="kannada">Kannada</option>
-            </select>
-          </div>
+              <div className="space-y-4 pt-2">
+                <div>
+                  <label className="block text-xs font-semibold text-[var(--text-main)] mb-2">
+                    Display Language
+                  </label>
+                  <select
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value)}
+                    className="w-full sm:w-72 h-12 px-4 bg-gray-50/60 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-2xl text-sm font-medium text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-pink-300 dark:focus:ring-pink-500/30 focus:border-pink-500 cursor-pointer transition-all"
+                  >
+                    <option value="english">English</option>
+                    <option value="hindi">Hindi</option>
+                    <option value="kannada">Kannada</option>
+                  </select>
+                </div>
 
-          {langMessage.text && (
-            <div className={`flex items-center gap-2 text-xs font-semibold ${
-              langMessage.type === 'success' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
-            }`}>
-              {langMessage.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-              <span>{langMessage.text}</span>
+                {langMessage.text && (
+                  <div className={`flex items-center gap-2 text-xs font-semibold ${
+                    langMessage.type === 'success' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+                  }`}>
+                    {langMessage.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+                    <span>{langMessage.text}</span>
+                  </div>
+                )}
+
+                <div>
+                  <button
+                    onClick={handleSaveLanguage}
+                    disabled={langSaving}
+                    className="px-6 py-2.5 bg-pink-500 hover:bg-pink-600 text-white text-xs font-bold rounded-full shadow-md transition disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+                  >
+                    {langSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                    <span>Save Language</span>
+                  </button>
+                </div>
+              </div>
             </div>
           )}
 
-          <div>
-            <button
-              onClick={handleSaveLanguage}
-              disabled={langSaving}
-              className="px-6 py-2.5 bg-pink-500 hover:bg-pink-600 text-white text-xs font-bold rounded-full shadow-md transition disabled:opacity-50 flex items-center gap-2 cursor-pointer"
-            >
-              {langSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-              <span>Save Language</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* 🎨 Section 2: Theme */}
-      <div className="glass-card rounded-3xl p-6 space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-500">
-            <Palette className="w-5 h-5" />
-          </div>
-          <div>
-            <h2 className="text-base font-bold text-[var(--text-main)]">Appearance Theme</h2>
-            <p className="text-xs text-[var(--text-muted)]">Switch between Light Mode ☀️ and Dark Mode 🌙</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-          <div
-            onClick={() => setTheme('light')}
-            className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-center justify-between ${
-              theme === 'light'
-                ? 'bg-pink-50/60 border-pink-400 dark:bg-gray-800 shadow-sm ring-2 ring-pink-300'
-                : 'bg-gray-50/50 dark:bg-gray-800/40 border-gray-200 dark:border-gray-700 hover:border-pink-300'
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">☀️</span>
-              <div>
-                <span className="text-sm font-bold text-[var(--text-main)] block">Light Mode</span>
-                <span className="text-xs text-[var(--text-muted)]">Soft blush & pastel cream</span>
+          {/* 🎨 Section 2: Theme */}
+          {showTheme && (
+            <div className="glass-card rounded-3xl p-6 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-500">
+                  <Palette className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-[var(--text-main)]">Appearance Theme</h2>
+                  <p className="text-xs text-[var(--text-muted)]">Switch between Light Mode ☀️ and Dark Mode 🌙</p>
+                </div>
               </div>
-            </div>
-            <input
-              type="radio"
-              name="theme"
-              value="light"
-              checked={theme === 'light'}
-              onChange={() => setTheme('light')}
-              className="w-4 h-4 text-pink-500 cursor-pointer"
-            />
-          </div>
 
-          <div
-            onClick={() => setTheme('dark')}
-            className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-center justify-between ${
-              theme === 'dark'
-                ? 'bg-purple-950/40 border-purple-400 shadow-sm ring-2 ring-purple-500'
-                : 'bg-gray-50/50 dark:bg-gray-800/40 border-gray-200 dark:border-gray-700 hover:border-purple-300'
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">🌙</span>
-              <div>
-                <span className="text-sm font-bold text-[var(--text-main)] block">Dark Mode</span>
-                <span className="text-xs text-[var(--text-muted)]">Deep plum & navy tones</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <div
+                  onClick={() => setTheme('light')}
+                  className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-center justify-between ${
+                    theme === 'light'
+                      ? 'bg-pink-50/60 border-pink-400 dark:bg-gray-800 shadow-sm ring-2 ring-pink-300'
+                      : 'bg-gray-50/50 dark:bg-gray-800/40 border-gray-200 dark:border-gray-700 hover:border-pink-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">☀️</span>
+                    <div>
+                      <span className="text-sm font-bold text-[var(--text-main)] block">Light Mode</span>
+                      <span className="text-xs text-[var(--text-muted)]">Soft blush & pastel cream</span>
+                    </div>
+                  </div>
+                  <input
+                    type="radio"
+                    name="theme"
+                    value="light"
+                    checked={theme === 'light'}
+                    onChange={() => setTheme('light')}
+                    className="w-4 h-4 text-pink-500 cursor-pointer"
+                  />
+                </div>
+
+                <div
+                  onClick={() => setTheme('dark')}
+                  className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-center justify-between ${
+                    theme === 'dark'
+                      ? 'bg-purple-950/40 border-purple-400 shadow-sm ring-2 ring-purple-500'
+                      : 'bg-gray-50/50 dark:bg-gray-800/40 border-gray-200 dark:border-gray-700 hover:border-purple-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">🌙</span>
+                    <div>
+                      <span className="text-sm font-bold text-[var(--text-main)] block">Dark Mode</span>
+                      <span className="text-xs text-[var(--text-muted)]">Deep plum & navy tones</span>
+                    </div>
+                  </div>
+                  <input
+                    type="radio"
+                    name="theme"
+                    value="dark"
+                    checked={theme === 'dark'}
+                    onChange={() => setTheme('dark')}
+                    className="w-4 h-4 text-purple-500 cursor-pointer"
+                  />
+                </div>
               </div>
-            </div>
-            <input
-              type="radio"
-              name="theme"
-              value="dark"
-              checked={theme === 'dark'}
-              onChange={() => setTheme('dark')}
-              className="w-4 h-4 text-purple-500 cursor-pointer"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* 🔐 Section 3: Change Password */}
-      <div className="glass-card rounded-3xl p-6 space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-500">
-            <Key className="w-5 h-5" />
-          </div>
-          <div>
-            <h2 className="text-base font-bold text-[var(--text-main)]">Change Password</h2>
-            <p className="text-xs text-[var(--text-muted)]">Update your login security credentials</p>
-          </div>
-        </div>
-
-        <form onSubmit={handlePasswordChange} className="space-y-4 pt-2 max-w-lg">
-          <div>
-            <label className="block text-xs font-semibold text-[var(--text-main)] mb-1.5">
-              Current Password
-            </label>
-            <input
-              type="password"
-              value={passwords.current}
-              onChange={(e) => setPasswords({ ...passwords, current: e.target.value })}
-              placeholder="••••••••"
-              className="w-full h-11 px-4 bg-gray-50/60 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-2xl text-xs font-medium text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-pink-300 dark:focus:ring-pink-500/30 focus:border-pink-500 transition-all"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-[var(--text-main)] mb-1.5">
-                New Password
-              </label>
-              <input
-                type="password"
-                value={passwords.new}
-                onChange={(e) => setPasswords({ ...passwords, new: e.target.value })}
-                placeholder="At least 8 characters"
-                className="w-full h-11 px-4 bg-gray-50/60 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-2xl text-xs font-medium text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-pink-300 dark:focus:ring-pink-500/30 focus:border-pink-500 transition-all"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-[var(--text-main)] mb-1.5">
-                Confirm New Password
-              </label>
-              <input
-                type="password"
-                value={passwords.confirm}
-                onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
-                placeholder="Re-enter new password"
-                className="w-full h-11 px-4 bg-gray-50/60 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-2xl text-xs font-medium text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-pink-300 dark:focus:ring-pink-500/30 focus:border-pink-500 transition-all"
-              />
-            </div>
-          </div>
-
-          {pwdMessage.text && (
-            <div className={`flex items-center gap-2 text-xs font-semibold ${
-              pwdMessage.type === 'success' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
-            }`}>
-              {pwdMessage.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-              <span>{pwdMessage.text}</span>
             </div>
           )}
 
-          <div className="pt-2">
-            <button
-              type="submit"
-              disabled={pwdLoading}
-              className="px-6 py-2.5 bg-pink-500 hover:bg-pink-600 text-white text-xs font-bold rounded-full shadow-md transition disabled:opacity-50 flex items-center gap-2 cursor-pointer"
-            >
-              {pwdLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-              <span>Update Password</span>
-            </button>
-          </div>
-        </form>
-      </div>
+          {/* 🔐 Section 3: Change Password */}
+          {showPassword && (
+            <div className="glass-card rounded-3xl p-6 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-500">
+                  <Key className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-[var(--text-main)]">Change Password</h2>
+                  <p className="text-xs text-[var(--text-muted)]">Update your login security credentials</p>
+                </div>
+              </div>
 
-      {/* 🚪 Section 4: Logout */}
-      <div className="pt-2">
-        <button
-          onClick={handleLogout}
-          className="w-full py-3 px-4 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-900/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/50 text-xs font-bold rounded-2xl transition duration-200 flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
-        >
-          <LogOut className="w-4 h-4" />
-          <span>Logout</span>
-        </button>
-      </div>
+              <form onSubmit={handlePasswordChange} className="space-y-4 pt-2 max-w-lg">
+                <div>
+                  <label className="block text-xs font-semibold text-[var(--text-main)] mb-1.5">
+                    Current Password
+                  </label>
+                  <input
+                    type="password"
+                    value={passwords.current}
+                    onChange={(e) => setPasswords({ ...passwords, current: e.target.value })}
+                    placeholder="••••••••"
+                    className="w-full h-11 px-4 bg-gray-50/60 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-2xl text-xs font-medium text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-pink-300 dark:focus:ring-pink-500/30 focus:border-pink-500 transition-all"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-[var(--text-main)] mb-1.5">
+                      New Password
+                    </label>
+                    <input
+                      type="password"
+                      value={passwords.new}
+                      onChange={(e) => setPasswords({ ...passwords, new: e.target.value })}
+                      placeholder="At least 8 characters"
+                      className="w-full h-11 px-4 bg-gray-50/60 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-2xl text-xs font-medium text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-pink-300 dark:focus:ring-pink-500/30 focus:border-pink-500 transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-[var(--text-main)] mb-1.5">
+                      Confirm New Password
+                    </label>
+                    <input
+                      type="password"
+                      value={passwords.confirm}
+                      onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
+                      placeholder="Re-enter new password"
+                      className="w-full h-11 px-4 bg-gray-50/60 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-2xl text-xs font-medium text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-pink-300 dark:focus:ring-pink-500/30 focus:border-pink-500 transition-all"
+                    />
+                  </div>
+                </div>
+
+                {pwdMessage.text && (
+                  <div className={`flex items-center gap-2 text-xs font-semibold ${
+                    pwdMessage.type === 'success' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+                  }`}>
+                    {pwdMessage.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+                    <span>{pwdMessage.text}</span>
+                  </div>
+                )}
+
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    disabled={pwdLoading}
+                    className="px-6 py-2.5 bg-pink-500 hover:bg-pink-600 text-white text-xs font-bold rounded-full shadow-md transition disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+                  >
+                    {pwdLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                    <span>Update Password</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {/* 🚪 Section 4: Logout */}
+          {showLogout && (
+            <div className="pt-2">
+              <button
+                onClick={handleLogout}
+                className="w-full py-3 px-4 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-900/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/50 text-xs font-bold rounded-2xl transition duration-200 flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Logout</span>
+              </button>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 };

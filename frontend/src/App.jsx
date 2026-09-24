@@ -36,6 +36,8 @@ import VideoDetail from "./pages/VideoDetail";
 import ArticleDetail from "./pages/ArticleDetail";
 import WriteArticle from "./pages/WriteArticle";
 
+import { SearchProvider } from "./context/SearchContext";
+
 function App() {
   return (
     <ThemeProvider>
@@ -43,7 +45,8 @@ function App() {
         <NotificationProvider>
           <MarketplaceProvider>
             <Router>
-          <Routes>
+              <SearchProvider>
+                <Routes>
             {/* Public Routes */}
             <Route path="/" element={<MainLayout />}>
               <Route index element={<Home />} />
@@ -100,7 +103,8 @@ function App() {
               </Route>
             </Route>
           </Routes>
-        </Router>
+              </SearchProvider>
+            </Router>
           </MarketplaceProvider>
         </NotificationProvider>
       </UserProvider>

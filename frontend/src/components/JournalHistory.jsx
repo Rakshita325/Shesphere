@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Search, BookOpen } from 'lucide-react';
 import journalService from '../services/journalService';
+import { useSearch } from '../context/SearchContext';
 
 const moodEmoji = {
   happy: '😊',
@@ -10,7 +11,7 @@ const moodEmoji = {
 
 /**
  * JournalHistory — right-side panel showing a searchable, scrollable list
- * of past journal entries (date + mood only, no content).
+ * of past journal entries (date + mood + content).
  *
  * Props:
  *   selectedDate  — the currently selected date (YYYY-MM-DD)
@@ -18,6 +19,7 @@ const moodEmoji = {
  *   refreshKey    — increment to force a re-fetch after saving
  */
 const JournalHistory = ({ selectedDate, onSelectDate, refreshKey }) => {
+  const { searchQuery: navbarQuery } = useSearch();
   const [entries, setEntries] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
@@ -39,10 +41,46 @@ const JournalHistory = ({ selectedDate, onSelectDate, refreshKey }) => {
     fetchEntries();
   }, [fetchEntries, refreshKey]);
 
-  // Filter entries by search term (matches date string)
-  const filtered = entries.filter((e) =>
-    e.date.includes(search.trim())
-  );
+  const activeQuery = navbarQuery.trim() || search.trim();
+
+  // Filter entries by search term (matches written content, mood, ISO date, weekday, month, day, year)
+  const filtered = entries.filter((e) => {
+    if (!activeQuery) return true;
+    const q = activeQuery.toLowerCase();
+
+    // 1. Content match
+    if (e.content?.toLowerCase().includes(q)) return true;
+
+    // 2. Mood match
+    if (e.mood?.toLowerCase().includes(q)) return true;
+
+    // 3. Raw date string match (e.g. 2026-09-23)
+    if (e.date?.toLowerCase().includes(q)) return true;
+
+    // 4. Formatted date match (weekday e.g. "Monday", month e.g. "September", day, year)
+    try {
+      const d = new Date(e.date + 'T00:00:00');
+      const fullDateStr = d.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      }).toLowerCase();
+
+      const shortDateStr = d.toLocaleDateString('en-US', {
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      }).toLowerCase();
+
+      if (fullDateStr.includes(q) || shortDateStr.includes(q)) return true;
+    } catch (err) {
+      // fallback
+    }
+
+    return false;
+  });
 
   const formatDate = (dateStr) => {
     const d = new Date(dateStr + 'T00:00:00');
