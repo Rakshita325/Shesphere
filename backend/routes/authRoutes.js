@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { signup, login, updateProfile, getProfile, changePassword } = require('../controllers/authController');
+const { signup, login, uploadAvatar, updateProfile, getProfile, changePassword } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
+const { upload } = require('../middleware/uploadMiddleware');
 
 // @route   POST /api/auth/signup
 // @desc    Register user
@@ -12,6 +13,11 @@ router.post('/signup', signup);
 // @desc    Authenticate user & get token
 // @access  Public
 router.post('/login', login);
+
+// @route   POST /api/auth/upload-avatar
+// @desc    Upload profile photo / avatar
+// @access  Private
+router.post('/upload-avatar', protect, upload.single('profilePicture'), uploadAvatar);
 
 // @route   PUT /api/auth/profile
 // @desc    Update user profile & interest

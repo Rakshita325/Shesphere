@@ -1,5 +1,6 @@
 const Order = require('../models/Order');
 const Product = require('../models/Product');
+const { createNotification } = require('../services/notificationService');
 
 // Valid seller-controlled status transitions
 const SELLER_TRANSITIONS = {
@@ -90,6 +91,15 @@ const createOrder = async (req, res) => {
     });
 
     await order.save();
+
+    // Trigger notification to seller
+    await createNotification({
+      userId: product.seller,
+      type: 'MARKETPLACE',
+      title: 'New Order Received 🛒',
+      message: `Someone purchased ${orderQty}x ${product.productName}!`,
+      relatedId: order._id
+    });
 
     // Decrement stock atomically
     product.quantity = Math.max(0, product.quantity - orderQty);
@@ -199,6 +209,30 @@ const updateOrderStatus = async (req, res) => {
       .populate('seller', 'fullName profilePicture email')
       .populate('buyer', 'fullName profilePicture email');
 
+    // Send notification to buyer regarding status change
+    let notifTitle = '';
+    let notifMsg = '';
+    if (status === 'Shipped') {
+      notifTitle = 'Order Shipped 🚚';
+      notifMsg = `Your order for ${updatedOrder.product?.productName || 'item'} has been shipped!`;
+    } else if (status === 'Delivered') {
+      notifTitle = 'Order Delivered 🎉';
+      notifMsg = `Your order for ${updatedOrder.product?.productName || 'item'} has been delivered!`;
+    } else if (status === 'Cancelled') {
+      notifTitle = 'Order Cancelled ❌';
+      notifMsg = `Your order for ${updatedOrder.product?.productName || 'item'} was cancelled by the seller.`;
+    }
+
+    if (notifTitle) {
+      await createNotification({
+        userId: order.buyer,
+        type: 'MARKETPLACE',
+        title: notifTitle,
+        message: notifMsg,
+        relatedId: order._id
+      });
+    }
+
     return res.status(200).json({
       success: true,
       message: `Order status updated to ${status}`,
@@ -251,6 +285,15 @@ const cancelOrder = async (req, res) => {
       .populate('product', 'productName images price category')
       .populate('seller', 'fullName profilePicture email')
       .populate('buyer', 'fullName profilePicture email');
+
+    // Notify seller of buyer cancellation
+    await createNotification({
+      userId: order.seller,
+      type: 'MARKETPLACE',
+      title: 'Order Cancelled by Buyer ❌',
+      message: `An order for ${updatedOrder.product?.productName || 'item'} was cancelled by the buyer.`,
+      relatedId: order._id
+    });
 
     return res.status(200).json({
       success: true,

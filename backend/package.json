@@ -24,6 +24,7 @@
     "multer": "^2.4.0",
     "nodemailer": "^9.0.5",
     "openai": "^7.4.0",
+    "razorpay": "^2.9.8",
     "yt-search": "^2.13.1"
   },
   "devDependencies": {

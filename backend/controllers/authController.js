@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { uploadToCloudinary } = require('../middleware/uploadMiddleware');
 
 /**
  * @desc    Register a new user
@@ -228,19 +229,73 @@ const login = async (req, res) => {
 };
 
 /**
+ * @desc    Upload user profile avatar / photo
+ * @route   POST /api/auth/upload-avatar
+ * @access  Private
+ */
+const uploadAvatar = async (req, res) => {
+  try {
+    const userId = req.user.id || req.user._id;
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No image file uploaded' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const beforePicture = user.profilePicture || '';
+
+    // Upload to Cloudinary or get Data URI fallback
+    const permanentUrl = await uploadToCloudinary(
+      req.file.buffer,
+      'shesphere_avatars',
+      req.file.mimetype
+    );
+
+    user.profilePicture = permanentUrl;
+    await user.save();
+
+    console.log('\n================ [PROFILE PHOTO DEBUG] ================');
+    console.log('User ID:', userId);
+    console.log('Uploaded file:', req.file.originalname, `(${req.file.mimetype}, ${req.file.size} bytes)`);
+    console.log('Upload successful:', true);
+    console.log('Permanent image URL:', permanentUrl.startsWith('data:') ? `${permanentUrl.substring(0, 60)}... [Base64]` : permanentUrl);
+    console.log('User profilePicture before update:', beforePicture.startsWith('data:') ? `${beforePicture.substring(0, 60)}... [Base64]` : beforePicture);
+    console.log('User profilePicture after update:', user.profilePicture.startsWith('data:') ? `${user.profilePicture.substring(0, 60)}... [Base64]` : user.profilePicture);
+    console.log('========================================================\n');
+
+    const updatedUser = await User.findById(userId).select('-password');
+
+    return res.status(200).json({
+      success: true,
+      message: 'Profile picture uploaded successfully',
+      profilePicture: permanentUrl,
+      user: updatedUser
+    });
+  } catch (error) {
+    console.error('❌ [PROFILE PHOTO DEBUG] Error uploading avatar:', error);
+    return res.status(500).json({ success: false, message: 'Server error uploading profile picture' });
+  }
+};
+
+/**
  * @desc    Update user profile & interests
  * @route   PUT /api/auth/profile
  * @access  Private
  */
 const updateProfile = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.id || req.user._id;
     const { fullName, email, interest, language, education, age, occupation, dailyFreeTime, profilePicture } = req.body;
-    console.log("Request Body:", req.body);
+    
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
+
+    const beforePicture = user.profilePicture || '';
 
     if (interest !== undefined) user.interest = interest;
     if (language !== undefined) user.language = language;
@@ -253,22 +308,23 @@ const updateProfile = async (req, res) => {
     if (email !== undefined) user.email = email;
     await user.save();
 
+    if (profilePicture !== undefined) {
+      console.log('\n================ [PROFILE PHOTO DEBUG] ================');
+      console.log('User ID:', userId);
+      console.log('Uploaded file: Passed in JSON body');
+      console.log('Upload successful:', true);
+      console.log('Permanent image URL:', user.profilePicture.startsWith('data:') ? `${user.profilePicture.substring(0, 60)}... [Base64]` : user.profilePicture);
+      console.log('User profilePicture before update:', beforePicture.startsWith('data:') ? `${beforePicture.substring(0, 60)}... [Base64]` : beforePicture);
+      console.log('User profilePicture after update:', user.profilePicture.startsWith('data:') ? `${user.profilePicture.substring(0, 60)}... [Base64]` : user.profilePicture);
+      console.log('========================================================\n');
+    }
+
+    const updatedUser = await User.findById(userId).select('-password');
+
     return res.status(200).json({
       success: true,
       message: 'Profile updated successfully',
-      user: {
-        id: user._id,
-        fullName: user.fullName,
-        email: user.email,
-        language: user.language,
-        education: user.education,
-        interest: user.interest,
-        age: user.age,
-        occupation: user.occupation,
-        dailyFreeTime: user.dailyFreeTime,
-        profilePicture: user.profilePicture
-
-      }
+      user: updatedUser
     });
   } catch (error) {
     console.error('❌ Error updating profile:', error);
@@ -343,6 +399,7 @@ const changePassword = async (req, res) => {
 module.exports = {
   signup,
   login,
+  uploadAvatar,
   updateProfile,
   getProfile,
   changePassword

@@ -60,6 +60,23 @@ const orderSchema = new mongoose.Schema(
       type: String,
       enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled'],
       default: 'Pending'
+    },
+    // Payment lifecycle: pending → paid | failed
+    // Separate from fulfilment status above
+    paymentStatus: {
+      type: String,
+      enum: ['pending', 'paid', 'failed'],
+      default: 'pending'
+    },
+    // Razorpay TEST MODE order reference (e.g. order_xxxxxxxxxxxxxxxxxx)
+    razorpayOrderId: {
+      type: String,
+      default: null
+    },
+    // Razorpay payment ID stored after successful signature verification
+    razorpayPaymentId: {
+      type: String,
+      default: null
     }
   },
   {

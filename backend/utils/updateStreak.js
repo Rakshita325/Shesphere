@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const { createNotification } = require('../services/notificationService');
 
 /**
  * All milestone badge definitions
@@ -102,6 +103,15 @@ const updateUserStreak = async (userId) => {
       };
       user.badges.push(badgeData);
       newBadges.push(badgeData);
+
+      // Trigger notification for newly earned badge
+      await createNotification({
+        userId: user._id,
+        type: 'STREAK',
+        title: `Streak Badge Unlocked ${milestone.icon}`,
+        message: `Congratulations! You unlocked the '${milestone.name}' badge for a ${milestone.days}-day streak!`,
+        metadata: { badgeName: milestone.name }
+      });
     }
   }
 
