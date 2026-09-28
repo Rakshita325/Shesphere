@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { uploadToCloudinary } = require('../middleware/uploadMiddleware');
 
 /**
  * @desc    Register a new user
@@ -340,11 +341,48 @@ const changePassword = async (req, res) => {
   }
 };
 
+const uploadAvatar = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No image file provided' });
+    }
+    const uploadedUrl = await uploadToCloudinary(req.file.buffer, 'shesphere_avatars', req.file.mimetype);
+    const user = await User.findById(req.user.id || req.user._id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    user.profilePicture = uploadedUrl;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Profile picture uploaded successfully',
+      profilePicture: uploadedUrl,
+      user: {
+        id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        language: user.language,
+        education: user.education,
+        interest: user.interest,
+        age: user.age,
+        occupation: user.occupation,
+        dailyFreeTime: user.dailyFreeTime,
+        profilePicture: user.profilePicture
+      }
+    });
+  } catch (error) {
+    console.error('❌ Error uploading profile avatar:', error);
+    return res.status(500).json({ success: false, message: 'Server error uploading profile picture' });
+  }
+};
+
 module.exports = {
   signup,
   login,
   updateProfile,
   getProfile,
-  changePassword
+  changePassword,
+  uploadAvatar
 };
 

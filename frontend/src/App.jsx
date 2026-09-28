@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import { UserProvider } from "./context/UserContext";
+import { LanguageProvider } from "./context/LanguageContext";
 import { MarketplaceProvider } from "./context/MarketplaceContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { NotificationProvider } from "./context/NotificationContext";
@@ -42,71 +43,73 @@ function App() {
   return (
     <ThemeProvider>
       <UserProvider>
-        <NotificationProvider>
-          <MarketplaceProvider>
-            <Router>
-              <SearchProvider>
-                <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<MainLayout />}>
-              <Route index element={<Home />} />
-            </Route>
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/testimonials" element={<Testimonials />} />
-
-            {/* Protected Routes */}
-            <Route element={<ProtectedRoute />}>
-              <Route path="/profile-setup" element={<ProfileSetup />} />
-              <Route path="/interests" element={<InterestSelection />} />
-              <Route path="/journal" element={<Journal />} />
-              <Route path="/community" element={<Community />} />
-              <Route path="/community/:communityId" element={<Community />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/streaks" element={<Streaks />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/edit-profile" element={<EditProfile />} />
-
-              {/* Marketplace top-level routes wrapped in DashboardLayout */}
-              <Route element={<DashboardLayout />}>
-                <Route path="/marketplace" element={<Marketplace />} />
-                <Route path="/marketplace/sell" element={<SellProduct />} />
-                <Route path="/marketplace/my-products" element={<MyProducts />} />
-                <Route path="/marketplace/my-purchases" element={<MyPurchases />} />
-                <Route path="/marketplace/orders" element={<MyPurchases />} />
-                <Route path="/marketplace/:id" element={<ProductDetails />} />
+        <LanguageProvider>
+          <NotificationProvider>
+            <MarketplaceProvider>
+              <Router>
+                <SearchProvider>
+                  <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<MainLayout />}>
+                <Route index element={<Home />} />
               </Route>
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/testimonials" element={<Testimonials />} />
 
-              {/* Dashboard routes */}
-              <Route path="/dashboard" element={<DashboardLayout />}>
-                <Route index element={<Dashboard />} />
-                <Route path="videos/:videoId" element={<VideoDetail />} />
-                <Route path="articles/write" element={<WriteArticle />} />
-                <Route path="articles/:articleId" element={<ArticleDetail />} />
+              {/* Protected Routes */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/profile-setup" element={<ProfileSetup />} />
+                <Route path="/interests" element={<InterestSelection />} />
+                <Route path="/journal" element={<Journal />} />
+                <Route path="/community" element={<Community />} />
+                <Route path="/community/:communityId" element={<Community />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/streaks" element={<Streaks />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/edit-profile" element={<EditProfile />} />
 
-                <Route path="games" element={<Games />} />
-                <Route path="journal" element={<Journal />} />
-                <Route path="community" element={<Community />} />
-                <Route path="community/:communityId" element={<Community />} />
-                <Route path="streaks" element={<Streaks />} />
-                <Route path="profile" element={<Profile />} />
-                <Route path="settings" element={<Settings />} />
-                <Route path="edit-profile" element={<EditProfile />} />
+                {/* Marketplace top-level routes wrapped in DashboardLayout */}
+                <Route element={<DashboardLayout />}>
+                  <Route path="/marketplace" element={<Marketplace />} />
+                  <Route path="/marketplace/sell" element={<SellProduct />} />
+                  <Route path="/marketplace/my-products" element={<MyProducts />} />
+                  <Route path="/marketplace/my-purchases" element={<MyPurchases />} />
+                  <Route path="/marketplace/orders" element={<MyPurchases />} />
+                  <Route path="/marketplace/:id" element={<ProductDetails />} />
+                </Route>
 
-                {/* Marketplace subroutes */}
-                <Route path="marketplace" element={<Marketplace />} />
-                <Route path="marketplace/sell" element={<SellProduct />} />
-                <Route path="marketplace/my-products" element={<MyProducts />} />
-                <Route path="marketplace/my-purchases" element={<MyPurchases />} />
-                <Route path="marketplace/orders" element={<MyPurchases />} />
-                <Route path="marketplace/:id" element={<ProductDetails />} />
+                {/* Dashboard routes */}
+                <Route path="/dashboard" element={<DashboardLayout />}>
+                  <Route index element={<Dashboard />} />
+                  <Route path="videos/:videoId" element={<VideoDetail />} />
+                  <Route path="articles/write" element={<WriteArticle />} />
+                  <Route path="articles/:articleId" element={<ArticleDetail />} />
+
+                  <Route path="games" element={<Games />} />
+                  <Route path="journal" element={<Journal />} />
+                  <Route path="community" element={<Community />} />
+                  <Route path="community/:communityId" element={<Community />} />
+                  <Route path="streaks" element={<Streaks />} />
+                  <Route path="profile" element={<Profile />} />
+                  <Route path="settings" element={<Settings />} />
+                  <Route path="edit-profile" element={<EditProfile />} />
+
+                  {/* Marketplace subroutes */}
+                  <Route path="marketplace" element={<Marketplace />} />
+                  <Route path="marketplace/sell" element={<SellProduct />} />
+                  <Route path="marketplace/my-products" element={<MyProducts />} />
+                  <Route path="marketplace/my-purchases" element={<MyPurchases />} />
+                  <Route path="marketplace/orders" element={<MyPurchases />} />
+                  <Route path="marketplace/:id" element={<ProductDetails />} />
+                </Route>
               </Route>
-            </Route>
-          </Routes>
-              </SearchProvider>
-            </Router>
-          </MarketplaceProvider>
-        </NotificationProvider>
+            </Routes>
+                </SearchProvider>
+              </Router>
+            </MarketplaceProvider>
+          </NotificationProvider>
+        </LanguageProvider>
       </UserProvider>
     </ThemeProvider>
   );

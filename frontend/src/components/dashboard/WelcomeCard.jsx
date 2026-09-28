@@ -1,10 +1,12 @@
 import React from 'react';
 import { useUser } from '../../context/UserContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { Sparkles, ArrowRight, Compass } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const WelcomeCard = () => {
   const { userData } = useUser();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const name = userData.fullName || 'Shrilakshmi';
 
@@ -20,17 +22,15 @@ const WelcomeCard = () => {
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-100/80 dark:bg-pink-900/50 text-pink-700 dark:text-pink-300 text-xs font-bold mb-3 tracking-wide">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Welcome back to SheSphere</span>
+            <span>{t('dashboard.welcomeBack')}</span>
           </div>
           <h2 className="text-2xl md:text-3xl font-extrabold text-[var(--text-main)] tracking-tight">
-            Hi, {name} ✨
+            {t('dashboard.hiUser', { name })}
           </h2>
           <p className="mt-1.5 text-sm md:text-base text-[var(--text-muted)] max-w-xl">
-            Continue your journey and explore today. Discover new skills, reflect in your journal, or play engaging games.
+            {t('dashboard.welcomeSubtext')}
           </p>
         </div>
-
-       
       </div>
     </div>
   );

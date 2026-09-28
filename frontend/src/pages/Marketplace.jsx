@@ -7,9 +7,11 @@ import RecommendedProducts from '../components/Marketplace/RecommendedProducts';
 import ProductGrid from '../components/Marketplace/ProductGrid';
 import { useMarketplace } from '../context/MarketplaceContext';
 import { CheckCircle2, ChevronDown } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 const Marketplace = () => {
   const { notification } = useMarketplace();
+  const { t } = useLanguage();
   const [loadMoreCount, setLoadMoreCount] = useState(12);
 
   return (
@@ -44,11 +46,11 @@ const Marketplace = () => {
           onClick={() => setLoadMoreCount((prev) => prev + 6)}
           className="inline-flex items-center gap-2 px-6 py-3 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-sm font-semibold rounded-xl border border-gray-300 dark:border-gray-700 shadow-sm transition transform hover:-translate-y-0.5 active:scale-95 cursor-pointer"
         >
-          <span>Load More Products</span>
+          <span>{t('marketplace.loadMore') || 'Load More Products'}</span>
           <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
         </button>
         <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-          Empowering women artisans • 100% Verified Handmade
+          {t('marketplace.subtext')}
         </p>
       </div>
     </div>

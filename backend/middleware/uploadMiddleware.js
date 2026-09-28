@@ -32,8 +32,11 @@ const upload = multer({
   fileFilter
 });
 
+const fs = require('fs');
+const path = require('path');
+
 /**
- * Upload buffer to Cloudinary or return Base64 Data URI fallback
+ * Upload buffer to Cloudinary or save locally as fallback
  */
 const uploadToCloudinary = (fileBuffer, folder = 'shesphere_uploads', mimetype = 'image/jpeg') => {
   return new Promise((resolve, reject) => {
@@ -55,10 +58,21 @@ const uploadToCloudinary = (fileBuffer, folder = 'shesphere_uploads', mimetype =
       );
       uploadStream.end(fileBuffer);
     } else {
-      // Fallback: Convert to base64 Data URI if Cloudinary keys are missing in local dev
-      const base64Media = fileBuffer.toString('base64');
-      const dataUri = `data:${mimetype};base64,${base64Media}`;
-      resolve(dataUri);
+      // Fallback for local development: save file to backend/uploads directory
+      try {
+        const uploadsDir = path.join(__dirname, '../uploads');
+        if (!fs.existsSync(uploadsDir)) {
+          fs.mkdirSync(uploadsDir, { recursive: true });
+        }
+        const ext = mimetype.split('/')[1] || 'jpg';
+        const filename = `${Date.now()}-${Math.round(Math.random() * 1e9)}.${ext}`;
+        const filePath = path.join(uploadsDir, filename);
+        fs.writeFileSync(filePath, fileBuffer);
+        resolve(`/uploads/${filename}`);
+      } catch (err) {
+        console.error('Error saving local file:', err);
+        reject(err);
+      }
     }
   });
 };

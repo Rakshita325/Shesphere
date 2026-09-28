@@ -16,6 +16,8 @@ import {
   Sparkles,
   Star
 } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
+import { getCommunityDisplayName } from './CommunityCard';
 
 const iconMap = {
   ChefHat,
@@ -31,6 +33,7 @@ const iconMap = {
 
 const CommunityHeader = ({ community, onJoinToggle, isActionLoading }) => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   if (!community) return null;
 
@@ -48,13 +51,13 @@ const CommunityHeader = ({ community, onJoinToggle, isActionLoading }) => {
           className="self-start inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/20 hover:bg-black/40 backdrop-blur-md text-white text-xs font-semibold transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to Communities
+          {t('common.back')}
         </button>
 
         {isRecommended && (
           <span className="self-end inline-flex items-center gap-1 text-xs font-semibold px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/30">
             <Star className="w-3.5 h-3.5 fill-white text-white" />
-            Recommended Interest
+            {t('community.similarLearners')}
           </span>
         )}
       </div>
@@ -70,17 +73,17 @@ const CommunityHeader = ({ community, onJoinToggle, isActionLoading }) => {
           <div className="space-y-1">
             <div className="flex items-center gap-3 flex-wrap">
               <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">
-                {community.name}
+                {getCommunityDisplayName(community.name, t)}
               </h1>
               {isJoined && (
                 <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
-                  <Check className="w-3 h-3" /> Joined Member
+                  <Check className="w-3 h-3" /> {t('community.joined')}
                 </span>
               )}
             </div>
             <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
               <Users className="w-4 h-4 text-pink-500" />
-              <span>{community.memberCount || 0} active members</span>
+              <span>{community.memberCount || 0} {t('community.members')}</span>
             </p>
           </div>
         </div>
@@ -94,16 +97,16 @@ const CommunityHeader = ({ community, onJoinToggle, isActionLoading }) => {
               className="px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-semibold bg-gray-100 hover:bg-red-50 dark:bg-gray-800 dark:hover:bg-red-950/40 text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 border border-gray-200 dark:border-gray-700 hover:border-red-200 dark:hover:border-red-900/40 transition-colors flex items-center gap-2 cursor-pointer"
             >
               <LogOut className="w-4 h-4" />
-              Leave Community
+              {t('community.leave')}
             </button>
           ) : (
             <button
               onClick={onJoinToggle}
               disabled={isActionLoading}
-              className="px-6 py-2.5 rounded-2xl text-xs sm:text-sm font-semibold bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white shadow-md hover:shadow-lg transition-all flex items-center gap-2 cursor-pointer"
+              className="px-6 py-2.5 rounded-2xl text-xs sm:text-sm font-semibold bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white shadow-md hover:shadow-lg transition-all transform active:scale-95 flex items-center gap-2 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
-              Join Community
+              {t('community.join')}
             </button>
           )}
         </div>

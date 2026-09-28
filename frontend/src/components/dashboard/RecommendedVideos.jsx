@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import CardBase from './CardBase';
 import videoService from '../../services/videoService';
 import { useUser } from '../../context/UserContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { Play, Eye, Tag, ChevronLeft, ChevronRight, Video, Clock, Sparkles } from 'lucide-react';
 
 import { useSearch } from '../../context/SearchContext';
@@ -10,6 +11,7 @@ import { useSearch } from '../../context/SearchContext';
 const RecommendedVideos = () => {
   const { userData } = useUser();
   const { searchQuery } = useSearch();
+  const { t } = useLanguage();
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -18,43 +20,40 @@ const RecommendedVideos = () => {
   const scrollRef = useRef(null);
 
   useEffect(() => {
-    fetchVideos();
-  }, [userData.interest, userData.dailyFreeTime]);
-
-  const fetchVideos = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await videoService.getRecommendedVideos();
-      if (response && response.success) {
-        setVideos(response.data);
-
-        if (response.data && response.data.length > 0) {
-          const firstVid = response.data[0];
-          const isCollab = !!(firstVid.cfScore > 0 || firstVid.isCollaborative || firstVid.recommendationSource === 'collaborative');
-          console.log('\n[COLLAB TEST] Frontend:');
-          console.log('Video displayed at index:', 0);
-          console.log('Video Title:', firstVid.title);
-          console.log('Video ID:', firstVid._id);
-          console.log('IsCollaborative:', isCollab);
-          console.log('PinkBorder:', isCollab);
-          console.log('CollaborativeScore:', firstVid.cfScore || 0);
-          console.log('FinalHybridScore:', (firstVid.matchScore ? firstVid.matchScore / 100 : 0).toFixed(2));
-          console.log('--------------------------------------------------\n');
+    let cancelled = false;
+    const fetchVideos = async () => {
+      if (!userData?._id) {
+        setVideos([]);
+        setLoading(false);
+        return;
+      }
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await videoService.getRecommendedVideos();
+        if (cancelled) return;
+        if (response && response.success) {
+          setVideos(response.data);
+        } else {
+          setError('Failed to load recommended videos.');
         }
-      } else {
-        setError('Failed to load recommended videos.');
+      } catch (err) {
+        if (cancelled) return;
+        if (err.response && err.response.status === 401) {
+          setError('Please log in to view your personalized recommendations.');
+        } else {
+          setError('Error connecting to the server.');
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-    } catch (err) {
-      if (err.response && err.response.status === 401) {
-        setError('Please log in to view your personalized recommendations.');
-      } else {
-        setError('Error connecting to the server.');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
+    fetchVideos();
+    return () => {
+      cancelled = true;
+    };
+  }, [userData?._id, userData?.interest, userData?.dailyFreeTime]);
 
   const filteredVideos = searchQuery.trim()
     ? videos.filter((v) => {
@@ -85,7 +84,7 @@ const RecommendedVideos = () => {
   if (loading) {
     return (
       <CardBase className="w-full">
-        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">RECOMMENDED VIDEOS</h3>
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 uppercase">{t('dashboard.recVideosTitle')}</h3>
         <div className="flex gap-4 overflow-hidden animate-pulse">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="bg-gray-100 dark:bg-gray-800 rounded-2xl h-52 w-64 shrink-0" />
@@ -100,12 +99,12 @@ const RecommendedVideos = () => {
       {/* Header Row */}
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <div>
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight uppercase flex items-center gap-2">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
             <Video className="w-5 h-5 text-pink-500" />
-            Recommended Videos
+            {t('dashboard.recVideosTitle')}
           </h3>
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            Handpicked videos for your interest: <span className="font-bold text-pink-500">{userData.interest || 'All'}</span>
+            {t('dashboard.recVideosSubtext')} <span className="font-bold text-pink-500">{userData.interest || 'All'}</span>
           </p>
         </div>
 
@@ -136,8 +135,8 @@ const RecommendedVideos = () => {
         <div className="py-8 text-center bg-gray-50 dark:bg-gray-800/40 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
           <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
             {searchQuery.trim()
-              ? `No videos found for '${searchQuery}'.`
-              : 'No content available for your selected interest yet.'}
+              ? t('dashboard.noVideosFound', { query: searchQuery })
+              : t('dashboard.noVideosForInterest')}
           </p>
         </div>
       ) : (
@@ -185,12 +184,12 @@ const RecommendedVideos = () => {
                     {isCollab ? (
                       <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-pink-500 text-[10px] font-bold text-white shadow-md flex items-center gap-1 z-10">
                         <Sparkles className="w-3 h-3 fill-white" />
-                        <span>Collaborative Recommendation</span>
+                        <span>{t('dashboard.collabRec')}</span>
                       </div>
                     ) : (
                       v.fitsInTime && (
                         <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-emerald-500/90 text-[10px] font-semibold text-white shadow-sm">
-                          Fits {userData.dailyFreeTime || 'Time'}
+                          {t('dashboard.fitsTime', { time: userData.dailyFreeTime || 'Time' })}
                         </div>
                       )
                     )}
@@ -198,7 +197,7 @@ const RecommendedVideos = () => {
                     {/* ML Match Score Badge */}
                     {v.matchScore > 0 && (
                       <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-pink-600/90 text-[10px] font-bold text-white shadow-sm">
-                        {v.matchScore}% match
+                        {t('dashboard.matchScore', { score: v.matchScore })}
                       </div>
                     )}
                   </div>
@@ -219,10 +218,10 @@ const RecommendedVideos = () => {
                 <div className="px-3 pb-3 pt-0 flex items-center justify-between text-[11px] text-gray-400 dark:text-gray-500">
                   <span className="flex items-center gap-1">
                     <Eye className="w-3 h-3" />
-                    {v.views ? v.views.toLocaleString() : '0'} views
+                    {t('dashboard.views', { views: v.views ? v.views.toLocaleString() : '0' })}
                   </span>
                   <span className="font-semibold text-pink-500 hover:underline">
-                    Watch →
+                    {t('dashboard.watch')}
                   </span>
                 </div>
               </div>

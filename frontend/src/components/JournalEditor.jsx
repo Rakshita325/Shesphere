@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar, Smile, Frown, Meh } from 'lucide-react';
 import journalService from '../services/journalService';
+import { useUser } from '../context/UserContext';
+import { useLanguage } from '../context/LanguageContext';
 
 const moods = [
   { value: 'happy', label: '😊', Icon: Smile },
@@ -17,16 +19,26 @@ const moods = [
  *   onSaveSuccess  — callback invoked after a successful save
  */
 const JournalEditor = ({ selectedDate, onDateChange, onSaveSuccess }) => {
+  const { userData } = useUser();
+  const { t } = useLanguage();
+  const userId = userData?._id || userData?.id || null;
+
   const [selectedMood, setSelectedMood] = useState('happy');
   const [content, setContent] = useState('');
   const [journalId, setJournalId] = useState(null);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
 
-  // Load existing entry when date changes
+  // Load existing entry when date or user changes
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
+      if (!userId || !selectedDate) {
+        setJournalId(null);
+        setSelectedMood('happy');
+        setContent('');
+        return;
+      }
       try {
         const summaries = await journalService.getSummaries();
         const match = summaries.find((j) => j.date === selectedDate);
@@ -43,14 +55,14 @@ const JournalEditor = ({ selectedDate, onDateChange, onSaveSuccess }) => {
           setContent('');
         }
       } catch (err) {
-        console.error('Load error', err);
+        if (!cancelled) console.error('Load error', err);
       }
     };
-    if (selectedDate) load();
+    load();
     return () => {
       cancelled = true;
     };
-  }, [selectedDate]);
+  }, [selectedDate, userId]);
 
   const handleSave = async () => {
     if (!content.trim()) return;
@@ -59,11 +71,11 @@ const JournalEditor = ({ selectedDate, onDateChange, onSaveSuccess }) => {
     try {
       if (journalId) {
         await journalService.update(journalId, { mood: selectedMood, content });
-        setMessage('Journal updated ✨');
+        setMessage(t('journal.journalUpdated'));
       } else {
         const created = await journalService.upsert({ date: selectedDate, mood: selectedMood, content });
         setJournalId(created._id);
-        setMessage('Journal saved ✨');
+        setMessage(t('journal.journalSaved'));
       }
       if (onSaveSuccess) onSaveSuccess();
     } catch (err) {
@@ -93,7 +105,7 @@ const JournalEditor = ({ selectedDate, onDateChange, onSaveSuccess }) => {
 
         {/* Mood Selector Buttons */}
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-[var(--text-muted)] mr-1">Mood:</span>
+          <span className="text-xs font-semibold text-[var(--text-muted)] mr-1">{t('journal.mood')}:</span>
           {moods.map((m) => (
             <button
               key={m.value}
@@ -117,7 +129,7 @@ const JournalEditor = ({ selectedDate, onDateChange, onSaveSuccess }) => {
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="Write your thoughts, feelings, or daily reflections..."
+          placeholder={t('journal.writePlaceholder')}
           className="w-full h-56 border border-gray-200/80 dark:border-gray-750 bg-gray-50/40 dark:bg-gray-850/40 text-[var(--text-main)] rounded-2xl p-4 text-sm md:text-base leading-relaxed placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-300 dark:focus:ring-pink-500/30 focus:border-pink-500 transition-all resize-none"
         />
       </div>
@@ -130,7 +142,7 @@ const JournalEditor = ({ selectedDate, onDateChange, onSaveSuccess }) => {
           disabled={saving || !content.trim()}
           className="px-7 py-3 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
-          {saving ? 'Saving…' : 'Save Entry ✨'}
+          {saving ? t('common.saving') : t('journal.saveEntry')}
         </button>
       </div>
     </div>

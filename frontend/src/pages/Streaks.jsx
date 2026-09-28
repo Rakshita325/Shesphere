@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useUser } from '../context/UserContext';
+import { useLanguage } from '../context/LanguageContext';
 import CardBase from '../components/dashboard/CardBase';
 import { Calendar } from 'lucide-react';
 import api from '../services/api';
@@ -30,14 +31,29 @@ const milestones = [
 const Streaks = () => {
   const { userData, updateUserData } = useUser();
   const { searchQuery } = useSearch();
+  const { t } = useLanguage();
   const [streakInfo, setStreakInfo] = useState(null);
 
-  // Fetch latest streak info from backend
+  // Fetch latest streak info from backend for current user
   useEffect(() => {
+    let cancelled = false;
+    if (!userData?._id) {
+      setStreakInfo(null);
+      return;
+    }
+
     api.get('/streak')
-      .then((res) => setStreakInfo(res.data))
-      .catch((err) => console.error('Failed to fetch streak info', err));
-  }, []);
+      .then((res) => {
+        if (!cancelled) setStreakInfo(res.data);
+      })
+      .catch((err) => {
+        if (!cancelled) console.error('Failed to fetch streak info', err);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [userData?._id]);
 
   const currentStreak = streakInfo?.currentStreak ?? 0;
   const activeDates = streakInfo?.activeDates ?? [];
@@ -68,21 +84,21 @@ const Streaks = () => {
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold mb-3 tracking-wide text-white">
-              <span>🔥 SheSphere Streak Tracker</span>
+              <span>{t('streaks.heroBadge')}</span>
             </div>
             <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight">
-              {currentStreak} Day Streak 🔥
+              {t('streaks.heroTitle', { streak: currentStreak })}
             </h2>
             <p className="mt-2 text-pink-100 text-sm md:text-base max-w-lg">
-              Keep your momentum going! Every day you log in, write, or learn brings you closer to your goals.
+              {t('streaks.heroSubtext')}
             </p>
           </div>
 
           <div className="bg-white/15 backdrop-blur-md border border-white/25 rounded-2xl p-5 text-center min-w-[200px]">
-            <p className="text-xs font-bold uppercase tracking-wider text-amber-100">Next Milestone</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-amber-100">{t('streaks.nextMilestone')}</p>
             <p className="text-lg font-extrabold mt-1">{nextMilestone.label}</p>
             <p className="text-xs text-white/90 mt-1">
-              {daysToNext > 0 ? `${daysToNext} days to go` : 'Milestone Unlocked! 🎉'}
+              {daysToNext > 0 ? t('streaks.daysToGo', { days: daysToNext }) : t('streaks.unlocked')}
             </p>
           </div>
         </div>
@@ -90,7 +106,7 @@ const Streaks = () => {
 
       {/* ── Weekly Progress Row ────────────────────────────────────── */}
       <div className="glass-card rounded-3xl p-6 md:p-8 space-y-4">
-        <h3 className="text-lg font-bold text-[var(--text-main)]">Weekly Streak Progress</h3>
+        <h3 className="text-lg font-bold text-[var(--text-main)]">{t('streaks.weeklyProgress')}</h3>
         <div className="grid grid-cols-7 gap-3">
           {weeklyData.map((d) => {
             const date = new Date(d.date);
@@ -117,7 +133,7 @@ const Streaks = () => {
       <div className="glass-card rounded-3xl p-6 md:p-8 space-y-4">
         <h3 className="text-lg font-bold text-[var(--text-main)] flex items-center gap-2">
           <Calendar className="w-5 h-5 text-pink-500" />
-          <span>Monthly Activity</span>
+          <span>{t('streaks.monthlyActivity')}</span>
         </h3>
         <div className="grid grid-cols-7 gap-2.5 text-center text-xs font-semibold">
           {monthlyData.map((day) => {
@@ -142,7 +158,7 @@ const Streaks = () => {
 
       {/* ── Milestones Grid ───────────────────────────────────────── */}
       <div className="glass-card rounded-3xl p-6 md:p-8 space-y-4">
-        <h3 className="text-lg font-bold text-[var(--text-main)]">Achievement Milestones</h3>
+        <h3 className="text-lg font-bold text-[var(--text-main)]">{t('streaks.milestonesTitle')}</h3>
         {filteredMilestones.length === 0 ? (
           <div className="py-8 text-center bg-gray-50 dark:bg-gray-800/40 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
             <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">

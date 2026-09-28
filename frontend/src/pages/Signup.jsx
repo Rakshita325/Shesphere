@@ -6,10 +6,12 @@ import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
 import heroIllustration from '../assets/hero_illustration.png';
 import api from '../services/api';
+import { useUser } from '../context/UserContext';
 
 const Signup = () => {
   const { register, handleSubmit, watch, setError, formState: { errors, isSubmitting } } = useForm();
   const navigate = useNavigate();
+  const { fetchProfile } = useUser();
   const password = watch('password');
   const [serverError, setServerError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -27,8 +29,8 @@ const Signup = () => {
       });
 
       if (response.data && response.data.token) {
-        // Store ONLY token in localStorage
         localStorage.setItem('token', response.data.token);
+        await fetchProfile();
         setSuccessMessage('Account created successfully! Redirecting...');
         
         setTimeout(() => {

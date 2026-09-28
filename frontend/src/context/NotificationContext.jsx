@@ -1,9 +1,13 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import * as notifService from '../services/notificationService';
+import { useUser } from './UserContext';
 
 const NotificationContext = createContext();
 
 export const NotificationProvider = ({ children }) => {
+  const { userData } = useUser();
+  const userId = userData?._id || userData?.id || null;
+
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -11,27 +15,43 @@ export const NotificationProvider = ({ children }) => {
 
   const fetchNotifications = useCallback(async () => {
     const token = localStorage.getItem('token');
-    if (!token) return;
+    if (!token || !userId) {
+      setNotifications([]);
+      setUnreadCount(0);
+      return;
+    }
 
+    let isMounted = true;
     try {
       setLoading(true);
       setError(null);
       const data = await notifService.getNotifications();
-      if (data.success) {
+      if (isMounted && data.success) {
         setNotifications(data.notifications || []);
         setUnreadCount(data.unreadCount || 0);
       }
     } catch (err) {
-      console.error('Error fetching notifications:', err);
-      setError('Failed to load notifications');
+      if (isMounted) {
+        console.error('Error fetching notifications:', err);
+        setError('Failed to load notifications');
+      }
     } finally {
-      setLoading(false);
+      if (isMounted) {
+        setLoading(false);
+      }
     }
-  }, []);
+  }, [userId]);
 
+  // Reactively trigger notifications fetch or clear when userId changes
   useEffect(() => {
-    fetchNotifications();
-  }, [fetchNotifications]);
+    if (!userId) {
+      setNotifications([]);
+      setUnreadCount(0);
+      setError(null);
+    } else {
+      fetchNotifications();
+    }
+  }, [userId, fetchNotifications]);
 
   const handleMarkAsRead = async (id) => {
     try {
@@ -107,3 +127,4 @@ export const useNotifications = () => {
   }
   return context;
 };
+

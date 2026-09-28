@@ -8,36 +8,7 @@ import { useSearch } from '../context/SearchContext';
 import AIChatbot from './AIChatbot';
 import NotificationDropdown from './NotificationDropdown';
 
-// Mapping of route paths to readable page titles
-const pageTitles = {
-  '/dashboard': 'Dashboard',
-  '/dashboard/games': 'Games',
-  '/dashboard/journal': 'Journal',
-  '/dashboard/community': 'Community',
-  '/dashboard/profile': 'Profile',
-  '/profile': 'Profile',
-  '/dashboard/streaks': 'Streaks',
-  '/dashboard/interests': 'Select Interests',
-  '/dashboard/edit-profile': 'Edit Profile',
-  '/marketplace': 'Marketplace',
-  '/marketplace/sell': 'Sell Product',
-  '/marketplace/orders': 'Orders & Purchases',
-  '/dashboard/marketplace': 'Marketplace',
-  '/dashboard/marketplace/sell': 'Sell Product',
-  '/dashboard/marketplace/orders': 'Orders & Purchases',
-};
-
-const getSearchPlaceholder = (pathname) => {
-  const path = pathname.toLowerCase();
-  if (path.includes('/marketplace')) return 'Search marketplace products...';
-  if (path.includes('/community')) return 'Search community groups...';
-  if (path.includes('/journal')) return 'Search journal entries or dates...';
-  if (path.includes('/streaks')) return 'Search streak milestones & info...';
-  if (path.includes('/games')) return 'Search available games...';
-  if (path.includes('/settings')) return 'Search settings options...';
-  if (path.includes('/profile')) return 'Search profile sections...';
-  return 'Search videos & articles...';
-};
+import { useLanguage } from '../context/LanguageContext';
 
 const TopNavbar = ({ onMenuClick }) => {
   const location = useLocation();
@@ -46,25 +17,42 @@ const TopNavbar = ({ onMenuClick }) => {
   const { theme, toggleTheme } = useTheme();
   const { unreadCount } = useNotifications();
   const { searchQuery, setSearchQuery, clearSearch } = useSearch();
+  const { t } = useLanguage();
+
+  const handleProfileClick = () => {
+    navigate('/dashboard/profile');
+  };
 
   // ── AI Chatbot panel state ────────────────────────────────────────────────
   const [isChatOpen, setIsChatOpen] = useState(false);
   // ── Notification dropdown state ─────────────────────────────────────────
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
-  let title = pageTitles[location.pathname];
-  if (!title) {
-    if (location.pathname.startsWith('/marketplace/') || location.pathname.startsWith('/dashboard/marketplace/')) {
-      title = 'Product Details';
-    } else {
-      title = 'SheSphere';
-    }
-  }
-
-  const handleProfileClick = () => {
-    navigate('/dashboard/profile');
+  const getPageTitle = (pathname) => {
+    if (pathname === '/dashboard') return t('nav.dashboard');
+    if (pathname === '/dashboard/games') return t('nav.games');
+    if (pathname === '/dashboard/journal') return t('nav.journal');
+    if (pathname === '/dashboard/community' || pathname.startsWith('/dashboard/community/')) return t('nav.community');
+    if (pathname === '/dashboard/profile' || pathname === '/profile') return t('nav.profile');
+    if (pathname === '/dashboard/streaks') return t('nav.streaks');
+    if (pathname === '/dashboard/edit-profile' || pathname === '/edit-profile') return t('nav.editProfile');
+    if (pathname === '/marketplace' || pathname === '/dashboard/marketplace') return t('nav.marketplace');
+    if (pathname === '/marketplace/sell' || pathname === '/dashboard/marketplace/sell') return t('marketplace.sellProduct');
+    if (pathname === '/marketplace/orders' || pathname === '/marketplace/my-purchases' || pathname === '/dashboard/marketplace/my-purchases') return t('marketplace.myPurchases');
+    if (pathname === '/dashboard/settings' || pathname === '/settings') return t('nav.settings');
+    if (pathname.includes('/marketplace/')) return t('marketplace.title');
+    return 'SheSphere';
   };
 
+  const getSearchPlaceholder = (pathname) => {
+    const path = pathname.toLowerCase();
+    if (path.includes('/marketplace')) return t('marketplace.noProductsSubtext');
+    if (path.includes('/community')) return t('community.noPostsSubtext', { name: '' }).replace('!', '');
+    if (path.includes('/journal')) return t('journal.historyPlaceholder');
+    return t('common.searchPlaceholder');
+  };
+
+  const title = getPageTitle(location.pathname);
   const placeholder = getSearchPlaceholder(location.pathname);
 
   return (

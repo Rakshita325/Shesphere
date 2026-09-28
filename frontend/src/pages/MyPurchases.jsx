@@ -7,24 +7,16 @@ import {
   ShoppingCart, PackageCheck, Clock, Truck, CheckCircle2,
   XCircle, AlertCircle, Loader2, ArrowRight, X, CreditCard, MessageCircle
 } from 'lucide-react';
-
-// ─── Decode JWT to extract userId without an external lib ────────────────────
-const getCurrentUserId = () => {
-  try {
-    const token = localStorage.getItem('token');
-    if (!token) return null;
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload?.id || payload?.userId || payload?.sub || null;
-  } catch {
-    return null;
-  }
-};
+import { useUser } from '../context/UserContext';
 
 // ─── Messaging eligibility: only Shipped or Delivered ────────────────────────
 const canChat = (status) => ['Shipped', 'Delivered'].includes(status);
 
 const MyPurchases = () => {
   const navigate = useNavigate();
+  const { userData } = useUser();
+  const currentUserId = userData?._id || userData?.id || null;
+
   const {
     purchases, purchasesLoading, loadPurchases,
     sellerOrders, sellerOrdersLoading, loadSellerOrders,
@@ -36,12 +28,12 @@ const MyPurchases = () => {
   const [updatingId, setUpdatingId] = useState(null);
   const [chatOrder, setChatOrder] = useState(null); // order currently open in chat
 
-  const currentUserId = getCurrentUserId();
-
   useEffect(() => {
-    loadPurchases();
-    loadSellerOrders();
-  }, [loadPurchases, loadSellerOrders]);
+    if (currentUserId) {
+      loadPurchases();
+      loadSellerOrders();
+    }
+  }, [loadPurchases, loadSellerOrders, currentUserId]);
 
   const handleCancel = async (orderId) => {
     setCancellingId(orderId);

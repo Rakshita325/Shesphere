@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import CardBase from './CardBase';
 import articleService from '../../services/articleService';
 import { useUser } from '../../context/UserContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { ChevronLeft, ChevronRight, PenTool, BookOpen, Clock } from 'lucide-react';
 
 import { useSearch } from '../../context/SearchContext';
@@ -10,6 +11,7 @@ import { useSearch } from '../../context/SearchContext';
 const RecommendedArticles = () => {
   const { userData } = useUser();
   const { searchQuery } = useSearch();
+  const { t } = useLanguage();
   const [articlesList, setArticlesList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -18,27 +20,33 @@ const RecommendedArticles = () => {
   const CARDS_PER_SET = 3;
 
   useEffect(() => {
-    fetchArticles();
-  }, [userData.interest]);
-
-  useEffect(() => {
-    setCurrentIndex(0);
-  }, [searchQuery]);
-
-  const fetchArticles = async () => {
-    try {
-      setLoading(true);
-      setCurrentIndex(0);
-      const res = await articleService.getArticles();
-      if (res && res.success) {
-        setArticlesList(res.data);
+    let cancelled = false;
+    const fetchArticles = async () => {
+      if (!userData?._id) {
+        setArticlesList([]);
+        setLoading(false);
+        return;
       }
-    } catch (err) {
-      console.error('Failed to load articles:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+      try {
+        setLoading(true);
+        setCurrentIndex(0);
+        const res = await articleService.getArticles();
+        if (cancelled) return;
+        if (res && res.success) {
+          setArticlesList(res.data);
+        }
+      } catch (err) {
+        if (!cancelled) console.error('Failed to load articles:', err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    fetchArticles();
+    return () => {
+      cancelled = true;
+    };
+  }, [userData?._id, userData?.interest]);
 
   const filteredArticles = searchQuery.trim()
     ? articlesList.filter((a) => {
@@ -82,10 +90,10 @@ const RecommendedArticles = () => {
         <div>
           <h3 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-pink-500" />
-            Recommended Articles
+            {t('dashboard.recArticlesTitle')}
           </h3>
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            Inspiring guides and stories for <span className="font-bold text-pink-500">{userData.interest || 'All'}</span>
+            {t('dashboard.recArticlesSubtext')} <span className="font-bold text-pink-500">{userData.interest || 'All'}</span>
           </p>
         </div>
 
@@ -126,8 +134,8 @@ const RecommendedArticles = () => {
         <div className="py-8 text-center bg-gray-50 dark:bg-gray-800/40 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 mb-6">
           <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
             {searchQuery.trim()
-              ? `No articles found for '${searchQuery}'.`
-              : 'No articles available for your selected interest yet.'}
+              ? t('dashboard.noArticlesFound', { query: searchQuery })
+              : t('dashboard.noArticlesForInterest')}
           </p>
         </div>
       ) : (
@@ -168,7 +176,7 @@ const RecommendedArticles = () => {
                   {formatDate(article.createdAt || article.publishedAt)}
                 </span>
                 <span className="text-pink-500 group-hover:underline font-semibold text-xs">
-                  Read More →
+                  {t('dashboard.readMore')}
                 </span>
               </div>
             </div>
@@ -179,14 +187,14 @@ const RecommendedArticles = () => {
       {/* Bottom Write Article Section */}
       <div className="pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between flex-wrap gap-3">
         <p className="text-xs text-gray-500 dark:text-gray-400">
-          Have insights, recipes, or tutorials to share with women across SheSphere?
+          {t('dashboard.writeArticleDesc')}
         </p>
         <button
           onClick={() => navigate('/dashboard/articles/write')}
           className="px-4 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white text-xs font-bold shadow-xs hover:shadow-md transition-all flex items-center gap-2 cursor-pointer"
         >
           <PenTool className="w-3.5 h-3.5" />
-          Write Article
+          {t('dashboard.writeArticle')}
         </button>
       </div>
     </CardBase>

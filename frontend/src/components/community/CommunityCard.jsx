@@ -15,6 +15,7 @@ import {
   Star
 } from 'lucide-react';
 import CardBase from '../dashboard/CardBase';
+import { useLanguage } from '../../context/LanguageContext';
 
 const iconMap = {
   ChefHat,
@@ -28,8 +29,23 @@ const iconMap = {
   Users
 };
 
+export const getCommunityDisplayName = (name, t) => {
+  if (!name || !t) return name;
+  const n = String(name).toLowerCase().trim();
+  if (n.includes('cook')) return t('community.communityNames.cooking');
+  if (n.includes('craft') || n.includes('art')) return t('community.communityNames.crafts');
+  if (n.includes('garden')) return t('community.communityNames.gardening');
+  if (n.includes('sew') || n.includes('fashion')) return t('community.communityNames.sewing');
+  if (n.includes('design') || n.includes('digital')) return t('community.communityNames.design');
+  if (n.includes('fit') || n.includes('health')) return t('community.communityNames.fitness');
+  if (n.includes('music') || n.includes('instrument')) return t('community.communityNames.music');
+  if (n.includes('skin')) return t('community.communityNames.skincare');
+  return name;
+};
+
 const CommunityCard = ({ community, onJoinToggle, isActionLoading }) => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const IconComponent = iconMap[community.icon] || Users;
   const isJoined = community.isJoined;
@@ -63,14 +79,14 @@ const CommunityCard = ({ community, onJoinToggle, isActionLoading }) => {
           {isRecommended && (
             <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-pink-100 dark:bg-pink-950/70 text-pink-700 dark:text-pink-300 border border-pink-300/50 dark:border-pink-800/50">
               <Star className="w-3 h-3 fill-pink-500 text-pink-500" />
-              Recommended for You
+              {t('community.similarLearners')}
             </span>
           )}
         </div>
 
         {/* Title & Description */}
         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors">
-          {community.name}
+          {getCommunityDisplayName(community.name, t)}
         </h3>
         <p className="text-sm text-gray-600 dark:text-gray-350 line-clamp-2 mb-4 leading-relaxed">
           {community.description}
@@ -81,7 +97,7 @@ const CommunityCard = ({ community, onJoinToggle, isActionLoading }) => {
       <div className="pt-4 border-t border-gray-100 dark:border-gray-700/60 flex items-center justify-between gap-3">
         <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400">
           <Users className="w-4 h-4 text-pink-400" />
-          <span>{community.memberCount || 0} {community.memberCount === 1 ? 'member' : 'members'}</span>
+          <span>{community.memberCount || 0} {community.memberCount === 1 ? t('community.member') : t('community.members')}</span>
         </div>
 
         <div className="flex items-center gap-2">
@@ -102,10 +118,10 @@ const CommunityCard = ({ community, onJoinToggle, isActionLoading }) => {
             {isJoined ? (
               <>
                 <Check className="w-3.5 h-3.5" />
-                Joined
+                <span>{t('community.joined')}</span>
               </>
             ) : (
-              'Join'
+              <span>{t('community.join')}</span>
             )}
           </button>
 

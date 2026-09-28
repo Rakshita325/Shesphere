@@ -9,11 +9,14 @@ import CommunityPostCard from '../components/community/CommunityPostCard';
 import SimilarLearnersWidget from '../components/community/SimilarLearnersWidget';
 
 import { useSearch } from '../context/SearchContext';
+import { useUser } from '../context/UserContext';
+import { useLanguage } from '../context/LanguageContext';
 
 const Community = () => {
   const { communityId } = useParams();
   const navigate = useNavigate();
   const { searchQuery } = useSearch();
+  const { t } = useLanguage();
 
   // List View State
   const [communities, setCommunities] = useState([]);
@@ -27,6 +30,9 @@ const Community = () => {
   const [loadingPosts, setLoadingPosts] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
+  const { userData } = useUser();
+  const userId = userData?._id || userData?.id || null;
+
   const filteredCommunities = searchQuery.trim()
     ? communities.filter((c) => {
         const q = searchQuery.toLowerCase().trim();
@@ -39,12 +45,27 @@ const Community = () => {
     : communities;
 
   useEffect(() => {
-    if (communityId) {
-      fetchDedicatedCommunity(communityId);
-    } else {
-      fetchCommunitiesList();
+    let cancelled = false;
+    if (!userId) {
+      setCommunities([]);
+      setActiveCommunity(null);
+      setPosts([]);
+      setLoadingList(false);
+      setLoadingCommunity(false);
+      setLoadingPosts(false);
+      return;
     }
-  }, [communityId]);
+
+    if (communityId) {
+      fetchDedicatedCommunity(communityId, () => cancelled);
+    } else {
+      fetchCommunitiesList(() => cancelled);
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, [communityId, userId]);
 
   // Fetch all 8 communities
   const fetchCommunitiesList = async () => {
@@ -245,13 +266,13 @@ const Community = () => {
       <div className="text-center max-w-2xl mx-auto mb-10 space-y-3">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pink-100 dark:bg-pink-950/60 text-pink-700 dark:text-pink-300 text-xs font-bold uppercase tracking-wider">
           <Users className="w-4 h-4 text-pink-500" />
-          Interest Communities
+          {t('community.bannerBadge')}
         </div>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-          Find Your Tribe in <span className="bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">SheSphere</span>
+          {t('community.bannerTitle')}
         </h1>
         <p className="text-gray-600 dark:text-gray-350 text-sm sm:text-base leading-relaxed">
-          Join interest communities, exchange ideas, share photos and videos, and connect with inspiring women.
+          {t('community.bannerSubtext')}
         </p>
       </div>
 
