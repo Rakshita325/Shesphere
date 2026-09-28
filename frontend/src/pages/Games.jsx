@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from '../context/UserContext';
+import { useLanguage } from '../context/LanguageContext';
 import { GAME_DEFINITIONS } from '../utils/gamesData';
 import gameService from '../services/gameService';
 import MemoryMatchGame from '../components/games/MemoryMatchGame';
@@ -22,28 +23,47 @@ const GAME_COMPONENTS = {
 const Games = () => {
   const { userData } = useUser();
   const { searchQuery: globalSearchQuery } = useSearch();
+  const { t } = useLanguage();
   const [selectedGame, setSelectedGame] = useState(null);
   const [progress, setProgress] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Fetch progress on mount
+  const userId = userData?._id || userData?.id || null;
+
+  // Fetch progress whenever authenticated user changes
+  const fetchProgress = async () => {
+    if (!userId) {
+      setProgress({});
+      setLoading(false);
+      return;
+    }
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await gameService.getProgress();
+      setProgress(data || {});
+    } catch (err) {
+      console.error('Failed to fetch game progress:', err);
+      setError('Failed to load game data.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchProgress = async () => {
-      try {
-        setLoading(true);
-        const data = await gameService.getProgress();
-        setProgress(data || {});
-      } catch (err) {
-        console.error('Failed to fetch game progress:', err);
-        setError('Failed to load game data.');
-      } finally {
-        setLoading(false);
-      }
-    };
+    let cancelled = false;
+    if (!userId) {
+      setProgress({});
+      setLoading(false);
+      return;
+    }
     fetchProgress();
-  }, []);
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
 
   const handleGameComplete = async (gameId, score) => {
     try {
@@ -78,7 +98,7 @@ const Games = () => {
             className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 hover:border-pink-200 dark:hover:border-pink-900/50 transition-all duration-200"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm font-medium">Back to Games</span>
+            <span className="text-sm font-medium">{t('games.backToGames')}</span>
           </button>
           <div className="flex items-center gap-2">
             <span className="text-2xl">{gameDef?.icon}</span>
@@ -124,11 +144,11 @@ const Games = () => {
                   <Gamepad2 className="w-8 h-8 text-white" />
                 </div>
                 <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
-                  Play. Learn. Grow. 🎮
+                  {t('games.heroTitle')}
                 </h1>
               </div>
               <p className="text-pink-100 text-sm md:text-base max-w-xl">
-                Play daily games to keep your streak alive, unlock achievements, and sharpen your mind!
+                {t('games.heroSubtext')}
               </p>
             </div>
 
@@ -136,7 +156,7 @@ const Games = () => {
             <div className="w-full md:w-72 relative flex items-center">
               <input
                 type="text"
-                placeholder="Search games..."
+                placeholder={t('games.searchGames')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full h-11 pl-4 pr-4 rounded-xl border border-white/30 bg-white/15 backdrop-blur-md text-white placeholder:text-pink-100 text-sm focus:outline-none focus:ring-2 focus:ring-white/50 transition-all shadow-inner"
@@ -150,7 +170,7 @@ const Games = () => {
           <div className="flex justify-center py-16">
             <div className="flex flex-col items-center gap-3">
               <div className="w-10 h-10 border-4 border-pink-200 border-t-pink-500 rounded-full animate-spin" />
-              <p className="text-gray-500 dark:text-gray-400 text-sm">Loading games…</p>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">{t('common.loading')}</p>
             </div>
           </div>
         )}
@@ -160,10 +180,10 @@ const Games = () => {
           <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/50 rounded-2xl p-6 text-center">
             <p className="text-red-600 dark:text-red-400 font-medium">{error}</p>
             <button
-              onClick={() => window.location.reload()}
+              onClick={() => fetchProgress()}
               className="mt-3 px-5 py-2 bg-red-500 text-white rounded-full text-sm font-semibold hover:bg-red-600 transition-colors"
             >
-              Retry
+              {t('common.retry')}
             </button>
           </div>
         )}
@@ -211,10 +231,10 @@ const Games = () => {
                       {highScore > 0 && (
                         <span className="flex items-center gap-1">
                           <Trophy className="w-3.5 h-3.5 text-amber-500" />
-                          Best: {highScore}
+                          {t('games.bestScore', { score: highScore })}
                         </span>
                       )}
-                      {totalPlayed > 0 && <span>Played: {totalPlayed}×</span>}
+                      {totalPlayed > 0 && <span>{t('games.playedTimes', { count: totalPlayed })}</span>}
                     </div>
 
                     {/* Play / Replay button */}
@@ -222,13 +242,13 @@ const Games = () => {
                       {isPlayedToday ? (
                         <div className="space-y-2">
                           <div className="flex items-center justify-center gap-1.5 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl border border-emerald-200 dark:border-emerald-900/50">
-                            <Trophy className="w-3.5 h-3.5" /> Completed Today
+                            <Trophy className="w-3.5 h-3.5" /> {t('games.completedToday')}
                           </div>
                           <button
                             onClick={() => setSelectedGame(game.id)}
                             className={`w-full py-2.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-pink-50 dark:hover:bg-gray-700 hover:text-pink-600 dark:hover:text-pink-400 rounded-2xl font-bold text-sm border border-gray-200 dark:border-gray-700 transition-all duration-200 cursor-pointer`}
                           >
-                            ▶ Replay Game
+                            {t('games.replayGame')}
                           </button>
                         </div>
                       ) : (
@@ -236,7 +256,7 @@ const Games = () => {
                           onClick={() => setSelectedGame(game.id)}
                           className={`w-full py-3 bg-gradient-to-r ${game.color} text-white rounded-2xl font-bold text-sm shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer transform active:scale-98`}
                         >
-                          ▶ Play Now
+                          {t('games.playNow')}
                         </button>
                       )}
                     </div>

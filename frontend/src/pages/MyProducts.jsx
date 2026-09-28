@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMarketplace } from '../context/MarketplaceContext';
+import { useUser } from '../context/UserContext';
 import MarketplaceHeader from '../components/Marketplace/MarketplaceHeader';
 import {
   PackageCheck, ShoppingBag, Eye, Edit3, Trash2,
@@ -17,9 +18,14 @@ const MyProducts = () => {
   const [deletingId, setDeletingId] = useState(null);
   const [confirmDeleteModal, setConfirmDeleteModal] = useState(null); // product object to delete
 
+  const { userData } = useUser();
+  const userId = userData?._id || userData?.id || null;
+
   useEffect(() => {
-    loadMyProducts();
-  }, [loadMyProducts]);
+    if (userId) {
+      loadMyProducts();
+    }
+  }, [loadMyProducts, userId]);
 
   const handleToggleStock = async (product) => {
     await toggleAvailability(product.id, !product.isAvailable);

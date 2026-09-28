@@ -59,14 +59,21 @@ const ProfileSetup = () => {
   const onSubmit = async (data) => {
     let finalPicture = previewImage;
 
-    if (selectedFile && previewImage && previewImage.startsWith('blob:')) {
-      try {
-        const uploadRes = await uploadProfilePicture(selectedFile);
-        if (uploadRes && uploadRes.profilePicture) {
-          finalPicture = uploadRes.profilePicture;
+    if (finalPicture && (finalPicture.startsWith('blob:') || finalPicture.startsWith('data:'))) {
+      if (selectedFile) {
+        try {
+          const uploadRes = await uploadProfilePicture(selectedFile);
+          if (uploadRes && uploadRes.profilePicture) {
+            finalPicture = uploadRes.profilePicture;
+          } else {
+            finalPicture = null;
+          }
+        } catch (err) {
+          console.error('Failed uploading photo during submit:', err);
+          finalPicture = null;
         }
-      } catch (err) {
-        console.error('Failed uploading photo during submit:', err);
+      } else {
+        finalPicture = null;
       }
     }
 
@@ -134,9 +141,9 @@ const ProfileSetup = () => {
               <Select 
                 label="Preferred Language"
                 options={[
-                  { value: 'english', label: 'English' },
-                  { value: 'hindi', label: 'Hindi' },
-                  { value: 'kannada', label: 'Kannada' }
+                  { value: 'en', label: 'English' },
+                  { value: 'hi', label: 'Hindi' },
+                  { value: 'kn', label: 'Kannada' }
                 ]}
                 {...register('language', { required: 'Language is required' })}
                 error={errors.language?.message}

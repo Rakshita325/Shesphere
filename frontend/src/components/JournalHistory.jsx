@@ -2,6 +2,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Search, BookOpen } from 'lucide-react';
 import journalService from '../services/journalService';
 import { useSearch } from '../context/SearchContext';
+import { useUser } from '../context/UserContext';
+import { useLanguage } from '../context/LanguageContext';
 
 const moodEmoji = {
   happy: '😊',
@@ -19,27 +21,36 @@ const moodEmoji = {
  *   refreshKey    — increment to force a re-fetch after saving
  */
 const JournalHistory = ({ selectedDate, onSelectDate, refreshKey }) => {
+  const { userData } = useUser();
+  const userId = userData?._id || userData?.id || null;
+  const { t } = useLanguage();
+
   const { searchQuery: navbarQuery } = useSearch();
   const [entries, setEntries] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
 
   const fetchEntries = useCallback(async () => {
+    if (!userId) {
+      setEntries([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const data = await journalService.getSummaries();
-      setEntries(data);
+      setEntries(data || []);
     } catch (err) {
       console.error('Failed to load journal history', err);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [userId]);
 
-  // Re-fetch whenever refreshKey changes (i.e., after a save)
+  // Re-fetch whenever refreshKey or userId changes
   useEffect(() => {
     fetchEntries();
-  }, [fetchEntries, refreshKey]);
+  }, [fetchEntries, refreshKey, userId]);
 
   const activeQuery = navbarQuery.trim() || search.trim();
 
@@ -97,7 +108,7 @@ const JournalHistory = ({ selectedDate, onSelectDate, refreshKey }) => {
       {/* Header */}
       <div className="flex items-center gap-2 mb-3">
         <BookOpen className="w-5 h-5 text-pink-400 dark:text-pink-300" />
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Journal History</h3>
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-white">{t('journal.historyTitle')}</h3>
       </div>
 
       {/* Search */}
@@ -105,7 +116,7 @@ const JournalHistory = ({ selectedDate, onSelectDate, refreshKey }) => {
         <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
         <input
           type="text"
-          placeholder="Search by date (e.g. 2026-08)"
+          placeholder={t('journal.historyPlaceholder')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full pl-8 pr-3 py-2 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-pink-300"
@@ -115,11 +126,11 @@ const JournalHistory = ({ selectedDate, onSelectDate, refreshKey }) => {
       {/* Scrollable list */}
       <div className="flex-1 overflow-y-auto space-y-2 pr-1" style={{ scrollbarWidth: 'thin' }}>
         {loading && (
-          <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-6">Loading…</p>
+          <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-6">{t('common.loading')}</p>
         )}
 
         {!loading && filtered.length === 0 && (
-          <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-6">No journal entries yet.</p>
+          <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-6">{t('journal.noEntries')}</p>
         )}
 
         {!loading &&

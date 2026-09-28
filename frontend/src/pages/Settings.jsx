@@ -4,6 +4,7 @@ import { Globe, Palette, Key, LogOut, CheckCircle2, AlertCircle, Loader2 } from 
 import CardBase from '../components/dashboard/CardBase';
 import { useUser } from '../context/UserContext';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 import api from '../services/api';
 import { useSearch } from '../context/SearchContext';
 
@@ -12,9 +13,9 @@ const Settings = () => {
   const { userData, updateUserData, logout } = useUser();
   const { theme, setTheme } = useTheme();
   const { searchQuery } = useSearch();
+  const { t, language, changeLanguage } = useLanguage();
 
   // ── 1. Language State ───────────────────────────────────────────────────────
-  const [language, setLanguage] = useState(userData.language || 'english');
   const [langSaving, setLangSaving] = useState(false);
   const [langMessage, setLangMessage] = useState({ text: '', type: '' });
 
@@ -27,18 +28,11 @@ const Settings = () => {
 
   const hasMatch = showLanguage || showTheme || showPassword || showLogout;
 
-  useEffect(() => {
-    if (userData.language) {
-      setLanguage(userData.language.toLowerCase());
-    }
-  }, [userData.language]);
-
-  const handleSaveLanguage = async () => {
+  const handleLanguageSelect = async (selectedLang) => {
     setLangSaving(true);
     setLangMessage({ text: '', type: '' });
     try {
-      await api.put('/auth/profile', { language });
-      updateUserData({ language });
+      await changeLanguage(selectedLang);
       setLangMessage({ text: 'Language preference saved!', type: 'success' });
       setTimeout(() => setLangMessage({ text: '', type: '' }), 3000);
     } catch (err) {
@@ -46,6 +40,10 @@ const Settings = () => {
     } finally {
       setLangSaving(false);
     }
+  };
+
+  const handleSaveLanguage = () => {
+    handleLanguageSelect(language);
   };
 
   // ── 2. Password State ───────────────────────────────────────────────────────
@@ -103,8 +101,8 @@ const Settings = () => {
           <Globe className="w-6 h-6" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text-main)]">Settings</h1>
-          <p className="text-sm text-[var(--text-muted)]">Manage your language preferences, theme appearance, and security settings.</p>
+          <h1 className="text-2xl font-bold text-[var(--text-main)]">{t('settings.title')}</h1>
+          <p className="text-sm text-[var(--text-muted)]">{t('settings.subtext')}</p>
         </div>
       </div>
 
@@ -124,24 +122,24 @@ const Settings = () => {
                   <Globe className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-[var(--text-main)]">Language Preferences</h2>
-                  <p className="text-xs text-[var(--text-muted)]">Choose your preferred language for the SheSphere dashboard</p>
+                  <h2 className="text-base font-bold text-[var(--text-main)]">{t('settings.langPreferences')}</h2>
+                  <p className="text-xs text-[var(--text-muted)]">{t('settings.langSubtext')}</p>
                 </div>
               </div>
 
               <div className="space-y-4 pt-2">
                 <div>
                   <label className="block text-xs font-semibold text-[var(--text-main)] mb-2">
-                    Display Language
+                    {t('settings.displayLang')}
                   </label>
                   <select
                     value={language}
-                    onChange={(e) => setLanguage(e.target.value)}
+                    onChange={(e) => handleLanguageSelect(e.target.value)}
                     className="w-full sm:w-72 h-12 px-4 bg-gray-50/60 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-2xl text-sm font-medium text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-pink-300 dark:focus:ring-pink-500/30 focus:border-pink-500 cursor-pointer transition-all"
                   >
-                    <option value="english">English</option>
-                    <option value="hindi">Hindi</option>
-                    <option value="kannada">Kannada</option>
+                    <option value="en">English</option>
+                    <option value="hi">Hindi — हिन्दी</option>
+                    <option value="kn">Kannada — ಕನ್ನಡ</option>
                   </select>
                 </div>
 
@@ -161,7 +159,7 @@ const Settings = () => {
                     className="px-6 py-2.5 bg-pink-500 hover:bg-pink-600 text-white text-xs font-bold rounded-full shadow-md transition disabled:opacity-50 flex items-center gap-2 cursor-pointer"
                   >
                     {langSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                    <span>Save Language</span>
+                    <span>{t('settings.saveLanguage')}</span>
                   </button>
                 </div>
               </div>
@@ -176,8 +174,8 @@ const Settings = () => {
                   <Palette className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-[var(--text-main)]">Appearance Theme</h2>
-                  <p className="text-xs text-[var(--text-muted)]">Switch between Light Mode ☀️ and Dark Mode 🌙</p>
+                  <h2 className="text-base font-bold text-[var(--text-main)]">{t('settings.appearanceTheme')}</h2>
+                  <p className="text-xs text-[var(--text-muted)]">{t('settings.appearanceSubtext')}</p>
                 </div>
               </div>
 
@@ -193,8 +191,8 @@ const Settings = () => {
                   <div className="flex items-center gap-3">
                     <span className="text-2xl">☀️</span>
                     <div>
-                      <span className="text-sm font-bold text-[var(--text-main)] block">Light Mode</span>
-                      <span className="text-xs text-[var(--text-muted)]">Soft blush & pastel cream</span>
+                      <span className="text-sm font-bold text-[var(--text-main)] block">{t('settings.lightMode')}</span>
+                      <span className="text-xs text-[var(--text-muted)]">{t('settings.lightModeDesc')}</span>
                     </div>
                   </div>
                   <input
@@ -218,8 +216,8 @@ const Settings = () => {
                   <div className="flex items-center gap-3">
                     <span className="text-2xl">🌙</span>
                     <div>
-                      <span className="text-sm font-bold text-[var(--text-main)] block">Dark Mode</span>
-                      <span className="text-xs text-[var(--text-muted)]">Deep plum & navy tones</span>
+                      <span className="text-sm font-bold text-[var(--text-main)] block">{t('settings.darkMode')}</span>
+                      <span className="text-xs text-[var(--text-muted)]">{t('settings.darkModeDesc')}</span>
                     </div>
                   </div>
                   <input
@@ -243,15 +241,15 @@ const Settings = () => {
                   <Key className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-[var(--text-main)]">Change Password</h2>
-                  <p className="text-xs text-[var(--text-muted)]">Update your login security credentials</p>
+                  <h2 className="text-base font-bold text-[var(--text-main)]">{t('settings.changePassword')}</h2>
+                  <p className="text-xs text-[var(--text-muted)]">{t('settings.changePassSubtext')}</p>
                 </div>
               </div>
 
               <form onSubmit={handlePasswordChange} className="space-y-4 pt-2 max-w-lg">
                 <div>
                   <label className="block text-xs font-semibold text-[var(--text-main)] mb-1.5">
-                    Current Password
+                    {t('settings.currentPassword')}
                   </label>
                   <input
                     type="password"
@@ -265,7 +263,7 @@ const Settings = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-[var(--text-main)] mb-1.5">
-                      New Password
+                      {t('settings.newPassword')}
                     </label>
                     <input
                       type="password"
@@ -278,7 +276,7 @@ const Settings = () => {
 
                   <div>
                     <label className="block text-xs font-semibold text-[var(--text-main)] mb-1.5">
-                      Confirm New Password
+                      {t('settings.confirmPassword')}
                     </label>
                     <input
                       type="password"
@@ -306,7 +304,7 @@ const Settings = () => {
                     className="px-6 py-2.5 bg-pink-500 hover:bg-pink-600 text-white text-xs font-bold rounded-full shadow-md transition disabled:opacity-50 flex items-center gap-2 cursor-pointer"
                   >
                     {pwdLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                    <span>Update Password</span>
+                    <span>{t('settings.updatePassword')}</span>
                   </button>
                 </div>
               </form>
@@ -321,7 +319,7 @@ const Settings = () => {
                 className="w-full py-3 px-4 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-900/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/50 text-xs font-bold rounded-2xl transition duration-200 flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
               >
                 <LogOut className="w-4 h-4" />
-                <span>Logout</span>
+                <span>{t('settings.logout')}</span>
               </button>
             </div>
           )}

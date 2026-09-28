@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
+import { useLanguage } from '../context/LanguageContext';
 import { updateUserProfile, uploadProfilePicture } from '../services/userService';
 import {
   User,
@@ -20,6 +21,7 @@ import {
 const EditProfile = () => {
   const navigate = useNavigate();
   const { userData, updateUserData } = useUser();
+  const { changeLanguage, normalizeLanguage } = useLanguage();
   const fileInputRef = useRef(null);
 
   const [form, setForm] = useState({
@@ -38,7 +40,7 @@ const EditProfile = () => {
     setForm({
       fullName: userData.fullName || '',
       email: userData.email || '',
-      language: userData.language || '',
+      language: normalizeLanguage(userData.language || 'en'),
       education: userData.education || '',
       interest: userData.interest || '',
       dailyFreeTime: userData.dailyFreeTime || '',
@@ -95,7 +97,13 @@ const EditProfile = () => {
     if (Object.keys(validationErrors).length) return;
     setLoading(true);
     try {
-      console.log('Form State:', form);
+      if (form.language) {
+        await changeLanguage(form.language);
+      }
+      let profilePicToSave = form.profilePicture;
+      if (profilePicToSave && (profilePicToSave.startsWith('blob:') || profilePicToSave.startsWith('data:'))) {
+        profilePicToSave = userData.profilePicture || null;
+      }
       const updated = await updateUserProfile({
         fullName: form.fullName,
         email: form.email,
@@ -103,7 +111,7 @@ const EditProfile = () => {
         education: form.education,
         interest: form.interest,
         dailyFreeTime: form.dailyFreeTime,
-        profilePicture: form.profilePicture,
+        profilePicture: profilePicToSave,
       });
       if (updated) {
         updateUserData(updated);
@@ -249,9 +257,9 @@ const EditProfile = () => {
                     onChange={handleChange}
                     className="w-full h-12 pl-11 pr-10 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/60 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-300 dark:focus:ring-pink-500/30 focus:border-pink-500 transition-all text-sm font-medium appearance-none cursor-pointer"
                   >
-                    <option value="english">English</option>
-                    <option value="hindi">Hindi</option>
-                    <option value="kannada">Kannada</option>
+                    <option value="en">English</option>
+                    <option value="hi">Hindi</option>
+                    <option value="kn">Kannada</option>
                   </select>
                   <ChevronDown className="w-4 h-4 absolute right-3.5 text-gray-400 dark:text-gray-500 pointer-events-none" />
                 </div>

@@ -24,10 +24,12 @@ import {
 } from 'lucide-react';
 
 import { useSearch } from '../context/SearchContext';
+import { useLanguage } from '../context/LanguageContext';
 
 const Profile = () => {
   const { userData, updateUserData } = useUser();
   const { searchQuery } = useSearch();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
@@ -45,35 +47,55 @@ const Profile = () => {
     streak,
   } = userData || {};
 
+  const formatLangName = (lang) => {
+    if (!lang) return 'English';
+    const l = lang.toLowerCase();
+    if (l === 'hi' || l === 'hindi') return 'Hindi';
+    if (l === 'kn' || l === 'kannada') return 'Kannada';
+    return 'English';
+  };
+
   const displayName = fullName || 'Shrilakshmi Hegde';
   const displayEmail = email || 'shrilakshmi.hegde@shesphere.com';
-  const displayLanguage = language || 'English';
+  const displayLanguage = formatLangName(language);
   const displayEducation = education || 'Degree';
   const displayInterest = interest || 'Digital Skills';
   const displayStreak = streak !== undefined ? `${streak} days` : '2 days';
 
   // Fetch backend statistics & evaluation for current user
-  const fetchStats = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getProfileStats();
-      if (data && data.success) {
-        setProfileStats(data);
-      } else {
-        throw new Error(data?.message || 'Failed to fetch statistics');
-      }
-    } catch (err) {
-      console.error('❌ Error loading profile statistics:', err);
-      setError(err.message || 'Unable to load progress. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    let cancelled = false;
+    const fetchStats = async () => {
+      if (!userData?._id) {
+        setProfileStats(null);
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await getProfileStats();
+        if (cancelled) return;
+        if (data && data.success) {
+          setProfileStats(data);
+        } else {
+          throw new Error(data?.message || 'Failed to fetch statistics');
+        }
+      } catch (err) {
+        if (!cancelled) {
+          console.error('❌ Error loading profile statistics:', err);
+          setError(err.message || 'Unable to load progress. Please try again.');
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
     fetchStats();
-  }, []);
+    return () => {
+      cancelled = true;
+    };
+  }, [userData?._id]);
 
   // Handle profile image upload from camera icon click
   const handleCameraClick = () => {
@@ -146,38 +168,38 @@ const Profile = () => {
 
   const progressItems = [
     {
-      label: 'Videos Watched',
+      label: t('profile.videosWatched'),
       value: profileStats?.videosWatched ?? (loading ? '—' : 0),
       icon: Video,
       badgeColor: 'bg-pink-100 text-pink-600 dark:bg-pink-950/60 dark:text-pink-300',
     },
     {
-      label: 'Journal Entries',
+      label: t('profile.journalEntries'),
       value: profileStats?.journalEntries ?? (loading ? '—' : 0),
       icon: BookOpen,
       badgeColor: 'bg-purple-100 text-purple-600 dark:bg-purple-950/60 dark:text-purple-300',
     },
     {
-      label: 'Games Completed',
+      label: t('profile.gamesCompleted'),
       value: profileStats?.gamesCompleted ?? (loading ? '—' : 0),
       icon: Gamepad2,
       badgeColor: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-300',
     },
     {
-      label: 'Community Discussions',
+      label: t('profile.communityDiscussions'),
       value: profileStats?.communityDiscussions ?? (loading ? '—' : 0),
       icon: MessageSquare,
       badgeColor: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-300',
     },
     {
-      label: 'Current Streak',
+      label: t('nav.streaks'),
       value: profileStats?.currentStreak !== undefined ? `${profileStats.currentStreak} days` : displayStreak,
       icon: Zap,
       badgeColor: 'bg-amber-100 text-amber-600 dark:bg-amber-950/60 dark:text-amber-300',
     },
     {
-      label: 'Learning Time',
-      value: profileStats?.learningTime !== undefined ? `${profileStats.learningTime} ${profileStats.learningTimeUnit || 'hrs'}` : (loading ? '—' : '0 hrs'),
+      label: t('profile.learningTime'),
+      value: profileStats?.learningTime !== undefined ? `${profileStats.learningTime} ${profileStats.learningTimeUnit || t('common.hrs')}` : (loading ? '—' : `0 ${t('common.hrs')}`),
       icon: Clock,
       badgeColor: 'bg-rose-100 text-rose-600 dark:bg-rose-950/60 dark:text-rose-300',
     },
@@ -268,7 +290,7 @@ const Profile = () => {
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-pink-500 hover:bg-pink-600 text-white text-sm font-medium rounded-full shadow-md transition-all hover:shadow-lg transform active:scale-95 cursor-pointer shrink-0"
               >
                 <Pencil className="w-4 h-4" />
-                <span>Edit Profile</span>
+                <span>{t('profile.editProfile')}</span>
               </button>
             </div>
 
@@ -277,7 +299,7 @@ const Profile = () => {
               <div className="flex items-center justify-center md:justify-start gap-2 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm px-3.5 py-2 rounded-xl border border-pink-100/80 dark:border-gray-700/60">
                 <Globe className="w-4 h-4 text-pink-500 shrink-0" />
                 <div className="text-xs">
-                  <span className="text-gray-500 dark:text-gray-400 block">Language</span>
+                  <span className="text-gray-500 dark:text-gray-400 block">{t('profile.language')}</span>
                   <span className="font-semibold text-gray-800 dark:text-gray-200">{displayLanguage}</span>
                 </div>
               </div>
@@ -341,7 +363,7 @@ const Profile = () => {
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">Achievements</h2>
             </div>
             <span className="text-xs font-semibold text-pink-600 dark:text-pink-400 bg-pink-50 dark:bg-pink-950/60 border border-pink-100 dark:border-pink-900/50 px-3.5 py-1.5 rounded-full shadow-2xs">
-              {loading ? '...' : `${unlockedBadgeCount} Badges Earned`}
+              {loading ? '...' : t('profile.badgesEarned', { count: unlockedBadgeCount })}
             </span>
           </div>
 
@@ -428,10 +450,10 @@ const Profile = () => {
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
               <Zap className="w-5 h-5 text-amber-500" />
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Your Progress</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('profile.yourProgress')}</h2>
             </div>
             <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
-              Overall Activity
+              {t('profile.overallActivity')}
             </span>
           </div>
 

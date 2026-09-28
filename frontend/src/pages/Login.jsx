@@ -7,6 +7,7 @@ import Button from '../components/ui/Button';
 import loginIllustration from '../assets/login_illustration.png';
 import api from '../services/api';
 import { useUser } from '../context/UserContext';
+import { useLanguage } from '../context/LanguageContext';
 
 
 const GoogleIcon = () => (
@@ -22,6 +23,7 @@ const Login = () => {
   const { register, handleSubmit, setError, formState: { errors, isSubmitting } } = useForm();
   const navigate = useNavigate();
   const { fetchProfile } = useUser();
+  const { t } = useLanguage();
   const [serverError, setServerError] = useState('');
 
   const onSubmit = async (data) => {
@@ -74,9 +76,9 @@ const Login = () => {
             <img src={loginIllustration} alt="Login Illustration" className="w-full drop-shadow-lg rounded-2xl" />
           </div>
           <div className="mt-8 text-center">
-            <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">Welcome Back</h3>
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">{t('auth.welcomeBack')}</h3>
             <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
-              Continue your journey of learning, growing, and connecting with inspiring women.
+              {t('auth.welcomeBackDesc')}
             </p>
           </div>
         </div>
@@ -90,8 +92,8 @@ const Login = () => {
             </Link>
           </div>
           
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Log in to your account</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">Enter your details below to continue.</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t('auth.loginTitle')}</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">{t('auth.loginSubtext')}</p>
 
           {serverError && (
             <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 text-sm font-medium">
@@ -101,7 +103,7 @@ const Login = () => {
 
           <form onSubmit={handleSubmit(onSubmit)}>
             <Input 
-              label="Email Address" 
+              label={t('auth.email')} 
               type="email" 
               placeholder="you@example.com"
               {...register('email', { 
@@ -116,7 +118,7 @@ const Login = () => {
 
             <div className="mb-6 relative">
               <Input 
-                label="Password" 
+                label={t('auth.password')} 
                 type="password" 
                 placeholder="••••••••"
                 {...register('password', { 
@@ -130,13 +132,13 @@ const Login = () => {
               />
               <div className="absolute top-0 right-0">
                 <a href="#" className="text-xs font-medium text-pink-500 hover:text-pink-600">
-                  Forgot Password?
+                  {t('auth.forgotPassword')}
                 </a>
               </div>
             </div>
 
             <Button type="submit" isLoading={isSubmitting} disabled={isSubmitting} className="mb-4">
-              Log In
+              {t('auth.logInBtn')}
             </Button>
 
             
@@ -145,9 +147,9 @@ const Login = () => {
           </form>
 
           <p className="mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
-            Don't have an account?{' '}
+            {t('auth.dontHaveAccount')}{' '}
             <Link to="/signup" className="font-semibold text-pink-500 hover:text-pink-600 transition-colors">
-              Sign up
+              {t('auth.signUpLink')}
             </Link>
           </p>
         </div>

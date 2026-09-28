@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import CardBase from './CardBase';
 import videoService from '../../services/videoService';
 import { useUser } from '../../context/UserContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { Play, Flame, Sparkles, Tag, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const ContinueLearningSection = () => {
   const { userData } = useUser();
+  const { t } = useLanguage();
   const [learningList, setLearningList] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -14,22 +16,32 @@ const ContinueLearningSection = () => {
   const scrollRef = useRef(null);
 
   useEffect(() => {
-    fetchContinueLearning();
-  }, [userData.interest]);
-
-  const fetchContinueLearning = async () => {
-    try {
-      setLoading(true);
-      const res = await videoService.getContinueLearning();
-      if (res && res.success) {
-        setLearningList(res.data);
+    let cancelled = false;
+    const fetchContinueLearning = async () => {
+      if (!userData?._id) {
+        setLearningList([]);
+        setLoading(false);
+        return;
       }
-    } catch (err) {
-      console.error('Failed to load continue learning:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+      try {
+        setLoading(true);
+        const res = await videoService.getContinueLearning();
+        if (cancelled) return;
+        if (res && res.success) {
+          setLearningList(res.data);
+        }
+      } catch (err) {
+        if (!cancelled) console.error('Failed to load continue learning:', err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    fetchContinueLearning();
+    return () => {
+      cancelled = true;
+    };
+  }, [userData?._id, userData?.interest]);
 
   const scrollLeft = () => {
     if (scrollRef.current) {
@@ -46,7 +58,7 @@ const ContinueLearningSection = () => {
   if (loading) {
     return (
       <CardBase className="w-full">
-        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">CONTINUE LEARNING</h3>
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 uppercase">{t('dashboard.contLearningTitle')}</h3>
         <div className="flex gap-4 overflow-hidden animate-pulse">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="bg-gray-100 dark:bg-gray-800 rounded-2xl h-52 w-64 shrink-0" />
@@ -62,12 +74,12 @@ const ContinueLearningSection = () => {
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight uppercase flex items-center gap-2">
             <Flame className="w-5 h-5 text-pink-500 fill-pink-500/20" />
-            Continue Learning
+            {t('dashboard.contLearningTitle')}
           </h3>
         </div>
         <div className="py-6 text-center bg-gray-50 dark:bg-gray-800/40 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
           <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-            No more content available for your selected interest yet.
+            {t('dashboard.noContinueLearning')}
           </p>
         </div>
       </CardBase>
@@ -81,10 +93,10 @@ const ContinueLearningSection = () => {
         <div>
           <h3 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight uppercase flex items-center gap-2">
             <Flame className="w-5 h-5 text-pink-500 fill-pink-500/20" />
-            Continue Learning
+            {t('dashboard.contLearningTitle')}
           </h3>
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            Pick up where you left off and discover something new in <span className="font-bold text-pink-500">{userData.interest || 'All'}</span>.
+            {t('dashboard.contLearningSubtext')} <span className="font-bold text-pink-500">{userData.interest || 'All'}</span>.
           </p>
         </div>
 
@@ -140,12 +152,12 @@ const ContinueLearningSection = () => {
                   <div className="absolute top-2 left-2">
                     {isContinue ? (
                       <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-pink-600 text-white shadow-xs">
-                        In Progress
+                        {t('dashboard.inProgress')}
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-purple-600/90 backdrop-blur-xs text-white shadow-xs">
                         <Sparkles className="w-2.5 h-2.5" />
-                        Recommended
+                        {t('dashboard.collabRec')}
                       </span>
                     )}
                   </div>
@@ -175,14 +187,14 @@ const ContinueLearningSection = () => {
                     </div>
                     <div className="flex items-center justify-between text-[10px] font-semibold text-gray-500 dark:text-gray-400">
                       <span>{item.progressPercentage}% completed</span>
-                      <span className="text-pink-500 group-hover:underline">Resume →</span>
+                      <span className="text-pink-500 group-hover:underline">{t('dashboard.resume')}</span>
                     </div>
                   </div>
                 ) : (
                   <div className="flex items-center justify-between text-[11px] text-gray-400 dark:text-gray-500">
-                    <span>{item.views ? `${item.views.toLocaleString()} views` : 'New'}</span>
+                    <span>{item.views ? t('dashboard.views', { views: item.views.toLocaleString() }) : 'New'}</span>
                     <span className="font-semibold text-pink-500 group-hover:underline">
-                      Watch →
+                      {t('dashboard.watch')}
                     </span>
                   </div>
                 )}

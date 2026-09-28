@@ -2,12 +2,14 @@ import React, { useState, useCallback } from 'react';
 import CardBase from '../components/dashboard/CardBase';
 import JournalEditor from '../components/JournalEditor';
 import JournalHistory from '../components/JournalHistory';
+import { useLanguage } from '../context/LanguageContext';
 
 const Journal = () => {
   const [selectedDate, setSelectedDate] = useState(() =>
     new Date().toISOString().split('T')[0]
   );
   const [refreshKey, setRefreshKey] = useState(0);
+  const { t } = useLanguage();
 
   const handleDateChange = useCallback((date) => {
     setSelectedDate(date);
@@ -27,11 +29,11 @@ const Journal = () => {
             <span className="text-xl">✨</span>
           </div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-[var(--text-main)]">
-            Your Space to Reflect ✨
+            {t('journal.heroTitle')}
           </h1>
         </div>
         <p className="text-sm md:text-base text-[var(--text-muted)] max-w-xl">
-          Write your thoughts, track your daily moods, and cultivate peace in your personal mental sanctuary.
+          {t('journal.heroSubtext')}
         </p>
       </div>
 

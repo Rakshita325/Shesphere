@@ -1,21 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { marketplaceService } from '../services/marketplaceService';
-
+import { useUser } from './UserContext';
 import { useSearch } from './SearchContext';
 
 const MarketplaceContext = createContext();
-
-// Decode JWT payload to get current userId without a library
-const getCurrentUserId = () => {
-  try {
-    const token = localStorage.getItem('token');
-    if (!token) return null;
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.id || payload._id || null;
-  } catch {
-    return null;
-  }
-};
 
 // Map raw API product to normalized frontend shape
 const mapProduct = (p) => ({
@@ -69,6 +57,9 @@ const mapOrder = (o, type) => ({
 });
 
 export const MarketplaceProvider = ({ children }) => {
+  const { userData } = useUser();
+  const currentUserId = userData?._id || userData?.id || null;
+
   const [products, setProducts] = useState([]);
   const [myProducts, setMyProducts] = useState([]);
   const [purchases, setPurchases] = useState([]);
@@ -95,14 +86,13 @@ export const MarketplaceProvider = ({ children }) => {
   });
 
   const [notification, setNotification] = useState(null);
-  const currentUserId = getCurrentUserId();
 
   const showToast = (message, type = 'success') => {
     setNotification({ message, type });
     setTimeout(() => setNotification(null), 4000);
   };
 
-  // ── Load marketplace products (own excluded by backend) ───────────────────
+  // ── Load marketplace products ─────────────────────────────────────────────
   const loadProducts = useCallback(async () => {
     setLoading(true);
     try {
@@ -123,7 +113,10 @@ export const MarketplaceProvider = ({ children }) => {
 
   // ── Load seller's own products ─────────────────────────────────────────────
   const loadMyProducts = useCallback(async () => {
-    if (!localStorage.getItem('token')) return;
+    if (!localStorage.getItem('token') || !currentUserId) {
+      setMyProducts([]);
+      return;
+    }
     setMyProductsLoading(true);
     try {
       const data = await marketplaceService.getMyProducts();
@@ -135,11 +128,14 @@ export const MarketplaceProvider = ({ children }) => {
     } finally {
       setMyProductsLoading(false);
     }
-  }, []);
+  }, [currentUserId]);
 
   // ── Load buyer's purchases ─────────────────────────────────────────────────
   const loadPurchases = useCallback(async () => {
-    if (!localStorage.getItem('token')) return;
+    if (!localStorage.getItem('token') || !currentUserId) {
+      setPurchases([]);
+      return;
+    }
     setPurchasesLoading(true);
     try {
       const data = await marketplaceService.getUserPurchases();
@@ -151,11 +147,14 @@ export const MarketplaceProvider = ({ children }) => {
     } finally {
       setPurchasesLoading(false);
     }
-  }, []);
+  }, [currentUserId]);
 
   // ── Load seller's incoming orders ─────────────────────────────────────────
   const loadSellerOrders = useCallback(async () => {
-    if (!localStorage.getItem('token')) return;
+    if (!localStorage.getItem('token') || !currentUserId) {
+      setSellerOrders([]);
+      return;
+    }
     setSellerOrdersLoading(true);
     try {
       const data = await marketplaceService.getSellerSales();
@@ -167,9 +166,21 @@ export const MarketplaceProvider = ({ children }) => {
     } finally {
       setSellerOrdersLoading(false);
     }
-  }, []);
+  }, [currentUserId]);
 
   useEffect(() => { loadProducts(); }, [loadProducts]);
+
+  // Reset marketplace state when user logs out or changes
+  useEffect(() => {
+    if (!currentUserId) {
+      setProducts([]);
+      setMyProducts([]);
+      setPurchases([]);
+      setSellerOrders([]);
+      setDraftProduct(null);
+      localStorage.removeItem('shesphere_marketplace_draft');
+    }
+  }, [currentUserId]);
 
   useEffect(() => {
     if (draftProduct) {
@@ -311,7 +322,7 @@ export const MarketplaceProvider = ({ children }) => {
     showToast('💾 Draft saved!');
   };
 
-  // Legacy: combined orders (for backward compat with any component using orders)
+  // Legacy: combined orders
   const orders = [...purchases, ...sellerOrders];
 
   return (
@@ -370,3 +381,4 @@ export const useMarketplace = () => {
   if (!context) throw new Error('useMarketplace must be used within a MarketplaceProvider');
   return context;
 };
+
