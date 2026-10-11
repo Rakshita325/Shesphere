@@ -43,6 +43,23 @@ export const getCommunityDisplayName = (name, t) => {
   return name;
 };
 
+export const getCommunityDescription = (community, t) => {
+  if (!community || !t) return community?.description || '';
+  const key = community.interestKey || community.slug || '';
+  const n = String(community.name || '').toLowerCase().trim();
+
+  if (key === 'cooking' || n.includes('cook')) return t('community.communityDescriptions.cooking');
+  if (key === 'arts_crafts' || n.includes('craft') || n.includes('art')) return t('community.communityDescriptions.crafts');
+  if (key === 'gardening' || n.includes('garden')) return t('community.communityDescriptions.gardening');
+  if (key === 'sewing_fashion' || n.includes('sew') || n.includes('fashion')) return t('community.communityDescriptions.sewing');
+  if (key === 'digital_skills' || n.includes('design') || n.includes('digital')) return t('community.communityDescriptions.design');
+  if (key === 'health_fitness' || n.includes('fit') || n.includes('health')) return t('community.communityDescriptions.fitness');
+  if (key === 'music_instruments' || n.includes('music') || n.includes('instrument')) return t('community.communityDescriptions.music');
+  if (key === 'skincare' || n.includes('skin')) return t('community.communityDescriptions.skincare');
+
+  return community.description;
+};
+
 const CommunityCard = ({ community, onJoinToggle, isActionLoading }) => {
   const navigate = useNavigate();
   const { t } = useLanguage();
@@ -89,7 +106,7 @@ const CommunityCard = ({ community, onJoinToggle, isActionLoading }) => {
           {getCommunityDisplayName(community.name, t)}
         </h3>
         <p className="text-sm text-gray-600 dark:text-gray-350 line-clamp-2 mb-4 leading-relaxed">
-          {community.description}
+          {getCommunityDescription(community, t)}
         </p>
       </div>
 

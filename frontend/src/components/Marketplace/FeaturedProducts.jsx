@@ -2,9 +2,11 @@ import React from 'react';
 import { useMarketplace } from '../../context/MarketplaceContext';
 import ProductCard from './ProductCard';
 import { Sparkles } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
 
 const FeaturedProducts = () => {
   const { products } = useMarketplace();
+  const { t } = useLanguage();
   const featured = products.filter((p) => p.isFeatured).slice(0, 4);
 
   if (featured.length === 0) return null;
@@ -17,10 +19,10 @@ const FeaturedProducts = () => {
         </div>
         <div>
           <h2 className="text-lg font-bold text-gray-900 leading-tight">
-            Featured Handmade Creations
+            {t('marketplace.featuredTitle')}
           </h2>
           <p className="text-xs text-gray-500">
-            Handpicked highlights from master craftswomen across India
+            {t('marketplace.featuredSubtext')}
           </p>
         </div>
       </div>

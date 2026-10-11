@@ -8,6 +8,7 @@ import Select from '../components/ui/Select';
 import { useUser } from '../context/UserContext';
 import api from '../services/api';
 import { uploadProfilePicture } from '../services/userService';
+import { getImageUrl } from '../utils/imageUrl';
 
 const ProfileSetup = () => {
   const { userData, updateUserData } = useUser();
@@ -118,8 +119,8 @@ const ProfileSetup = () => {
             <div className="flex flex-col items-center justify-center mb-10">
               <div className="relative group cursor-pointer transition-transform hover:scale-105">
                 <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-pastel-pink/30 overflow-hidden bg-pastel-lavender/10 dark:bg-gray-700/50 flex items-center justify-center shadow-inner">
-                  {previewImage ? (
-                    <img src={previewImage} alt="Profile Preview" className="w-full h-full object-cover" />
+                  {getImageUrl(previewImage) ? (
+                    <img src={getImageUrl(previewImage)} alt="Profile Preview" className="w-full h-full object-cover" />
                   ) : (
                     <Camera className="w-12 h-12 text-gray-400 group-hover:text-pink-400 transition-colors" />
                   )}

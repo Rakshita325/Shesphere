@@ -9,6 +9,7 @@ import AIChatbot from './AIChatbot';
 import NotificationDropdown from './NotificationDropdown';
 
 import { useLanguage } from '../context/LanguageContext';
+import { getImageUrl } from '../utils/imageUrl';
 
 const TopNavbar = ({ onMenuClick }) => {
   const location = useLocation();
@@ -150,8 +151,8 @@ const TopNavbar = ({ onMenuClick }) => {
 
           {/* User Profile Button */}
           <button onClick={handleProfileClick} className="flex items-center gap-2.5 pl-2 focus:outline-none cursor-pointer group">
-            {userData.profilePicture ? (
-              <img src={userData.profilePicture} alt="avatar" className="w-9 h-9 rounded-full object-cover border-2 border-pink-300 shadow-2xs" />
+            {getImageUrl(userData.profilePicture) ? (
+              <img src={getImageUrl(userData.profilePicture)} alt="avatar" className="w-9 h-9 rounded-full object-cover border-2 border-pink-300 shadow-2xs" />
             ) : (
               <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-pink-400 to-purple-500 flex items-center justify-center text-white font-bold text-sm shadow-2xs border-2 border-white dark:border-gray-800">
                 {(userData.fullName || 'U').charAt(0)}

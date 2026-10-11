@@ -193,7 +193,7 @@ const Games = () => {
           filteredGames.length === 0 ? (
             <div className="py-12 text-center bg-white/60 dark:bg-gray-800/40 rounded-3xl border border-dashed border-gray-200 dark:border-gray-700">
               <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">
-                No games found matching '{activeQuery}'.
+                {t('games.noGamesFound', { query: activeQuery })}
               </p>
             </div>
           ) : (

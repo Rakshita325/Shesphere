@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, Shuffle, CheckCircle, RotateCcw, Trophy, Sparkles } from 'lucide-react';
 import { flashcardData } from '../../utils/gamesData';
 import { useUser } from '../../context/UserContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 // ─── Helpers ──────────────────────────────────────────────────────────
 const shuffleArray = (arr) => {
@@ -20,6 +21,7 @@ const normaliseInterest = (interest = '') =>
 // ─── Component ────────────────────────────────────────────────────────
 const FlipLearnGame = ({ onComplete, interest: interestProp }) => {
   const { userData } = useUser();
+  const { t } = useLanguage();
 
   // Resolve interest from prop or user context
   const rawInterest = interestProp || userData?.interest || 'cooking';
@@ -94,7 +96,7 @@ const FlipLearnGame = ({ onComplete, interest: interestProp }) => {
         <div>
           <div className="flex items-center gap-2 mb-0.5">
             <span className="text-2xl">📚</span>
-            <h2 className="text-xl font-bold text-gray-800">Flip &amp; Learn</h2>
+            <h2 className="text-xl font-bold text-gray-800">{t('games.flipLearnTitle')}</h2>
           </div>
           <span className="text-xs text-sky-500 font-medium bg-sky-50 px-2 py-0.5 rounded-full">
             {interestLabel}
@@ -105,15 +107,15 @@ const FlipLearnGame = ({ onComplete, interest: interestProp }) => {
           className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-600 transition-colors"
         >
           <Shuffle className="w-4 h-4" />
-          Shuffle
+          {t('games.shuffle')}
         </button>
       </div>
 
       {/* Progress bar */}
       <div className="mb-4">
         <div className="flex justify-between text-xs text-gray-400 mb-1">
-          <span>Card {index + 1} of {total}</span>
-          <span className="text-emerald-500 font-medium">{learnedCount} learned ✓</span>
+          <span>{t('games.cardProgress', { current: index + 1, total })}</span>
+          <span className="text-emerald-500 font-medium">{t('games.learnedCount', { count: learnedCount })}</span>
         </div>
         <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
           <div
@@ -166,12 +168,12 @@ const FlipLearnGame = ({ onComplete, interest: interestProp }) => {
               <CheckCircle className="w-5 h-5 text-emerald-400 absolute top-3 right-3" />
             )}
             <p className="text-xs text-sky-400 font-semibold uppercase tracking-widest mb-3">
-              Term
+              {t('games.term')}
             </p>
             <p className="text-2xl font-bold text-gray-800 text-center leading-tight">
               {current?.term}
             </p>
-            <p className="text-xs text-gray-400 mt-4">Tap to reveal answer</p>
+            <p className="text-xs text-gray-400 mt-4">{t('games.tapToReveal')}</p>
           </div>
 
           {/* Back – Definition */}
@@ -183,12 +185,12 @@ const FlipLearnGame = ({ onComplete, interest: interestProp }) => {
             }}
           >
             <p className="text-xs text-pink-400 font-semibold uppercase tracking-widest mb-3">
-              Definition
+              {t('games.definition')}
             </p>
             <p className="text-sm sm:text-base text-gray-700 text-center leading-relaxed">
               {current?.definition}
             </p>
-            <p className="text-xs text-gray-400 mt-4">Tap to flip back</p>
+            <p className="text-xs text-gray-400 mt-4">{t('games.tapToFlip')}</p>
           </div>
         </div>
       </div>
@@ -213,7 +215,7 @@ const FlipLearnGame = ({ onComplete, interest: interestProp }) => {
           }`}
         >
           <CheckCircle className="w-4 h-4" />
-          {isCurrentLearned ? 'Learned ✓' : 'Mark as Learned'}
+          {isCurrentLearned ? t('games.learnedBtn') : t('games.markLearned')}
         </button>
 
         <button
@@ -231,7 +233,7 @@ const FlipLearnGame = ({ onComplete, interest: interestProp }) => {
         className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-sm text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-all"
       >
         <RotateCcw className="w-3.5 h-3.5" />
-        Restart deck
+        {t('games.restartDeck')}
       </button>
 
       {/* Completion Modal */}
@@ -240,27 +242,27 @@ const FlipLearnGame = ({ onComplete, interest: interestProp }) => {
           <div className="bg-white rounded-2xl p-8 max-w-xs w-full text-center shadow-2xl">
             <Sparkles className="w-12 h-12 text-amber-400 mx-auto mb-3" />
             <h3 className="text-2xl font-bold text-gray-800 mb-1">
-              🎉 Deck Complete!
+              {t('games.deckComplete')}
             </h3>
             <p className="text-gray-500 text-sm mb-1">
               You learned all <span className="font-bold text-sky-600">{total}</span> cards!
             </p>
             <div className="flex items-center justify-center gap-1 text-amber-500 mb-5">
               <Trophy className="w-4 h-4" />
-              <span className="font-bold text-sm">{total * 10} XP earned</span>
+              <span className="font-bold text-sm">{t('games.xpEarned', { xp: total * 10 })}</span>
             </div>
             <div className="flex gap-3 justify-center">
               <button
                 onClick={restart}
                 className="px-5 py-2.5 bg-gradient-to-r from-sky-400 to-blue-500 text-white rounded-xl font-medium shadow hover:shadow-lg transition-all"
               >
-                Play Again
+                {t('games.playAgain')}
               </button>
               <button
                 onClick={handleShuffle}
                 className="px-5 py-2.5 bg-gray-100 text-gray-600 rounded-xl font-medium hover:bg-gray-200 transition-all"
               >
-                Shuffle &amp; Retry
+                {t('games.shuffleRetry')}
               </button>
             </div>
           </div>

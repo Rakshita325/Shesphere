@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { memoryEmojis } from '../../utils/gamesData';
 import { RotateCcw, Clock, MousePointerClick, Trophy, Sparkles } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
 
 const DIFFICULTY_CONFIG = {
   easy: { pairs: 6, cols: 4, label: 'Easy' },
@@ -18,6 +19,7 @@ const shuffle = (array) => {
 };
 
 const MemoryMatchGame = ({ onComplete }) => {
+  const { t } = useLanguage();
   const [difficulty, setDifficulty] = useState(null);
   const [cards, setCards] = useState([]);
   const [flipped, setFlipped] = useState([]);
@@ -99,8 +101,8 @@ const MemoryMatchGame = ({ onComplete }) => {
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
         <div className="text-center mb-8">
           <span className="text-5xl mb-4 block">🧠</span>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Memory Match</h2>
-          <p className="text-gray-500">Flip cards and find all matching pairs!</p>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">{t('games.memoryTitle')}</h2>
+          <p className="text-gray-500">{t('games.memorySubtext')}</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-lg mx-auto">
           {Object.entries(DIFFICULTY_CONFIG).map(([key, config]) => (
@@ -115,8 +117,8 @@ const MemoryMatchGame = ({ onComplete }) => {
                   : 'bg-gradient-to-r from-rose-400 to-red-500'
               }`}
             >
-              <div className="text-lg">{config.label}</div>
-              <div className="text-xs opacity-80">{config.pairs} pairs</div>
+              <div className="text-lg">{t(`games.${key}`)}</div>
+              <div className="text-xs opacity-80">{t('games.pairs', { count: config.pairs })}</div>
             </button>
           ))}
         </div>
@@ -137,12 +139,12 @@ const MemoryMatchGame = ({ onComplete }) => {
           </div>
           <div className="flex items-center gap-2 bg-violet-50 px-3 py-1.5 rounded-lg">
             <MousePointerClick className="w-4 h-4 text-violet-500" />
-            <span className="text-sm font-semibold text-violet-600">{moves} moves</span>
+            <span className="text-sm font-semibold text-violet-600">{t('games.moves', { moves })}</span>
           </div>
           {bestScore !== null && (
             <div className="flex items-center gap-2 bg-amber-50 px-3 py-1.5 rounded-lg">
               <Trophy className="w-4 h-4 text-amber-500" />
-              <span className="text-sm font-semibold text-amber-600">Best: {bestScore}</span>
+              <span className="text-sm font-semibold text-amber-600">{t('games.best')}: {bestScore}</span>
             </div>
           )}
         </div>
@@ -151,7 +153,7 @@ const MemoryMatchGame = ({ onComplete }) => {
           className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-600 transition-colors"
         >
           <RotateCcw className="w-4 h-4" />
-          Restart
+          {t('games.newGame')}
         </button>
       </div>
 
@@ -217,7 +219,7 @@ const MemoryMatchGame = ({ onComplete }) => {
                 : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
             }`}
           >
-            {cfg.label}
+            {t(`games.${key}`)}
           </button>
         ))}
       </div>
@@ -227,7 +229,7 @@ const MemoryMatchGame = ({ onComplete }) => {
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl animate-[bounceIn_0.5s_ease]">
             <Sparkles className="w-12 h-12 text-amber-400 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold text-gray-800 mb-2">🎉 You Win!</h3>
+            <h3 className="text-2xl font-bold text-gray-800 mb-2">{t('games.youWin')}</h3>
             <div className="space-y-2 mb-6 text-gray-600">
               <p>Time: <span className="font-semibold text-pink-600">{formatTime(time)}</span></p>
               <p>Moves: <span className="font-semibold text-violet-600">{moves}</span></p>
@@ -237,13 +239,13 @@ const MemoryMatchGame = ({ onComplete }) => {
                 onClick={() => startGame(difficulty)}
                 className="px-5 py-2.5 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-all"
               >
-                Play Again
+                {t('games.playAgain')}
               </button>
               <button
                 onClick={() => setDifficulty(null)}
                 className="px-5 py-2.5 bg-gray-100 text-gray-600 rounded-xl font-medium hover:bg-gray-200 transition-all"
               >
-                Change Difficulty
+                {t('games.changeDifficulty')}
               </button>
             </div>
           </div>

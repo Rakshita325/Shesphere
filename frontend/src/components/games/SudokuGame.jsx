@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { RotateCcw, CheckCircle, PlusCircle, Clock, Sparkles } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
 
 // ─── Sudoku Generator ────────────────────────────────────────────────
 const EMPTY = 0;
@@ -77,6 +77,7 @@ const DIFFICULTY_CONFIG = {
 };
 
 const SudokuGame = ({ onComplete }) => {
+  const { t } = useLanguage();
   const [difficulty, setDifficulty] = useState(null);
   const [puzzle, setPuzzle] = useState(null);
   const [solution, setSolution] = useState(null);
@@ -219,8 +220,8 @@ const SudokuGame = ({ onComplete }) => {
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
         <div className="text-center mb-8">
           <span className="text-5xl mb-4 block">🔢</span>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Sudoku</h2>
-          <p className="text-gray-500">Fill the grid so every row, column and 3×3 box has 1–9</p>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">{t('games.sudokuTitle')}</h2>
+          <p className="text-gray-500">{t('games.sudokuSubtext')}</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-lg mx-auto">
           {Object.entries(DIFFICULTY_CONFIG).map(([key, config]) => (
@@ -235,8 +236,8 @@ const SudokuGame = ({ onComplete }) => {
                   : 'bg-gradient-to-r from-rose-400 to-red-500'
               }`}
             >
-              <div className="text-lg">{config.label}</div>
-              <div className="text-xs opacity-80">{config.clues} clues</div>
+              <div className="text-lg">{t(`games.${key}`)}</div>
+              <div className="text-xs opacity-80">{t('games.clues', { count: config.clues })}</div>
             </button>
           ))}
         </div>
@@ -254,7 +255,7 @@ const SudokuGame = ({ onComplete }) => {
             <span className="text-sm font-semibold text-violet-600">{formatTime(time)}</span>
           </div>
           <span className="text-xs font-medium text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
-            {DIFFICULTY_CONFIG[difficulty].label}
+            {t(`games.${difficulty}`)}
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -263,21 +264,21 @@ const SudokuGame = ({ onComplete }) => {
             className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-lg text-sm font-medium transition-colors"
           >
             <CheckCircle className="w-4 h-4" />
-            Check
+            {t('games.check')}
           </button>
           <button
             onClick={() => startGame(difficulty)}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg text-sm font-medium transition-colors"
           >
             <RotateCcw className="w-4 h-4" />
-            Restart
+            {t('games.restart')}
           </button>
           <button
             onClick={() => setDifficulty(null)}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-50 hover:bg-violet-100 text-violet-600 rounded-lg text-sm font-medium transition-colors"
           >
             <PlusCircle className="w-4 h-4" />
-            New
+            {t('games.newGame')}
           </button>
         </div>
       </div>
@@ -362,7 +363,7 @@ const SudokuGame = ({ onComplete }) => {
                 : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
             }`}
           >
-            {cfg.label}
+            {t(`games.${key}`)}
           </button>
         ))}
       </div>
@@ -372,22 +373,22 @@ const SudokuGame = ({ onComplete }) => {
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl">
             <Sparkles className="w-12 h-12 text-amber-400 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold text-gray-800 mb-2">🎉 Puzzle Solved!</h3>
+            <h3 className="text-2xl font-bold text-gray-800 mb-2">{t('games.puzzleSolved')}</h3>
             <p className="text-gray-600 mb-4">
-              Time: <span className="font-semibold text-violet-600">{formatTime(time)}</span>
+              {t('games.time')}: <span className="font-semibold text-violet-600">{formatTime(time)}</span>
             </p>
             <div className="flex gap-3 justify-center">
               <button
                 onClick={() => startGame(difficulty)}
                 className="px-5 py-2.5 bg-gradient-to-r from-violet-500 to-purple-500 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-all"
               >
-                Play Again
+                {t('games.playAgain')}
               </button>
               <button
                 onClick={() => setDifficulty(null)}
                 className="px-5 py-2.5 bg-gray-100 text-gray-600 rounded-xl font-medium hover:bg-gray-200 transition-all"
               >
-                Change Difficulty
+                {t('games.changeDifficulty')}
               </button>
             </div>
           </div>

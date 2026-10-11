@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Layers, Menu, X } from 'lucide-react';
+import { Layers, Menu, X, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -8,7 +8,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { t } = useLanguage();
+  const { language, changeLanguage, t } = useLanguage();
 
   const handleNavClick = (sectionId) => {
     setIsOpen(false);
@@ -70,6 +70,18 @@ const Navbar = () => {
               </button>
             </div>
             <div className="flex items-center space-x-4">
+              <div className="flex items-center gap-1.5 bg-pink-50/80 dark:bg-gray-800 px-3 py-1.5 rounded-full border border-pink-100 dark:border-gray-700 text-sm">
+                <Globe className="w-4 h-4 text-pink-500 shrink-0" />
+                <select
+                  value={language}
+                  onChange={(e) => changeLanguage(e.target.value)}
+                  className="bg-transparent border-none text-xs font-semibold focus:outline-none cursor-pointer text-gray-700 dark:text-gray-200"
+                >
+                  <option value="en" className="dark:bg-gray-800 text-gray-900 dark:text-white">English</option>
+                  <option value="hi" className="dark:bg-gray-800 text-gray-900 dark:text-white">हिंदी</option>
+                  <option value="kn" className="dark:bg-gray-800 text-gray-900 dark:text-white">ಕನ್ನಡ</option>
+                </select>
+              </div>
               <Link to="/login" className="text-gray-600 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 font-medium transition-colors">
                 {t('auth.logInBtn')}
               </Link>
@@ -80,7 +92,19 @@ const Navbar = () => {
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center">
+          <div className="md:hidden flex items-center gap-3">
+            <div className="flex items-center gap-1 bg-pink-50 dark:bg-gray-800 px-2 py-1 rounded-full border border-pink-100 dark:border-gray-700">
+              <Globe className="w-3.5 h-3.5 text-pink-500 shrink-0" />
+              <select
+                value={language}
+                onChange={(e) => changeLanguage(e.target.value)}
+                className="bg-transparent border-none text-xs font-semibold focus:outline-none cursor-pointer text-gray-700 dark:text-gray-200"
+              >
+                <option value="en" className="dark:bg-gray-800 text-gray-900 dark:text-white">EN</option>
+                <option value="hi" className="dark:bg-gray-800 text-gray-900 dark:text-white">HI</option>
+                <option value="kn" className="dark:bg-gray-800 text-gray-900 dark:text-white">KN</option>
+              </select>
+            </div>
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="text-gray-600 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 transition-colors"
@@ -106,21 +130,21 @@ const Navbar = () => {
                 onClick={() => handleNavClick('home')}
                 className="block w-full text-left px-3 py-2 text-base font-medium text-gray-700 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 hover:bg-pink-50 dark:hover:bg-gray-800 rounded-md bg-transparent border-0"
               >
-                {t('nav.dashboard')}
+                {t('landing.home')}
               </button>
               <button
                 type="button"
                 onClick={() => handleNavClick("about")}
                 className="block w-full text-left px-3 py-2 text-base font-medium text-gray-700 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 hover:bg-pink-50 dark:hover:bg-gray-800 rounded-md bg-transparent border-0"
               >
-                About
+                {t('landing.about')}
               </button>
               <button
                 type="button"
                 onClick={() => handleNavClick('contact')}
                 className="block w-full text-left px-3 py-2 text-base font-medium text-gray-700 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 hover:bg-pink-50 dark:hover:bg-gray-800 rounded-md bg-transparent border-0"
               >
-                Contact
+                {t('landing.contact')}
               </button>
               <div className="border-t border-gray-100 dark:border-gray-800 pt-4 mt-2 flex flex-col space-y-2">
                 <Link to="/login" className="w-full text-left px-3 py-2 text-base font-medium text-gray-700 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 rounded-md hover:bg-pink-50 dark:hover:bg-gray-800">

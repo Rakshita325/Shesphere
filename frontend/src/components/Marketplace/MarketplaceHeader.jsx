@@ -57,12 +57,12 @@ const MarketplaceHeader = () => {
           >
             <Icon className="w-4 h-4" />
             {label}
-            {label === 'My Purchases' && pendingPurchases > 0 && (
+            {path === '/marketplace/my-purchases' && pendingPurchases > 0 && (
               <span className="w-5 h-5 bg-amber-400 text-gray-900 text-xs font-bold rounded-full flex items-center justify-center">
                 {pendingPurchases}
               </span>
             )}
-            {label === 'My Products' && myProducts.length > 0 && (
+            {path === '/marketplace/my-products' && myProducts.length > 0 && (
               <span className="w-5 h-5 bg-white/40 text-white text-xs font-bold rounded-full flex items-center justify-center">
                 {myProducts.length}
               </span>

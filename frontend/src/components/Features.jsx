@@ -3,57 +3,60 @@ import { motion } from 'framer-motion';
 import { BookOpen, Users, Flame, Target, Compass, Sparkles, Heart, Rocket } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, Navigation } from 'swiper/modules';
+import { useLanguage } from '../context/LanguageContext';
 
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 
-const featuresData = [
-  {
-    title: 'Personalized Learning',
-    description: 'Tailored courses and resources that adapt to your unique pace and goals.',
-    icon: <BookOpen className="h-7 w-7 text-pink-500" />,
-    bgColor: 'bg-pink-50',
-    borderColor: 'border-pink-100',
-    accentColor: 'text-pink-500'
-  },
-  {
-    title: 'Community Support',
-    description: 'Connect, share, and grow with a vibrant network of inspiring women.',
-    icon: <Users className="h-7 w-7 text-purple-500" />,
-    bgColor: 'bg-purple-50',
-    borderColor: 'border-purple-100',
-    accentColor: 'text-purple-500'
-  },
-  {
-    title: 'Daily Streaks',
-    description: 'Build consistency and stay motivated with engaging daily challenges.',
-    icon: <Flame className="h-7 w-7 text-orange-400" />,
-    bgColor: 'bg-orange-50',
-    borderColor: 'border-orange-100',
-    accentColor: 'text-orange-500'
-  },
-  {
-    title: 'Skill Tracking',
-    description: 'Monitor your progress visually and celebrate every milestone achieved.',
-    icon: <Target className="h-7 w-7 text-teal-500" />,
-    bgColor: 'bg-teal-50',
-    borderColor: 'border-teal-100',
-    accentColor: 'text-teal-500'
-  },
-];
-
 const Features = () => {
+  const { t } = useLanguage();
+
+  const featuresData = [
+    {
+      title: t('landing.f1Title'),
+      description: t('landing.f1Desc'),
+      icon: <BookOpen className="h-7 w-7 text-pink-500" />,
+      bgColor: 'bg-pink-50',
+      borderColor: 'border-pink-100',
+      accentColor: 'text-pink-500'
+    },
+    {
+      title: t('landing.f2Title'),
+      description: t('landing.f2Desc'),
+      icon: <Users className="h-7 w-7 text-purple-500" />,
+      bgColor: 'bg-purple-50',
+      borderColor: 'border-purple-100',
+      accentColor: 'text-purple-500'
+    },
+    {
+      title: t('landing.f3Title'),
+      description: t('landing.f3Desc'),
+      icon: <Flame className="h-7 w-7 text-orange-400" />,
+      bgColor: 'bg-orange-50',
+      borderColor: 'border-orange-100',
+      accentColor: 'text-orange-500'
+    },
+    {
+      title: t('landing.f4Title'),
+      description: t('landing.f4Desc'),
+      icon: <Target className="h-7 w-7 text-teal-500" />,
+      bgColor: 'bg-teal-50',
+      borderColor: 'border-teal-100',
+      accentColor: 'text-teal-500'
+    },
+  ];
+
   return (
     <section id="about" className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white via-pink-50/20 to-purple-50/20">
       <div className="max-w-7xl mx-auto">
         <div className="text-center max-w-3xl mx-auto mb-12">
           <span className="text-sm font-semibold tracking-wider text-pink-500 uppercase bg-pink-100/70 px-4 py-1.5 rounded-full inline-block mb-3">
-            About SheSphere
+            {t('landing.aboutBadge')}
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Empowering Women Everyday</h2>
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">{t('landing.featuresTitle')}</h2>
           <p className="text-gray-600 text-lg">
-            Explore our vision, mission, and core features designed to accelerate your personal growth.
+            {t('landing.featuresSubtext')}
           </p>
         </div>
 
@@ -84,12 +87,12 @@ const Features = () => {
                   <div className="w-14 h-14 rounded-2xl bg-pink-100 text-pink-500 flex items-center justify-center mb-6 shadow-sm">
                     <Compass className="w-7 h-7" />
                   </div>
-                  <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">Our Vision</h3>
+                  <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">{t('landing.visionTitle')}</h3>
                   <p className="text-gray-600 text-base sm:text-lg leading-relaxed mb-6">
-                    To create an intelligent learning ecosystem where every homemaker can continuously learn new skills, improve productivity, and achieve personal growth.
+                    {t('landing.visionDesc')}
                   </p>
                   <div className="flex items-center gap-2 text-pink-500 font-semibold text-sm">
-                    <Sparkles className="w-4 h-4" /> Continuous Growth & Lifelong Learning
+                    <Sparkles className="w-4 h-4" /> {t('landing.visionTag')}
                   </div>
                 </motion.div>
 
@@ -102,8 +105,8 @@ const Features = () => {
                   <div className="relative w-64 h-64 sm:w-72 sm:h-72 rounded-full bg-gradient-to-tr from-pink-200 to-purple-200 p-4 shadow-lg flex items-center justify-center">
                     <div className="w-full h-full rounded-full bg-white flex flex-col items-center justify-center p-6 text-center shadow-inner">
                       <Heart className="w-16 h-16 text-pink-400 mb-3 animate-pulse" />
-                      <span className="font-bold text-gray-800 text-lg">Intelligent Ecosystem</span>
-                      <span className="text-xs text-gray-500 mt-1">For Homemakers Worldwide</span>
+                      <span className="font-bold text-gray-800 text-lg">{t('landing.visionBoxTitle')}</span>
+                      <span className="text-xs text-gray-500 mt-1">{t('landing.visionBoxSub')}</span>
                     </div>
                   </div>
                 </motion.div>
@@ -122,12 +125,12 @@ const Features = () => {
                   <div className="w-14 h-14 rounded-2xl bg-purple-100 text-purple-500 flex items-center justify-center mb-6 shadow-sm">
                     <Rocket className="w-7 h-7" />
                   </div>
-                  <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">Our Mission</h3>
+                  <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">{t('landing.missionTitle')}</h3>
                   <p className="text-gray-600 text-base sm:text-lg leading-relaxed mb-6">
-                    To provide personalized learning experiences using AI-powered recommendations, encourage community collaboration, and help women utilize their free time productively.
+                    {t('landing.missionDesc')}
                   </p>
                   <div className="flex items-center gap-2 text-purple-500 font-semibold text-sm">
-                    <Sparkles className="w-4 h-4" /> AI Personalized & Community Driven
+                    <Sparkles className="w-4 h-4" /> {t('landing.missionTag')}
                   </div>
                 </motion.div>
 
@@ -140,8 +143,8 @@ const Features = () => {
                   <div className="relative w-64 h-64 sm:w-72 sm:h-72 rounded-3xl bg-gradient-to-tr from-purple-200 to-pink-200 p-4 shadow-lg flex items-center justify-center rotate-3 hover:rotate-0 transition-transform">
                     <div className="w-full h-full rounded-2xl bg-white flex flex-col items-center justify-center p-6 text-center shadow-inner">
                       <Rocket className="w-16 h-16 text-purple-400 mb-3" />
-                      <span className="font-bold text-gray-800 text-lg">AI Recommendations</span>
-                      <span className="text-xs text-gray-500 mt-1">Productive Time Utilization</span>
+                      <span className="font-bold text-gray-800 text-lg">{t('landing.missionBoxTitle')}</span>
+                      <span className="text-xs text-gray-500 mt-1">{t('landing.missionBoxSub')}</span>
                     </div>
                   </div>
                 </motion.div>
@@ -167,7 +170,7 @@ const Features = () => {
                       {feature.description}
                     </p>
                     <div className={`flex items-center gap-2 ${feature.accentColor} font-semibold text-sm`}>
-                      <Sparkles className="w-4 h-4" /> Key SheSphere Capability
+                      <Sparkles className="w-4 h-4" /> {t('landing.featureCapabilityTag')}
                     </div>
                   </motion.div>
 
@@ -183,7 +186,7 @@ const Features = () => {
                           {React.cloneElement(feature.icon, { className: 'w-16 h-16' })}
                         </div>
                         <span className="font-bold text-gray-800 text-lg">{feature.title}</span>
-                        <span className="text-xs text-gray-500 mt-2">SheSphere Core Feature</span>
+                        <span className="text-xs text-gray-500 mt-2">{t('landing.featureBadge')}</span>
                       </div>
                     </div>
                   </motion.div>

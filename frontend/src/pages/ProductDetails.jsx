@@ -7,6 +7,7 @@ import {
   ShieldCheck, Loader2, AlertCircle, Send, X, PackageX
 } from 'lucide-react';
 import BuyModal from '../components/Marketplace/BuyModal';
+import { getImageUrl } from '../utils/imageUrl';
 
 const StarRating = ({ value, onChange, size = 'sm' }) => {
   const [hovered, setHovered] = useState(0);
@@ -251,7 +252,7 @@ const ProductDetails = () => {
               <div className="mt-6 bg-pink-50/60 dark:bg-pink-950/20 p-4 rounded-2xl border border-pink-100 dark:border-pink-900/30 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <img
-                    src={seller.profilePicture || 'https://placehold.co/48x48?text=A'}
+                    src={getImageUrl(seller.profilePicture, 'https://placehold.co/48x48?text=A')}
                     alt={seller.fullName}
                     className="w-12 h-12 rounded-full object-cover border-2 border-pink-300 shadow-sm"
                     onError={(e) => { e.target.src = 'https://placehold.co/48x48?text=A'; }}
@@ -371,7 +372,7 @@ const ProductDetails = () => {
                 <div className="flex items-center justify-between mb-1.5">
                   <div className="flex items-center gap-2">
                     <img
-                      src={rev.user?.profilePicture || 'https://placehold.co/32x32?text=U'}
+                      src={getImageUrl(rev.user?.profilePicture, 'https://placehold.co/32x32?text=U')}
                       alt={rev.user?.fullName}
                       className="w-7 h-7 rounded-full object-cover border border-gray-200 dark:border-gray-700"
                       onError={(e) => { e.target.src = 'https://placehold.co/32x32?text=U'; }}

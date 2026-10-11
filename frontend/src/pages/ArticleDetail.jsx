@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 import articleService from '../services/articleService';
 import { useUser } from '../context/UserContext';
+import { useLanguage } from '../context/LanguageContext';
+import { getImageUrl } from '../utils/imageUrl';
 
 const ArticleDetail = () => {
   const { articleId } = useParams();
@@ -214,7 +216,7 @@ const ArticleDetail = () => {
             <div className="flex items-center gap-4 flex-wrap text-xs text-gray-500 dark:text-gray-400 pt-1">
               <div className="flex items-center gap-2">
                 <img
-                  src={article.author?.profilePicture || '/assets/avatar1.png'}
+                  src={getImageUrl(article.author?.profilePicture, '/assets/avatar1.png')}
                   alt={article.author?.fullName || 'Author'}
                   className="w-7 h-7 rounded-full object-cover ring-2 ring-pink-100"
                 />
@@ -291,7 +293,7 @@ const ArticleDetail = () => {
             {/* Add Comment Form */}
             <form onSubmit={handleAddComment} className="flex items-center gap-2 pt-1">
               <img
-                src={userData?.profilePicture || '/assets/avatar1.png'}
+                src={getImageUrl(userData?.profilePicture, '/assets/avatar1.png')}
                 alt="Your Avatar"
                 className="w-9 h-9 rounded-full object-cover shrink-0 ring-2 ring-pink-100 dark:ring-pink-900"
               />
@@ -325,7 +327,7 @@ const ArticleDetail = () => {
                 comments.map((c) => (
                   <div key={c._id} className="flex items-start gap-3 text-xs">
                     <img
-                      src={c.user?.profilePicture || '/assets/avatar1.png'}
+                      src={getImageUrl(c.user?.profilePicture, '/assets/avatar1.png')}
                       alt={c.user?.fullName || 'User'}
                       className="w-8 h-8 rounded-full object-cover mt-0.5 shrink-0"
                     />

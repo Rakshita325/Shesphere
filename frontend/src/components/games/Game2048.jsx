@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { RotateCcw, Trophy, Sparkles } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
 
 // ─── Helpers ──────────────────────────────────────────────────────────
 const GRID_SIZE = 4;
@@ -137,6 +138,7 @@ const getTileFontSize = (val) => {
 
 // ─── Component ────────────────────────────────────────────────────────
 const Game2048 = ({ onComplete }) => {
+  const { t } = useLanguage();
   const [grid, setGrid]             = useState(initGrid);
   const [score, setScore]           = useState(0);
   const [bestScore, setBestScore]   = useState(0);
@@ -252,20 +254,20 @@ const Game2048 = ({ onComplete }) => {
           className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-600 transition-colors"
         >
           <RotateCcw className="w-4 h-4" />
-          New Game
+          {t('games.newGame')}
         </button>
       </div>
 
       {/* Score Bar */}
       <div className="flex gap-3 mb-4">
         <div className="flex-1 bg-pink-50 border border-pink-100 rounded-xl px-4 py-2 text-center">
-          <p className="text-xs text-pink-400 font-medium uppercase tracking-wide">Score</p>
+          <p className="text-xs text-pink-400 font-medium uppercase tracking-wide">{t('games.score')}</p>
           <p className="text-xl font-black text-pink-600">{score}</p>
         </div>
         <div className="flex-1 bg-amber-50 border border-amber-100 rounded-xl px-4 py-2 text-center">
           <div className="flex items-center justify-center gap-1 mb-0.5">
             <Trophy className="w-3 h-3 text-amber-500" />
-            <p className="text-xs text-amber-500 font-medium uppercase tracking-wide">Best</p>
+            <p className="text-xs text-amber-500 font-medium uppercase tracking-wide">{t('games.best')}</p>
           </div>
           <p className="text-xl font-black text-amber-600">{bestScore}</p>
         </div>
@@ -295,7 +297,7 @@ const Game2048 = ({ onComplete }) => {
       </div>
 
       <p className="text-center text-xs text-gray-400 mt-3">
-        Use arrow keys or swipe to move tiles
+        {t('games.instructions2048')}
       </p>
 
       {/* Win Modal */}
@@ -303,21 +305,21 @@ const Game2048 = ({ onComplete }) => {
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-8 max-w-xs w-full text-center shadow-2xl">
             <Sparkles className="w-12 h-12 text-amber-400 mx-auto mb-3" />
-            <h3 className="text-2xl font-bold text-gray-800 mb-1">You reached 2048! 🎉</h3>
-            <p className="text-gray-500 text-sm mb-2">Score: <span className="font-bold text-pink-600">{score}</span></p>
-            <p className="text-gray-500 text-sm mb-5">Amazing! Keep going for a higher score!</p>
+            <h3 className="text-2xl font-bold text-gray-800 mb-1">{t('games.reached2048')}</h3>
+            <p className="text-gray-500 text-sm mb-2">{t('games.score')}: <span className="font-bold text-pink-600">{score}</span></p>
+            <p className="text-gray-500 text-sm mb-5">{t('games.winSubtext2048')}</p>
             <div className="flex gap-3 justify-center">
               <button
                 onClick={() => setWinDismissed(true)}
                 className="px-5 py-2.5 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-xl font-medium shadow hover:shadow-lg transition-all"
               >
-                Keep Playing
+                {t('games.keepPlaying')}
               </button>
               <button
                 onClick={restart}
                 className="px-5 py-2.5 bg-gray-100 text-gray-600 rounded-xl font-medium hover:bg-gray-200 transition-all"
               >
-                New Game
+                {t('games.newGame')}
               </button>
             </div>
           </div>
@@ -329,14 +331,14 @@ const Game2048 = ({ onComplete }) => {
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-8 max-w-xs w-full text-center shadow-2xl">
             <span className="text-5xl block mb-3">😔</span>
-            <h3 className="text-2xl font-bold text-gray-800 mb-1">Game Over</h3>
-            <p className="text-gray-500 text-sm mb-1">Score: <span className="font-bold text-pink-600">{score}</span></p>
-            <p className="text-gray-500 text-sm mb-5">Best: <span className="font-bold text-amber-600">{bestScore}</span></p>
+            <h3 className="text-2xl font-bold text-gray-800 mb-1">{t('games.gameOver')}</h3>
+            <p className="text-gray-500 text-sm mb-1">{t('games.score')}: <span className="font-bold text-pink-600">{score}</span></p>
+            <p className="text-gray-500 text-sm mb-5">{t('games.best')}: <span className="font-bold text-amber-600">{bestScore}</span></p>
             <button
               onClick={restart}
               className="px-6 py-2.5 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-xl font-medium shadow hover:shadow-lg transition-all"
             >
-              Try Again
+              {t('games.tryAgain')}
             </button>
           </div>
         </div>

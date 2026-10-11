@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMarketplace } from '../context/MarketplaceContext';
+import { useLanguage } from '../context/LanguageContext';
 import MarketplaceHeader from '../components/Marketplace/MarketplaceHeader';
 import OrderChat from '../components/Marketplace/OrderChat';
 import {
@@ -8,6 +9,7 @@ import {
   XCircle, AlertCircle, Loader2, ArrowRight, X, CreditCard, MessageCircle
 } from 'lucide-react';
 import { useUser } from '../context/UserContext';
+import { getImageUrl } from '../utils/imageUrl';
 
 // ─── Messaging eligibility: only Shipped or Delivered ────────────────────────
 const canChat = (status) => ['Shipped', 'Delivered'].includes(status);
@@ -15,6 +17,7 @@ const canChat = (status) => ['Shipped', 'Delivered'].includes(status);
 const MyPurchases = () => {
   const navigate = useNavigate();
   const { userData } = useUser();
+  const { t } = useLanguage();
   const currentUserId = userData?._id || userData?.id || null;
 
   const {
@@ -62,25 +65,25 @@ const MyPurchases = () => {
       case 'Shipped':
         return (
           <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-full border border-blue-200">
-            <Truck className="w-3.5 h-3.5" /> Shipped
+            <Truck className="w-3.5 h-3.5" /> {t('marketplace.shipped')}
           </span>
         );
       case 'Delivered':
         return (
           <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200">
-            <CheckCircle2 className="w-3.5 h-3.5" /> Delivered
+            <CheckCircle2 className="w-3.5 h-3.5" /> {t('marketplace.delivered')}
           </span>
         );
       case 'Cancelled':
         return (
           <span className="inline-flex items-center gap-1 px-3 py-1 bg-rose-50 text-rose-700 text-xs font-bold rounded-full border border-rose-200">
-            <XCircle className="w-3.5 h-3.5" /> Cancelled
+            <XCircle className="w-3.5 h-3.5" /> {t('marketplace.cancelled')}
           </span>
         );
       default: // Pending
         return (
           <span className="inline-flex items-center gap-1 px-3 py-1 bg-amber-50 text-amber-700 text-xs font-bold rounded-full border border-amber-200">
-            <Clock className="w-3.5 h-3.5" /> Pending
+            <Clock className="w-3.5 h-3.5" /> {t('marketplace.pending')}
           </span>
         );
     }
@@ -98,9 +101,9 @@ const MyPurchases = () => {
       <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm mb-6">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Orders &amp; Purchases</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('marketplace.myOrdersTitle')}</h2>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-              Track items you've bought as a Buyer or manage customer orders received as a Seller.
+              {t('marketplace.subtext')}
             </p>
           </div>
 
@@ -114,7 +117,7 @@ const MyPurchases = () => {
               }`}
             >
               <ShoppingCart className="w-4 h-4" />
-              My Purchases ({purchases.length})
+              {t('marketplace.myPurchases')} ({purchases.length})
             </button>
 
             <button
@@ -126,7 +129,7 @@ const MyPurchases = () => {
               }`}
             >
               <PackageCheck className="w-4 h-4" />
-              Seller Orders ({sellerOrders.length})
+              {t('marketplace.sellerOrdersTitle')} ({sellerOrders.length})
             </button>
           </div>
         </div>
@@ -136,25 +139,23 @@ const MyPurchases = () => {
       {isLoading ? (
         <div className="flex flex-col items-center justify-center min-h-64 gap-3 text-gray-400 dark:text-gray-500">
           <Loader2 className="w-8 h-8 animate-spin text-pink-600" />
-          <p className="text-sm font-medium">Loading orders…</p>
+          <p className="text-sm font-medium">{t('marketplace.loadingProducts')}</p>
         </div>
       ) : displayedOrders.length === 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 p-12 text-center shadow-sm">
           <ShoppingCart className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
           <h3 className="text-base font-bold text-gray-800 dark:text-white">
-            {activeTab === 'purchases' ? "You haven't purchased any products yet" : 'No customer orders received yet'}
+            {activeTab === 'purchases' ? t('marketplace.myPurchases') : t('marketplace.sellerOrdersTitle')}
           </h3>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-sm mx-auto">
-            {activeTab === 'purchases'
-              ? 'Browse the marketplace to discover beautiful handmade crafts by women artisans!'
-              : 'List more handmade products to start receiving customer orders.'}
+            {t('marketplace.subtext')}
           </p>
           {activeTab === 'purchases' && (
             <button
               onClick={() => navigate('/marketplace')}
               className="mt-6 px-6 py-2.5 bg-pink-600 hover:bg-pink-700 text-white text-xs font-semibold rounded-xl shadow transition"
             >
-              Browse Marketplace
+              {t('marketplace.allProducts')}
             </button>
           )}
         </div>
@@ -168,7 +169,7 @@ const MyPurchases = () => {
               {/* Product info */}
               <div className="flex items-center gap-4 min-w-0">
                 <img
-                  src={order.productImage || 'https://placehold.co/64x64?text=?'}
+                  src={getImageUrl(order.productImage, 'https://placehold.co/64x64?text=?')}
                   alt={order.productName}
                   className="w-16 h-16 rounded-xl object-cover border border-gray-200 dark:border-gray-700 shrink-0"
                   onError={(e) => { e.target.src = 'https://placehold.co/64x64?text=?'; }}
@@ -183,9 +184,9 @@ const MyPurchases = () => {
 
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                     {activeTab === 'purchases' ? (
-                      <>Seller: <strong className="text-gray-700 dark:text-gray-300">{order.sellerName}</strong></>
+                      <>{t('marketplace.artisanRole')}: <strong className="text-gray-700 dark:text-gray-300">{order.sellerName}</strong></>
                     ) : (
-                      <>Buyer: <strong className="text-gray-700 dark:text-gray-300">{order.buyerName}</strong> ({order.buyerEmail})</>
+                      <>{t('marketplace.buyerRole')}: <strong className="text-gray-700 dark:text-gray-300">{order.buyerName}</strong> ({order.buyerEmail})</>
                     )}
                     {' • '}
                     <span>Qty: <strong>{order.quantity}</strong></span>
@@ -227,14 +228,14 @@ const MyPurchases = () => {
                         ) : (
                           <X className="w-3.5 h-3.5" />
                         )}
-                        Cancel Order
+                        {t('common.cancel')}
                       </button>
                     ) : (
                       <button
                         onClick={() => navigate(`/marketplace/${order.productId}`)}
                         className="flex items-center gap-1 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-xl transition"
                       >
-                        View Craft <ArrowRight className="w-3.5 h-3.5" />
+                        {t('common.view')} <ArrowRight className="w-3.5 h-3.5" />
                       </button>
                     )}
 
@@ -246,7 +247,7 @@ const MyPurchases = () => {
                         title="Message the artisan about this order"
                       >
                         <MessageCircle className="w-3.5 h-3.5" />
-                        Contact Artisan
+                        {t('marketplace.artisanRole')}
                       </button>
                     )}
                   </div>
@@ -262,7 +263,7 @@ const MyPurchases = () => {
                         className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow transition disabled:opacity-50"
                       >
                         {updatingId === order.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Truck className="w-3.5 h-3.5" />}
-                        Mark Shipped
+                        {t('marketplace.shipped')}
                       </button>
                     )}
 
@@ -273,7 +274,7 @@ const MyPurchases = () => {
                         className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl shadow transition disabled:opacity-50"
                       >
                         {updatingId === order.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
-                        Mark Delivered
+                        {t('marketplace.delivered')}
                       </button>
                     )}
 
@@ -285,7 +286,7 @@ const MyPurchases = () => {
                         title="Message the buyer about this order"
                       >
                         <MessageCircle className="w-3.5 h-3.5" />
-                        Message Buyer
+                        {t('marketplace.buyerRole')}
                       </button>
                     )}
                   </div>

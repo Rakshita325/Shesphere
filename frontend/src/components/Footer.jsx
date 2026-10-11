@@ -1,7 +1,10 @@
 import React from 'react';
 import { Layers, Camera, MessageSquare, Share2, Globe } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 const Footer = () => {
+  const { t } = useLanguage();
+
   return (
     <footer id="contact" className="bg-white dark:bg-gray-900 pt-16 pb-8 border-t border-pastel-lavender/50 dark:border-gray-800 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -13,7 +16,7 @@ const Footer = () => {
               <span className="text-xl font-bold text-gray-900 dark:text-white tracking-wide">SheSphere</span>
             </div>
             <p className="text-gray-500 dark:text-gray-450 mb-6 text-sm leading-relaxed">
-              Empowering women through personalized learning, community support, and skill tracking.
+              {t('landing.footerSlogan')}
             </p>
             <div className="flex space-x-4 text-gray-400 dark:text-gray-500">
               <a href="#" className="hover:text-pink-500 transition-colors"><Camera className="h-5 w-5" /></a>
@@ -25,37 +28,37 @@ const Footer = () => {
 
           {/* Links */}
           <div>
-            <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Platform</h4>
+            <h4 className="font-semibold text-gray-900 dark:text-white mb-4">{t('landing.footerPlatform')}</h4>
             <ul className="space-y-3 text-sm text-gray-500 dark:text-gray-400">
-              <li><a href="#" className="hover:text-pink-500 transition-colors">Courses</a></li>
-              <li><a href="#" className="hover:text-pink-500 transition-colors">Community</a></li>
-              <li><a href="#" className="hover:text-pink-500 transition-colors">Mentorship</a></li>
-              <li><a href="#" className="hover:text-pink-500 transition-colors">Pricing</a></li>
+              <li><a href="#" className="hover:text-pink-500 transition-colors">{t('landing.footerCourses')}</a></li>
+              <li><a href="#" className="hover:text-pink-500 transition-colors">{t('landing.footerCommunity')}</a></li>
+              <li><a href="#" className="hover:text-pink-500 transition-colors">{t('landing.footerMentorship')}</a></li>
+              <li><a href="#" className="hover:text-pink-500 transition-colors">{t('landing.footerPricing')}</a></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Company</h4>
+            <h4 className="font-semibold text-gray-900 dark:text-white mb-4">{t('landing.footerCompany')}</h4>
             <ul className="space-y-3 text-sm text-gray-500 dark:text-gray-400">
-              <li><a href="#" className="hover:text-pink-500 transition-colors">About Us</a></li>
-              <li><a href="#" className="hover:text-pink-500 transition-colors">Careers</a></li>
-              <li><a href="#" className="hover:text-pink-500 transition-colors">Blog</a></li>
-              <li><a href="#" className="hover:text-pink-500 transition-colors">Contact</a></li>
+              <li><a href="#" className="hover:text-pink-500 transition-colors">{t('landing.footerAboutUs')}</a></li>
+              <li><a href="#" className="hover:text-pink-500 transition-colors">{t('landing.footerCareers')}</a></li>
+              <li><a href="#" className="hover:text-pink-500 transition-colors">{t('landing.footerBlog')}</a></li>
+              <li><a href="#" className="hover:text-pink-500 transition-colors">{t('landing.footerContact')}</a></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Legal</h4>
+            <h4 className="font-semibold text-gray-900 dark:text-white mb-4">{t('landing.footerLegal')}</h4>
             <ul className="space-y-3 text-sm text-gray-500 dark:text-gray-400">
-              <li><a href="#" className="hover:text-pink-500 transition-colors">Terms of Service</a></li>
-              <li><a href="#" className="hover:text-pink-500 transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-pink-500 transition-colors">Cookie Policy</a></li>
+              <li><a href="#" className="hover:text-pink-500 transition-colors">{t('landing.footerTerms')}</a></li>
+              <li><a href="#" className="hover:text-pink-500 transition-colors">{t('landing.footerPrivacy')}</a></li>
+              <li><a href="#" className="hover:text-pink-500 transition-colors">{t('landing.footerCookie')}</a></li>
             </ul>
           </div>
         </div>
 
         <div className="pt-8 border-t border-gray-100 dark:border-gray-800 text-center text-sm text-gray-400 dark:text-gray-500">
-          <p>&copy; {new Date().getFullYear()} SheSphere. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} {t('landing.footerRights')}</p>
         </div>
       </div>
     </footer>
