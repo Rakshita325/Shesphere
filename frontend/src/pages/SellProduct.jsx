@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMarketplace } from '../context/MarketplaceContext';
+import { useLanguage } from '../context/LanguageContext';
 import {
   ArrowLeft, Upload, Save, Sparkles, ImageIcon, MapPin, Tag, Package, Loader2, X, CheckCircle2, AlertCircle
 } from 'lucide-react';
@@ -13,6 +14,7 @@ const CATEGORIES = [
 const SellProduct = () => {
   const navigate = useNavigate();
   const { addProduct, saveDraft, draftProduct, showToast } = useMarketplace();
+  const { t } = useLanguage();
   const fileInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
@@ -149,9 +151,9 @@ const SellProduct = () => {
           className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 font-medium text-sm transition"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to Marketplace
+          {t('marketplace.backToMarketplace')}
         </button>
-        <span className="text-xs text-gray-400 dark:text-gray-500 font-medium">List a New Product</span>
+        <span className="text-xs text-gray-400 dark:text-gray-500 font-medium">{t('marketplace.listNewProduct')}</span>
       </div>
 
       {/* Form Container */}
@@ -159,11 +161,11 @@ const SellProduct = () => {
         {/* Header */}
         <div className="bg-gradient-to-r from-pink-500 to-rose-600 p-6 text-white">
           <div className="flex items-center gap-2 text-xs uppercase font-semibold tracking-wider text-pink-100 mb-1">
-            <Sparkles className="w-4 h-4" /> List Your Handmade Craft
+            <Sparkles className="w-4 h-4" /> {t('marketplace.listHandmadeCraft')}
           </div>
-          <h1 className="text-2xl font-bold">Sell Product</h1>
+          <h1 className="text-2xl font-bold">{t('marketplace.sellProductTitle') || t('nav.sellProduct') || 'Sell Product'}</h1>
           <p className="text-pink-100 text-sm mt-1">
-            Fill in the details below to publish your handmade creation to thousands of buyers on SheSphere.
+            {t('marketplace.sellProductDesc')}
           </p>
         </div>
 
@@ -171,8 +173,8 @@ const SellProduct = () => {
         {submitSuccess && (
           <div className="flex flex-col items-center justify-center gap-3 p-12 text-emerald-600">
             <CheckCircle2 className="w-14 h-14" />
-            <h3 className="text-lg font-bold">Product Published!</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Redirecting to My Products…</p>
+            <h3 className="text-lg font-bold">{t('marketplace.productPublished')}</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t('marketplace.redirectingToProducts')}</p>
           </div>
         )}
 
@@ -188,7 +190,7 @@ const SellProduct = () => {
 
             {/* Product Name */}
             <div>
-              <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1.5">Product Name *</label>
+              <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1.5">{t('marketplace.productNameLabel')} *</label>
               <input
                 type="text"
                 name="name"
@@ -206,7 +208,7 @@ const SellProduct = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1.5 flex items-center gap-1.5">
-                  <Tag className="w-4 h-4 text-gray-400" /> Category *
+                  <Tag className="w-4 h-4 text-gray-400" /> {t('marketplace.categoryDropLabel')} *
                 </label>
                 <select
                   name="category"
@@ -215,13 +217,13 @@ const SellProduct = () => {
                   className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-400 cursor-pointer"
                 >
                   {CATEGORIES.map((cat) => (
-                    <option key={cat} value={cat}>{cat}</option>
+                    <option key={cat} value={cat}>{t(`marketplace.categories.${cat}`, {}, cat)}</option>
                   ))}
                 </select>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1.5">Price (₹) *</label>
+                <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1.5">{t('marketplace.priceLabel')} *</label>
                 <input
                   type="number"
                   name="price"
@@ -241,7 +243,7 @@ const SellProduct = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1.5 flex items-center gap-1.5">
-                  <Package className="w-4 h-4 text-gray-400" /> Available Quantity
+                  <Package className="w-4 h-4 text-gray-400" /> {t('marketplace.availableQuantityLabel')}
                 </label>
                 <input
                   type="number"
@@ -259,7 +261,7 @@ const SellProduct = () => {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1.5 flex items-center gap-1.5">
-                  <MapPin className="w-4 h-4 text-gray-400" /> Location (City, State) *
+                  <MapPin className="w-4 h-4 text-gray-400" /> {t('marketplace.locationLabel')} *
                 </label>
                 <input
                   type="text"
@@ -277,7 +279,7 @@ const SellProduct = () => {
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1.5">Description *</label>
+              <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1.5">{t('marketplace.descriptionLabel')} *</label>
               <textarea
                 name="description"
                 value={formData.description}
@@ -295,7 +297,7 @@ const SellProduct = () => {
             <div>
               <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1.5 flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
-                  <ImageIcon className="w-4 h-4 text-gray-400" /> Product Images
+                  <ImageIcon className="w-4 h-4 text-gray-400" /> {t('marketplace.photosLabel')}
                 </span>
                 <span className="text-xs text-gray-400 dark:text-gray-500 font-normal">
                   {selectedFiles.length}/5 images • Max 5MB each
@@ -361,7 +363,7 @@ const SellProduct = () => {
                 className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 text-sm font-semibold rounded-xl transition disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
-                Save Draft
+                {t('marketplace.saveDraft')}
               </button>
 
               <button
@@ -370,9 +372,9 @@ const SellProduct = () => {
                 className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-pink-600 hover:bg-pink-700 text-white text-sm font-semibold rounded-xl shadow-md transition transform hover:scale-[1.02] active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
               >
                 {isSubmitting ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" /> Publishing…</>
+                  <><Loader2 className="w-4 h-4 animate-spin" /> {t('marketplace.publishing')}</>
                 ) : (
-                  <><Upload className="w-4 h-4" /> Publish Product</>
+                  <><Upload className="w-4 h-4" /> {t('marketplace.publishProduct')}</>
                 )}
               </button>
             </div>

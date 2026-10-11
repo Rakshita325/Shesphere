@@ -16,6 +16,8 @@ import CardBase from '../dashboard/CardBase';
 import CommentSection from './CommentSection';
 import communityService from '../../services/communityService';
 import { useUser } from '../../context/UserContext';
+import { useLanguage } from '../../context/LanguageContext';
+import { getImageUrl } from '../../utils/imageUrl';
 
 const CommunityPostCard = ({ 
   post, 
@@ -24,6 +26,7 @@ const CommunityPostCard = ({
   onPostUpdated 
 }) => {
   const { userData } = useUser();
+  const { t } = useLanguage();
 
   const [isLiked, setIsLiked] = useState(post.isLiked || false);
   const [likesCount, setLikesCount] = useState(post.likesCount || 0);
@@ -176,7 +179,7 @@ const CommunityPostCard = ({
       {copiedToast && (
         <div className="fixed bottom-6 right-6 z-50 bg-gray-900 text-white dark:bg-pink-600 px-4 py-2.5 rounded-2xl shadow-xl flex items-center gap-2 text-xs font-semibold animate-bounce">
           <Check className="w-4 h-4 text-emerald-400 dark:text-white" />
-          Link copied to clipboard!
+          {t('community.linkCopied')}
         </div>
       )}
 
@@ -184,7 +187,7 @@ const CommunityPostCard = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <img
-            src={post.user?.profilePicture || '/assets/avatar1.png'}
+            src={getImageUrl(post.user?.profilePicture, '/assets/avatar1.png')}
             alt={post.user?.fullName || 'Community User'}
             className="w-10 h-10 sm:w-11 sm:h-11 rounded-full object-cover ring-2 ring-pink-100 dark:ring-pink-900/50"
           />
@@ -221,7 +224,7 @@ const CommunityPostCard = ({
                   className="w-full px-4 py-2.5 text-left text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-pink-50 dark:hover:bg-gray-800 hover:text-pink-600 dark:hover:text-pink-400 flex items-center gap-2.5 transition-colors cursor-pointer"
                 >
                   <Pencil className="w-4 h-4 text-pink-500" />
-                  Edit post
+                  {t('community.editPost')}
                 </button>
 
                 <div className="my-1 border-t border-gray-100 dark:border-gray-800" />
@@ -234,7 +237,7 @@ const CommunityPostCard = ({
                   className="w-full px-4 py-2.5 text-left text-xs sm:text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 flex items-center gap-2.5 transition-colors cursor-pointer"
                 >
                   <Trash2 className="w-4 h-4 text-red-500" />
-                  Delete post
+                  {t('community.deletePost')}
                 </button>
               </div>
             )}
@@ -257,7 +260,7 @@ const CommunityPostCard = ({
               onClick={() => setIsEditing(false)}
               className="px-4 py-2 rounded-xl text-xs font-semibold bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 text-gray-700 dark:text-gray-300 transition-colors"
             >
-              Cancel
+              {t('editProfile.cancel')}
             </button>
             <button
               type="submit"
@@ -267,10 +270,10 @@ const CommunityPostCard = ({
               {isSavingEdit ? (
                 <>
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  Saving...
+                  {t('editProfile.saving')}
                 </>
               ) : (
-                'Save Changes'
+                t('editProfile.saveChanges')
               )}
             </button>
           </div>
@@ -288,7 +291,7 @@ const CommunityPostCard = ({
       {post.image && (
         <div className="rounded-2xl overflow-hidden max-h-96 bg-gray-100 dark:bg-gray-800 border border-gray-100 dark:border-gray-800">
           <img
-            src={post.image}
+            src={getImageUrl(post.image)}
             alt="Post content"
             className="w-full h-full max-h-96 object-cover"
           />
@@ -298,7 +301,7 @@ const CommunityPostCard = ({
       {post.video && (
         <div className="rounded-2xl overflow-hidden max-h-96 bg-black border border-gray-100 dark:border-gray-800">
           <video controls className="w-full max-h-96 object-contain">
-            <source src={post.video} />
+            <source src={getImageUrl(post.video)} />
             Your browser does not support the video tag.
           </video>
         </div>
@@ -321,7 +324,7 @@ const CommunityPostCard = ({
                 isLiked ? 'fill-pink-500 text-pink-500 scale-110' : ''
               }`}
             />
-            <span>{likesCount} <span className="hidden sm:inline">{likesCount === 1 ? 'Like' : 'Likes'}</span></span>
+            <span>{likesCount} <span className="hidden sm:inline">{likesCount === 1 ? t('community.like') : t('community.liked')}</span></span>
           </button>
 
           {/* Comment Button */}
@@ -330,7 +333,7 @@ const CommunityPostCard = ({
             className="flex items-center gap-2 hover:text-pink-500 transition-colors cursor-pointer"
           >
             <MessageSquare className="w-5 h-5" />
-            <span>{commentsCount} <span className="hidden sm:inline">{commentsCount === 1 ? 'Comment' : 'Comments'}</span></span>
+            <span>{commentsCount} <span className="hidden sm:inline">{commentsCount === 1 ? t('community.comment') : t('community.comments')}</span></span>
           </button>
 
           {/* Share Button (Directly beside Comment) */}
@@ -340,7 +343,7 @@ const CommunityPostCard = ({
             title="Share post link"
           >
             <Share2 className="w-5 h-5" />
-            <span>Share</span>
+            <span>{t('community.share')}</span>
           </button>
         </div>
       </div>
@@ -364,10 +367,10 @@ const CommunityPostCard = ({
 
             <div>
               <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                Delete this post?
+                {t('community.confirmDeletePost')}
               </h3>
               <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
-                This action cannot be undone.
+                {t('community.deletePostDesc')}
               </p>
             </div>
 
@@ -377,7 +380,7 @@ const CommunityPostCard = ({
                 onClick={() => setShowDeleteModal(false)}
                 className="flex-1 py-2.5 rounded-2xl text-xs sm:text-sm font-semibold bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors cursor-pointer"
               >
-                Cancel
+                {t('editProfile.cancel')}
               </button>
 
               <button
@@ -389,7 +392,7 @@ const CommunityPostCard = ({
                 {isDeleting ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
-                  'Delete'
+                  t('community.deletePost')
                 )}
               </button>
             </div>

@@ -13,6 +13,7 @@ import {
   Clock 
 } from 'lucide-react';
 import videoService from '../services/videoService';
+import { getImageUrl } from '../utils/imageUrl';
 import { useUser } from '../context/UserContext';
 
 const VideoDetail = () => {
@@ -364,7 +365,7 @@ const VideoDetail = () => {
         {/* Add Comment Form */}
         <form onSubmit={handleAddComment} className="flex items-center gap-2 pt-1">
           <img
-            src={userData?.profilePicture || '/assets/avatar1.png'}
+            src={getImageUrl(userData?.profilePicture, '/assets/avatar1.png')}
             alt="Your Avatar"
             className="w-9 h-9 rounded-full object-cover shrink-0 ring-2 ring-pink-100 dark:ring-pink-900"
           />
@@ -398,7 +399,7 @@ const VideoDetail = () => {
             comments.map((c) => (
               <div key={c._id} className="flex items-start gap-3 text-xs">
                 <img
-                  src={c.user?.profilePicture || '/assets/avatar1.png'}
+                  src={getImageUrl(c.user?.profilePicture, '/assets/avatar1.png')}
                   alt={c.user?.fullName || 'User'}
                   className="w-8 h-8 rounded-full object-cover mt-0.5 shrink-0"
                 />

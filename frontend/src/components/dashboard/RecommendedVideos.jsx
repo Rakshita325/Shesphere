@@ -7,6 +7,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { Play, Eye, Tag, ChevronLeft, ChevronRight, Video, Clock, Sparkles } from 'lucide-react';
 
 import { useSearch } from '../../context/SearchContext';
+import { getYouTubeThumbnail } from '../../utils/imageUrl';
 
 const RecommendedVideos = () => {
   const { userData } = useUser();
@@ -162,8 +163,15 @@ const RecommendedVideos = () => {
                   {/* Aspect Ratio 16:9 Thumbnail Box */}
                   <div className="relative aspect-video w-full overflow-hidden bg-black">
                     <img
-                      src={v.thumbnail}
+                      src={getYouTubeThumbnail(v.thumbnail, v.youtubeId)}
                       alt={v.title}
+                      onError={(e) => {
+                        if (v.youtubeId && !e.currentTarget.src.includes('hqdefault.jpg')) {
+                          e.currentTarget.src = `https://i.ytimg.com/vi/${v.youtubeId}/hqdefault.jpg`;
+                        } else {
+                          e.currentTarget.src = 'https://placehold.co/400x225?text=SheSphere+Video';
+                        }
+                      }}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">

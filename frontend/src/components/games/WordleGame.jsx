@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { wordleWordList } from '../../utils/gamesData';
 import { RotateCcw, Sparkles, Delete } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
 
 const WORD_LENGTH = 5;
 const MAX_GUESSES = 6;
@@ -17,6 +18,7 @@ const KEYBOARD_ROWS = [
 ];
 
 const WordleGame = ({ onComplete }) => {
+  const { t } = useLanguage();
   const [targetWord, setTargetWord] = useState('');
   const [guesses, setGuesses] = useState([]);
   const [currentGuess, setCurrentGuess] = useState('');
@@ -157,13 +159,13 @@ const WordleGame = ({ onComplete }) => {
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-gray-800">Wordle</h2>
+        <h2 className="text-xl font-bold text-gray-800">{t('games.wordleTitle')}</h2>
         <button
           onClick={resetGame}
           className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-600 transition-colors"
         >
           <RotateCcw className="w-4 h-4" />
-          New Word
+          {t('games.newWord')}
         </button>
       </div>
 
@@ -261,7 +263,7 @@ const WordleGame = ({ onComplete }) => {
             ) : (
               <>
                 <div className="text-5xl mb-4">😔</div>
-                <h3 className="text-2xl font-bold text-gray-800 mb-2">Game Over</h3>
+                <h3 className="text-2xl font-bold text-gray-800 mb-2">{t('games.gameOver')}</h3>
                 <p className="text-gray-600 mb-1">The word was:</p>
                 <p className="text-2xl font-bold text-rose-500 mb-6">{targetWord}</p>
               </>
@@ -270,7 +272,7 @@ const WordleGame = ({ onComplete }) => {
               onClick={resetGame}
               className="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-all"
             >
-              Play Again
+              {t('games.playAgain')}
             </button>
           </div>
         </div>

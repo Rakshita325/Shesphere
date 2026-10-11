@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import { updateUserProfile, getProfileStats, uploadProfilePicture } from '../services/userService';
+import { getImageUrl } from '../utils/imageUrl';
 import {
   Camera,
   CheckCircle,
@@ -243,9 +244,9 @@ const Profile = () => {
           {/* Avatar with Camera Icon Overlay */}
           <div className="relative group shrink-0">
             <div className="w-28 h-28 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-white dark:border-gray-800 shadow-md bg-white dark:bg-gray-800 flex items-center justify-center">
-              {profilePicture ? (
+              {getImageUrl(profilePicture) ? (
                 <img
-                  src={profilePicture}
+                  src={getImageUrl(profilePicture)}
                   alt="Profile Avatar"
                   className="w-full h-full object-cover"
                 />
@@ -307,7 +308,7 @@ const Profile = () => {
               <div className="flex items-center justify-center md:justify-start gap-2 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm px-3.5 py-2 rounded-xl border border-pink-100/80 dark:border-gray-700/60">
                 <GraduationCap className="w-4 h-4 text-purple-500 shrink-0" />
                 <div className="text-xs">
-                  <span className="text-gray-500 dark:text-gray-400 block">Education</span>
+                  <span className="text-gray-500 dark:text-gray-400 block">{t('profile.education')}</span>
                   <span className="font-semibold text-gray-800 dark:text-gray-200">{displayEducation}</span>
                 </div>
               </div>
@@ -315,7 +316,7 @@ const Profile = () => {
               <div className="flex items-center justify-center md:justify-start gap-2 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm px-3.5 py-2 rounded-xl border border-pink-100/80 dark:border-gray-700/60">
                 <Sparkle className="w-4 h-4 text-indigo-500 shrink-0" />
                 <div className="text-xs">
-                  <span className="text-gray-500 dark:text-gray-400 block">Current Interest</span>
+                  <span className="text-gray-500 dark:text-gray-400 block">{t('profile.interest')}</span>
                   <span className="font-semibold text-gray-800 dark:text-gray-200">{displayInterest}</span>
                 </div>
               </div>
@@ -323,7 +324,7 @@ const Profile = () => {
               <div className="flex items-center justify-center md:justify-start gap-2 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm px-3.5 py-2 rounded-xl border border-pink-100/80 dark:border-gray-700/60">
                 <Zap className="w-4 h-4 text-amber-500 shrink-0" />
                 <div className="text-xs">
-                  <span className="text-gray-500 dark:text-gray-400 block">Current Streak</span>
+                  <span className="text-gray-500 dark:text-gray-400 block">{t('profile.currentStreak')}</span>
                   <span className="font-semibold text-pink-600 dark:text-pink-400">
                     {profileStats?.currentStreak !== undefined ? `${profileStats.currentStreak} days` : displayStreak}
                   </span>
@@ -347,7 +348,7 @@ const Profile = () => {
             className="flex items-center gap-1 px-3 py-1 bg-rose-500 hover:bg-rose-600 text-white rounded-lg font-medium text-xs transition-colors cursor-pointer"
           >
             <RefreshCw className="w-3.5 h-3.5" />
-            <span>Retry</span>
+            <span>{t('common.retry')}</span>
           </button>
         </div>
       )}
@@ -360,7 +361,7 @@ const Profile = () => {
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-pink-500" />
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Achievements</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('profile.achievements')}</h2>
             </div>
             <span className="text-xs font-semibold text-pink-600 dark:text-pink-400 bg-pink-50 dark:bg-pink-950/60 border border-pink-100 dark:border-pink-900/50 px-3.5 py-1.5 rounded-full shadow-2xs">
               {loading ? '...' : t('profile.badgesEarned', { count: unlockedBadgeCount })}
@@ -372,7 +373,7 @@ const Profile = () => {
             {filteredAchievements.length === 0 ? (
               <div className="col-span-2 py-8 text-center bg-gray-50 dark:bg-gray-800/40 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
                 <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-                  No achievements found for '{searchQuery}'.
+                  {t('profile.noAchievementsFound', { query: searchQuery })}
                 </p>
               </div>
             ) : (
@@ -380,6 +381,12 @@ const Profile = () => {
                 const badgeKey = (badge.id || badge.name || '').toLowerCase();
                 const theme = badgeThemeMap[badgeKey] || badgeThemeMap.beginner;
                 const isUnlocked = badge.unlocked;
+
+                const translatedName = t(`achievements.${badge.id}.name`);
+                const badgeName = translatedName !== `achievements.${badge.id}.name` ? translatedName : (badge.name || badge.id);
+
+                const translatedDesc = t(`achievements.${badge.id}.description`);
+                const badgeDesc = translatedDesc !== `achievements.${badge.id}.description` ? translatedDesc : badge.description;
 
                 return (
                   <div
@@ -421,19 +428,19 @@ const Profile = () => {
 
                     <div>
                       <h3 className="font-bold text-gray-900 dark:text-white text-base">
-                        {badge.name}
+                        {badgeName}
                       </h3>
                       <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-0.5">
-                        {badge.description || (isUnlocked ? 'Milestone achieved' : 'In progress')}
+                        {badgeDesc || (isUnlocked ? t('profile.milestoneAchieved') : t('profile.inProgress'))}
                       </p>
                       
                       <div className="mt-3 pt-2.5 border-t border-gray-200/40 dark:border-gray-700/40 flex items-center justify-between">
                         <span className={`text-xs font-semibold ${isUnlocked ? 'text-pink-600 dark:text-pink-400' : 'text-gray-500 dark:text-gray-400'}`}>
-                          {isUnlocked ? 'Unlocked' : badge.progressText || 'Locked'}
+                          {isUnlocked ? t('profile.unlocked') : badge.progressText || t('profile.locked')}
                         </span>
                         {isUnlocked && (
                           <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-200/60 dark:border-emerald-900/50">
-                            Active
+                            {t('profile.active')}
                           </span>
                         )}
                       </div>
@@ -462,7 +469,7 @@ const Profile = () => {
             {filteredProgressItems.length === 0 ? (
               <div className="py-8 text-center bg-gray-50 dark:bg-gray-800/40 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
                 <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-                  No progress items found for '{searchQuery}'.
+                  {t('profile.noProgressFound', { query: searchQuery })}
                 </p>
               </div>
             ) : (

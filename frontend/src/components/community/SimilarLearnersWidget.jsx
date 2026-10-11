@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Sparkles, UserCheck } from 'lucide-react';
 import communityService from '../../services/communityService';
+import { useLanguage } from '../../context/LanguageContext';
+import { getImageUrl } from '../../utils/imageUrl';
 
 const SimilarLearnersWidget = ({ communityId }) => {
+  const { t } = useLanguage();
   const [learners, setLearners] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -33,10 +36,10 @@ const SimilarLearnersWidget = ({ communityId }) => {
       <div className="flex items-center justify-between mb-3">
         <h4 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-pink-500" />
-          People with Similar Learning Interests
+          {t('community.similarTitle')}
         </h4>
         <span className="text-[11px] font-semibold text-pink-600 dark:text-pink-400 bg-pink-100 dark:bg-pink-950 px-2 py-0.5 rounded-full">
-          Cluster Match
+          {t('community.clusterMatch')}
         </span>
       </div>
 
@@ -47,8 +50,8 @@ const SimilarLearnersWidget = ({ communityId }) => {
             className="flex items-center gap-2.5 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 px-3 py-2 rounded-2xl shrink-0 shadow-2xs"
           >
             <div className="w-8 h-8 rounded-full overflow-hidden bg-pink-400 text-white font-bold flex items-center justify-center text-xs shrink-0">
-              {learner.profilePicture ? (
-                <img src={learner.profilePicture} alt={learner.fullName} className="w-full h-full object-cover" />
+              {getImageUrl(learner.profilePicture) ? (
+                <img src={getImageUrl(learner.profilePicture)} alt={learner.fullName} className="w-full h-full object-cover" />
               ) : (
                 (learner.fullName || 'U').charAt(0)
               )}

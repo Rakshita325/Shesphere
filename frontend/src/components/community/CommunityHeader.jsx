@@ -17,7 +17,7 @@ import {
   Star
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
-import { getCommunityDisplayName } from './CommunityCard';
+import { getCommunityDisplayName, getCommunityDescription } from './CommunityCard';
 
 const iconMap = {
   ChefHat,
@@ -115,7 +115,7 @@ const CommunityHeader = ({ community, onJoinToggle, isActionLoading }) => {
       {/* Description Bar */}
       <div className="px-6 sm:px-8 pb-6 border-t border-gray-100 dark:border-gray-800/60 pt-4">
         <p className="text-sm text-gray-600 dark:text-gray-350 leading-relaxed">
-          {community.description}
+          {getCommunityDescription(community, t)}
         </p>
       </div>
     </div>

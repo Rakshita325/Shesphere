@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Star, ShoppingBag, Eye, MapPin } from 'lucide-react';
 import BuyModal from './BuyModal';
+import { useLanguage } from '../../context/LanguageContext';
+import { getImageUrl } from '../../utils/imageUrl';
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
 
   const discountPercent = product.originalPrice
@@ -17,7 +20,7 @@ const ProductCard = ({ product }) => {
         {/* Image Container */}
         <div className="relative aspect-4/3 overflow-hidden bg-gray-100 dark:bg-gray-900 cursor-pointer" onClick={() => navigate(`/marketplace/${product.id}`)}>
           <img
-            src={product.images[0]}
+            src={getImageUrl(product.images?.[0], 'https://placehold.co/400x400?text=No+Image')}
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500"
             loading="lazy"
@@ -25,7 +28,7 @@ const ProductCard = ({ product }) => {
 
           {/* Category Badge */}
           <span className="absolute top-3.5 left-3.5 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md text-pink-600 dark:text-pink-400 text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs border border-pink-100 dark:border-pink-900/50">
-            {product.category}
+            {t(`marketplace.categories.${product.category}`, {}, product.category)}
           </span>
 
           {/* Discount Badge */}
@@ -73,7 +76,7 @@ const ProductCard = ({ product }) => {
               {/* Seller */}
               <div className="flex items-center gap-2 min-w-0">
                 <img
-                  src={product.sellerAvatar}
+                  src={getImageUrl(product.sellerAvatar, 'https://placehold.co/32x32?text=S')}
                   alt={product.sellerName}
                   className="w-7 h-7 rounded-full object-cover border border-pink-300 dark:border-pink-900"
                 />
@@ -102,7 +105,7 @@ const ProductCard = ({ product }) => {
                 className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-[var(--text-main)] text-xs font-bold rounded-2xl transition duration-150 cursor-pointer"
               >
                 <Eye className="w-3.5 h-3.5 text-gray-500" />
-                View Details
+                {t('marketplace.viewDetails')}
               </button>
 
               <button
@@ -110,7 +113,7 @@ const ProductCard = ({ product }) => {
                 className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white text-xs font-bold rounded-2xl shadow-md transition duration-150 transform active:scale-95 cursor-pointer"
               >
                 <ShoppingBag className="w-3.5 h-3.5" />
-                Buy Now
+                {t('marketplace.buyNow')}
               </button>
             </div>
           </div>

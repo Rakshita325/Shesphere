@@ -1,18 +1,24 @@
 import React from 'react';
 import { CATEGORIES } from '../../data/marketplaceData';
 import { useMarketplace } from '../../context/MarketplaceContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 const CategoryFilter = () => {
   const { selectedCategory, setSelectedCategory } = useMarketplace();
+  const { t } = useLanguage();
+
+  const getCategoryLabel = (cat) => {
+    return t(`marketplace.categories.${cat}`, {}, cat);
+  };
 
   return (
     <div className="mb-6">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-xs font-bold uppercase tracking-wider text-gray-500">
-          Categories
+          {t('marketplace.categoriesLabel')}
         </h2>
         <span className="text-xs text-gray-400">
-          Showing {selectedCategory} items
+          {t('marketplace.showingItems', { category: getCategoryLabel(selectedCategory) })}
         </span>
       </div>
 
@@ -30,7 +36,7 @@ const CategoryFilter = () => {
                   : 'bg-white text-gray-700 hover:bg-pink-50 hover:text-pink-600 border border-gray-200'
               }`}
             >
-              {cat}
+              {getCategoryLabel(cat)}
             </button>
           );
         })}

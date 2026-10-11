@@ -12,6 +12,7 @@ import {
   XCircle,
   Truck
 } from 'lucide-react';
+import { getImageUrl } from '../utils/imageUrl';
 
 const Orders = () => {
   const navigate = useNavigate();
@@ -126,7 +127,7 @@ const Orders = () => {
               {/* Product Info */}
               <div className="flex items-center gap-4 min-w-0">
                 <img
-                  src={order.productImage}
+                  src={getImageUrl(order.productImage, 'https://placehold.co/64x64?text=?')}
                   alt={order.productName}
                   className="w-16 h-16 rounded-xl object-cover border border-gray-200 dark:border-gray-700 shrink-0"
                 />

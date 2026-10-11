@@ -2,9 +2,11 @@ import React from 'react';
 import { useMarketplace } from '../../context/MarketplaceContext';
 import ProductCard from './ProductCard';
 import { Lightbulb } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
 
 const RecommendedProducts = () => {
   const { products } = useMarketplace();
+  const { t } = useLanguage();
   const recommended = products.filter((p) => p.isRecommended).slice(0, 4);
 
   if (recommended.length === 0) return null;
@@ -16,12 +18,12 @@ const RecommendedProducts = () => {
           <div className="p-1.5 bg-pink-100 text-pink-600 rounded-lg">
             <Lightbulb className="w-4 h-4" />
           </div>
-          <h2 className="text-lg font-bold text-gray-900">Recommended For You</h2>
+          <h2 className="text-lg font-bold text-gray-900">{t('marketplace.recommendedTitle')}</h2>
         </div>
 
         {/* Required note display */}
         <span className="text-xs font-medium text-pink-600 bg-pink-50 border border-pink-200 px-3 py-1 rounded-full w-fit">
-          Recommended based on your learning interests.
+          {t('marketplace.recommendedSubtext')}
         </span>
       </div>
 

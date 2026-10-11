@@ -1,10 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { Image, Video, X, Send, Loader2 } from 'lucide-react';
 import { useUser } from '../../context/UserContext';
+import { useLanguage } from '../../context/LanguageContext';
+import { getImageUrl } from '../../utils/imageUrl';
 import CardBase from '../dashboard/CardBase';
 
 const PostComposer = ({ communityName, onSubmitPost }) => {
   const { userData } = useUser();
+  const { t } = useLanguage();
   const [content, setContent] = useState('');
   const [mediaFile, setMediaFile] = useState(null);
   const [mediaPreview, setMediaPreview] = useState(null);
@@ -66,7 +69,7 @@ const PostComposer = ({ communityName, onSubmitPost }) => {
         {/* User Info Header */}
         <div className="flex items-center gap-3">
           <img
-            src={userData?.profilePicture || '/assets/avatar1.png'}
+            src={getImageUrl(userData?.profilePicture, '/assets/avatar1.png')}
             alt={userData?.fullName || 'User'}
             className="w-11 h-11 rounded-full object-cover ring-2 ring-pink-200 dark:ring-pink-900"
           />
@@ -75,7 +78,7 @@ const PostComposer = ({ communityName, onSubmitPost }) => {
               {userData?.fullName || 'You'}
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              Posting to <span className="font-medium text-pink-500">{communityName || 'Community'}</span>
+              {t('community.postingTo')} <span className="font-medium text-pink-500">{communityName || 'Community'}</span>
             </p>
           </div>
         </div>
@@ -84,7 +87,7 @@ const PostComposer = ({ communityName, onSubmitPost }) => {
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder={`What's on your mind in ${communityName || 'this community'}?`}
+          placeholder={t('community.postPlaceholder', { name: communityName || 'this community' })}
           rows={3}
           className="w-full bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-white rounded-2xl p-4 text-sm border border-gray-200/80 dark:border-gray-700/80 focus:outline-none focus:ring-2 focus:ring-pink-300 dark:focus:ring-pink-900/40 resize-none transition-colors"
         />
@@ -123,7 +126,7 @@ const PostComposer = ({ communityName, onSubmitPost }) => {
             {/* Image Upload Input */}
             <label className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-pink-50 dark:hover:bg-pink-950/30 hover:text-pink-600 dark:hover:text-pink-400 cursor-pointer transition-colors">
               <Image className="w-4 h-4 text-pink-500" />
-              <span>Photo</span>
+              <span>{t('community.photo')}</span>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -136,7 +139,7 @@ const PostComposer = ({ communityName, onSubmitPost }) => {
             {/* Video Upload Input */}
             <label className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-950/30 hover:text-purple-600 dark:hover:text-purple-400 cursor-pointer transition-colors">
               <Video className="w-4 h-4 text-purple-500" />
-              <span>Video</span>
+              <span>{t('community.video')}</span>
               <input
                 type="file"
                 accept="video/*"
@@ -154,12 +157,12 @@ const PostComposer = ({ communityName, onSubmitPost }) => {
             {isSubmitting ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Posting...
+                {t('community.posting')}
               </>
             ) : (
               <>
                 <Send className="w-4 h-4" />
-                Post
+                {t('community.postBtn')}
               </>
             )}
           </button>

@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Send, Loader2, MessageSquare } from 'lucide-react';
 import communityService from '../../services/communityService';
 import { useUser } from '../../context/UserContext';
+import { useLanguage } from '../../context/LanguageContext';
+import { getImageUrl } from '../../utils/imageUrl';
 
 const CommentSection = ({ postId, initialCommentsCount, onCommentAdded }) => {
   const { userData } = useUser();
+  const { t } = useLanguage();
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [newComment, setNewComment] = useState('');
@@ -65,7 +68,7 @@ const CommentSection = ({ postId, initialCommentsCount, onCommentAdded }) => {
       {/* Comments Header */}
       <div className="flex items-center gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
         <MessageSquare className="w-4 h-4 text-pink-400" />
-        <span>Comments ({comments.length})</span>
+        <span>{t('community.comments')} ({comments.length})</span>
       </div>
 
       {/* Loading state */}
@@ -75,7 +78,7 @@ const CommentSection = ({ postId, initialCommentsCount, onCommentAdded }) => {
         </div>
       ) : comments.length === 0 ? (
         <p className="text-xs text-gray-400 dark:text-gray-500 text-center py-3 italic">
-          No comments yet. Be the first to share your thoughts!
+          {t('community.noCommentsYet')}
         </p>
       ) : (
         /* Comment List */
@@ -83,7 +86,7 @@ const CommentSection = ({ postId, initialCommentsCount, onCommentAdded }) => {
           {comments.map((comment) => (
             <div key={comment._id} className="flex items-start gap-3 text-xs">
               <img
-                src={comment.user?.profilePicture || '/assets/avatar1.png'}
+                src={getImageUrl(comment.user?.profilePicture, '/assets/avatar1.png')}
                 alt={comment.user?.fullName || 'Commenter'}
                 className="w-8 h-8 rounded-full object-cover mt-0.5 shrink-0"
               />
@@ -108,7 +111,7 @@ const CommentSection = ({ postId, initialCommentsCount, onCommentAdded }) => {
       {/* Comment Input Form */}
       <form onSubmit={handleAddComment} className="flex items-center gap-2 pt-2">
         <img
-          src={userData?.profilePicture || '/assets/avatar1.png'}
+          src={getImageUrl(userData?.profilePicture, '/assets/avatar1.png')}
           alt="Your Avatar"
           className="w-8 h-8 rounded-full object-cover shrink-0"
         />
@@ -116,7 +119,7 @@ const CommentSection = ({ postId, initialCommentsCount, onCommentAdded }) => {
           type="text"
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
-          placeholder="Write a comment..."
+          placeholder={t('community.writeCommentPlaceholder')}
           className="flex-1 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl px-3.5 py-2 text-xs border border-gray-200/80 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-300 dark:focus:ring-pink-900/40"
         />
         <button

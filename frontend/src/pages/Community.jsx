@@ -175,7 +175,7 @@ const Community = () => {
       return (
         <div className="min-h-[60vh] flex flex-col items-center justify-center gap-3 text-pink-500">
           <Loader2 className="w-8 h-8 animate-spin" />
-          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Loading community...</p>
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{t('community.loadingCommunity')}</p>
         </div>
       );
     }
@@ -186,12 +186,12 @@ const Community = () => {
           <div className="inline-flex p-4 rounded-full bg-red-50 dark:bg-red-950/40 text-red-500 mb-4">
             <AlertCircle className="w-8 h-8" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">{errorMsg || 'Community Not Found'}</h2>
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">{errorMsg || t('community.notFound')}</h2>
           <button
             onClick={() => navigate('/dashboard/community')}
             className="px-5 py-2.5 rounded-xl bg-pink-500 text-white font-medium text-sm hover:bg-pink-600 transition-colors"
           >
-            Back to Communities
+            {t('community.backToCommunities')}
           </button>
         </div>
       );
@@ -220,10 +220,10 @@ const Community = () => {
           <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-800">
             <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
               <MessageSquare className="w-5 h-5 text-pink-500" />
-              Community Posts & Discussions
+              {t('community.postsDiscussions')}
             </h3>
             <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
-              {posts.length} {posts.length === 1 ? 'post' : 'posts'}
+              {t('community.postCount', { count: posts.length })}
             </span>
           </div>
 
@@ -236,9 +236,9 @@ const Community = () => {
               <div className="w-12 h-12 rounded-2xl bg-pink-50 dark:bg-pink-950/50 text-pink-500 mx-auto flex items-center justify-center mb-3">
                 <Sparkles className="w-6 h-6" />
               </div>
-              <h4 className="font-bold text-gray-900 dark:text-white text-lg mb-1">No posts yet</h4>
+              <h4 className="font-bold text-gray-900 dark:text-white text-lg mb-1">{t('community.noPostsYet')}</h4>
               <p className="text-sm text-gray-500 dark:text-gray-400 max-w-md mx-auto">
-                Be the first member to share a post, question, photo, or idea in {activeCommunity.name}!
+                {t('community.noPostsDesc', { name: activeCommunity.name })}
               </p>
             </div>
           ) : (
@@ -280,7 +280,7 @@ const Community = () => {
       {loadingList ? (
         <div className="flex flex-col items-center justify-center py-20 text-pink-500 gap-3">
           <Loader2 className="w-10 h-10 animate-spin" />
-          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Fetching communities...</p>
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{t('community.fetchingCommunities')}</p>
         </div>
       ) : errorMsg ? (
         <div className="text-center py-12 text-red-500 font-medium">
@@ -289,7 +289,7 @@ const Community = () => {
       ) : filteredCommunities.length === 0 ? (
         <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-3xl border border-dashed border-gray-200 dark:border-gray-700 p-8">
           <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">
-            No community groups found matching '{searchQuery}'.
+            {t('community.noCommunitiesFound', { query: searchQuery })}
           </p>
         </div>
       ) : (

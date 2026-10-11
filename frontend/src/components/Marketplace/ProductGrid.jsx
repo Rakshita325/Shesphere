@@ -1,6 +1,7 @@
 import React from 'react';
 import ProductCard from './ProductCard';
 import { useMarketplace } from '../../context/MarketplaceContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { ShoppingBag, RefreshCw } from 'lucide-react';
 
 const ProductGrid = () => {
@@ -12,6 +13,7 @@ const ProductGrid = () => {
     setSearchQuery,
     setSelectedCategory
   } = useMarketplace();
+  const { t } = useLanguage();
 
   // Filter products based on search query and category
   let filteredProducts = products.filter((item) => {
@@ -40,14 +42,15 @@ const ProductGrid = () => {
   }
 
   if (filteredProducts.length === 0) {
+    const displayCategory = t(`marketplace.categories.${selectedCategory}`, {}, selectedCategory);
     return (
       <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center my-8 shadow-sm">
         <div className="w-16 h-16 bg-pink-50 text-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
           <ShoppingBag className="w-8 h-8" />
         </div>
-        <h3 className="text-lg font-bold text-gray-800">No products found</h3>
+        <h3 className="text-lg font-bold text-gray-800">{t('marketplace.noProductsFound') || 'No products found'}</h3>
         <p className="text-sm text-gray-500 mt-1 max-w-md mx-auto">
-          We couldn't find any handmade items matching "{searchQuery}" in category "{selectedCategory}".
+          {t('marketplace.noProductsFor', { query: searchQuery || displayCategory })}
         </p>
         <button
           onClick={() => {
@@ -57,7 +60,7 @@ const ProductGrid = () => {
           className="mt-5 inline-flex items-center gap-2 px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white text-xs font-semibold rounded-xl shadow transition"
         >
           <RefreshCw className="w-3.5 h-3.5" />
-          Reset All Filters
+          {t('marketplace.resetFilters')}
         </button>
       </div>
     );
@@ -66,9 +69,9 @@ const ProductGrid = () => {
   return (
     <div className="mb-10">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-gray-900">All Marketplace Products</h2>
+        <h2 className="text-lg font-bold text-gray-900">{t('marketplace.allMarketplaceProducts')}</h2>
         <span className="text-xs text-gray-500 font-medium">
-          Showing {filteredProducts.length} items
+          {t('marketplace.showingCount', { count: filteredProducts.length })}
         </span>
       </div>
 

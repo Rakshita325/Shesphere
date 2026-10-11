@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import { useLanguage } from '../context/LanguageContext';
 import { updateUserProfile, uploadProfilePicture } from '../services/userService';
+import { getImageUrl } from '../utils/imageUrl';
 import {
   User,
   Mail,
@@ -21,7 +22,7 @@ import {
 const EditProfile = () => {
   const navigate = useNavigate();
   const { userData, updateUserData } = useUser();
-  const { changeLanguage, normalizeLanguage } = useLanguage();
+  const { changeLanguage, normalizeLanguage, t } = useLanguage();
   const fileInputRef = useRef(null);
 
   const [form, setForm] = useState({
@@ -50,10 +51,10 @@ const EditProfile = () => {
 
   const validate = () => {
     const errs = {};
-    if (!form.fullName.trim()) errs.fullName = 'Name is required';
-    if (!form.email.trim()) errs.email = 'Email is required';
+    if (!form.fullName.trim()) errs.fullName = t('editProfile.nameRequired');
+    if (!form.email.trim()) errs.email = t('editProfile.emailRequired');
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (form.email && !emailRegex.test(form.email)) errs.email = 'Invalid email address';
+    if (form.email && !emailRegex.test(form.email)) errs.email = t('editProfile.invalidEmail');
     return errs;
   };
 
@@ -137,12 +138,12 @@ const EditProfile = () => {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-                Edit Profile
+                {t('editProfile.heading')}
               </h1>
               <Sparkles className="w-5 h-5 text-pink-400" />
             </div>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-              Update your personal information and profile appearance
+              {t('editProfile.subtext')}
             </p>
           </div>
         </div>
@@ -152,7 +153,7 @@ const EditProfile = () => {
           {/* ── Profile Picture Upload Area (Centered) ──────────────────────── */}
           <div className="flex flex-col items-center justify-center text-center p-6 rounded-2xl bg-gradient-to-r from-pink-50/50 via-purple-50/30 to-pink-50/30 dark:from-gray-800/40 dark:via-purple-950/20 dark:to-gray-800/40 border border-pink-100/60 dark:border-gray-800">
             <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
-              Profile Picture
+              {t('editProfile.profilePicture')}
             </label>
 
             {/* Centered Circular Avatar Preview */}
@@ -162,9 +163,9 @@ const EditProfile = () => {
               title="Click to choose a new photo"
             >
               <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white dark:border-gray-800 shadow-md bg-white dark:bg-gray-800 flex items-center justify-center">
-                {form.profilePicture ? (
+                {getImageUrl(form.profilePicture) ? (
                   <img
-                    src={form.profilePicture}
+                    src={getImageUrl(form.profilePicture)}
                     alt="Profile Preview"
                     className="w-full h-full object-cover"
                   />
@@ -181,7 +182,7 @@ const EditProfile = () => {
             </div>
 
             <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mt-2">
-              Upload a new profile photo (JPG, PNG or supported format)
+              {t('editProfile.uploadPhotoHint')}
             </p>
 
 
@@ -204,7 +205,7 @@ const EditProfile = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Full Name <span className="text-pink-500">*</span>
+                  {t('editProfile.fullName')} <span className="text-pink-500">*</span>
                 </label>
                 <div className="relative flex items-center">
                   <User className="w-5 h-5 absolute left-3.5 text-gray-400 dark:text-gray-500 pointer-events-none" />
@@ -213,7 +214,7 @@ const EditProfile = () => {
                     name="fullName"
                     value={form.fullName}
                     onChange={handleChange}
-                    placeholder="Enter your full name"
+                    placeholder={t('editProfile.namePlaceholder')}
                     className="w-full h-12 pl-11 pr-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/60 text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-300 dark:focus:ring-pink-500/30 focus:border-pink-500 transition-all text-sm font-medium"
                   />
                 </div>
@@ -224,7 +225,7 @@ const EditProfile = () => {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Email Address <span className="text-pink-500">*</span>
+                  {t('editProfile.emailAddress')} <span className="text-pink-500">*</span>
                 </label>
                 <div className="relative flex items-center">
                   <Mail className="w-5 h-5 absolute left-3.5 text-gray-400 dark:text-gray-500 pointer-events-none" />
@@ -233,7 +234,7 @@ const EditProfile = () => {
                     name="email"
                     value={form.email}
                     onChange={handleChange}
-                    placeholder="Enter your email"
+                    placeholder={t('editProfile.emailPlaceholder')}
                     className="w-full h-12 pl-11 pr-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/60 text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-300 dark:focus:ring-pink-500/30 focus:border-pink-500 transition-all text-sm font-medium"
                   />
                 </div>
@@ -247,7 +248,7 @@ const EditProfile = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Preferred Language
+                  {t('editProfile.preferredLanguage')}
                 </label>
                 <div className="relative flex items-center">
                   <Globe className="w-5 h-5 absolute left-3.5 text-gray-400 dark:text-gray-500 pointer-events-none" />
@@ -267,7 +268,7 @@ const EditProfile = () => {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Education Level
+                  {t('editProfile.educationLevel')}
                 </label>
                 <div className="relative flex items-center">
                   <GraduationCap className="w-5 h-5 absolute left-3.5 text-gray-400 dark:text-gray-500 pointer-events-none" />
@@ -276,7 +277,7 @@ const EditProfile = () => {
                     name="education"
                     value={form.education}
                     onChange={handleChange}
-                    placeholder="e.g. Degree, Master's, High School"
+                    placeholder={t('editProfile.educationPlaceholder')}
                     className="w-full h-12 pl-11 pr-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/60 text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-300 dark:focus:ring-pink-500/30 focus:border-pink-500 transition-all text-sm font-medium"
                   />
                 </div>
@@ -287,7 +288,7 @@ const EditProfile = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Current Interest
+                  {t('editProfile.currentInterest')}
                 </label>
                 <div className="relative flex items-center">
                   <Sparkle className="w-5 h-5 absolute left-3.5 text-gray-400 dark:text-gray-500 pointer-events-none" />
@@ -297,15 +298,15 @@ const EditProfile = () => {
                     onChange={handleChange}
                     className="w-full h-12 pl-11 pr-10 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/60 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-300 dark:focus:ring-pink-500/30 focus:border-pink-500 transition-all text-sm font-medium appearance-none cursor-pointer"
                   >
-                    <option value="">Select an interest</option>
-                    <option value="Digital Skills">Digital Skills</option>
-                    <option value="Cooking">Cooking</option>
-                    <option value="Arts & Crafts">Arts & Crafts</option>
-                    <option value="Gardening">Gardening</option>
-                    <option value="Sewing & Fashion">Sewing & Fashion</option>
-                    <option value="Health & Fitness">Health & Fitness</option>
-                    <option value="Music & Instruments">Music & Instruments</option>
-                    <option value="Skincare">Skincare</option>
+                    <option value="">{t('editProfile.selectInterest')}</option>
+                    <option value="Digital Skills">{t('editProfile.interests.Digital Skills')}</option>
+                    <option value="Cooking">{t('editProfile.interests.Cooking')}</option>
+                    <option value="Arts & Crafts">{t('editProfile.interests.Arts & Crafts')}</option>
+                    <option value="Gardening">{t('editProfile.interests.Gardening')}</option>
+                    <option value="Sewing & Fashion">{t('editProfile.interests.Sewing & Fashion')}</option>
+                    <option value="Health & Fitness">{t('editProfile.interests.Health & Fitness')}</option>
+                    <option value="Music & Instruments">{t('editProfile.interests.Music & Instruments')}</option>
+                    <option value="Skincare">{t('editProfile.interests.Skincare')}</option>
                   </select>
                   <ChevronDown className="w-4 h-4 absolute right-3.5 text-gray-400 dark:text-gray-500 pointer-events-none" />
                 </div>
@@ -313,7 +314,7 @@ const EditProfile = () => {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Daily Free Time (for learning)
+                  {t('editProfile.dailyFreeTime')}
                 </label>
                 <div className="relative flex items-center">
                   <Clock className="w-5 h-5 absolute left-3.5 text-gray-400 dark:text-gray-500 pointer-events-none" />
@@ -323,11 +324,11 @@ const EditProfile = () => {
                     onChange={handleChange}
                     className="w-full h-12 pl-11 pr-10 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/60 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-300 dark:focus:ring-pink-500/30 focus:border-pink-500 transition-all text-sm font-medium appearance-none cursor-pointer"
                   >
-                    <option value="">Select daily free time</option>
-                    <option value="15 minutes">15 minutes</option>
-                    <option value="30 minutes">30 minutes</option>
-                    <option value="45 minutes">45 minutes</option>
-                    <option value="1 hour">1 hour</option>
+                    <option value="">{t('editProfile.selectFreeTime')}</option>
+                    <option value="15 minutes">{t('editProfile.freeTimeOptions.15 minutes')}</option>
+                    <option value="30 minutes">{t('editProfile.freeTimeOptions.30 minutes')}</option>
+                    <option value="45 minutes">{t('editProfile.freeTimeOptions.45 minutes')}</option>
+                    <option value="1 hour">{t('editProfile.freeTimeOptions.1 hour')}</option>
                   </select>
                   <ChevronDown className="w-4 h-4 absolute right-3.5 text-gray-400 dark:text-gray-500 pointer-events-none" />
                 </div>
@@ -343,7 +344,7 @@ const EditProfile = () => {
               onClick={() => navigate('/dashboard/profile')}
               className="w-full sm:w-auto px-7 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-full font-semibold text-sm hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors cursor-pointer text-center"
             >
-              Cancel
+              {t('editProfile.cancel')}
             </button>
             <button
               type="submit"
@@ -353,10 +354,10 @@ const EditProfile = () => {
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Saving...</span>
+                  <span>{t('editProfile.saving')}</span>
                 </>
               ) : (
-                <span>Save Changes</span>
+                <span>{t('editProfile.saveChanges')}</span>
               )}
             </button>
           </div>
