@@ -1,35 +1,20 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  ArrowLeft, 
-  Users, 
-  Check, 
-  LogOut, 
-  Plus, 
-  ChefHat, 
-  Palette, 
-  Leaf, 
-  Scissors, 
-  Laptop, 
-  Dumbbell, 
-  Music, 
-  Sparkles,
+import {
+  ArrowLeft,
+  Users,
+  Check,
+  LogOut,
+  Plus,
   Star
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
-import { getCommunityDisplayName, getCommunityDescription } from './CommunityCard';
-
-const iconMap = {
-  ChefHat,
-  Palette,
-  Leaf,
-  Scissors,
-  Laptop,
-  Dumbbell,
-  Music,
-  Sparkles,
-  Users
-};
+import {
+  getCommunityDisplayName,
+  getCommunityDescription,
+  getCommunityIcon,
+  getCommunityGradient
+} from './CommunityCard';
 
 const CommunityHeader = ({ community, onJoinToggle, isActionLoading }) => {
   const navigate = useNavigate();
@@ -37,14 +22,15 @@ const CommunityHeader = ({ community, onJoinToggle, isActionLoading }) => {
 
   if (!community) return null;
 
-  const IconComponent = iconMap[community.icon] || Users;
+  const IconComponent = getCommunityIcon(community);
+  const gradientClass = getCommunityGradient(community);
   const isJoined = community.isJoined;
   const isRecommended = community.isRecommended;
 
   return (
     <div className="relative rounded-3xl overflow-hidden bg-white dark:bg-gray-850 border border-gray-100 dark:border-gray-800 shadow-md mb-8">
       {/* Top Ambient Banner */}
-      <div className={`h-32 sm:h-40 w-full bg-gradient-to-r ${community.bannerColor || 'from-pink-500 via-purple-500 to-indigo-500'} relative p-6 flex flex-col justify-between`}>
+      <div className={`h-32 sm:h-40 w-full bg-gradient-to-r ${gradientClass} relative p-6 flex flex-col justify-between`}>
         {/* Back Button */}
         <button
           onClick={() => navigate('/dashboard/community')}
@@ -66,7 +52,7 @@ const CommunityHeader = ({ community, onJoinToggle, isActionLoading }) => {
       <div className="p-6 sm:p-8 pt-0 relative flex flex-col sm:flex-row sm:items-end justify-between gap-6">
         {/* Avatar & Title Row */}
         <div className="flex items-end gap-4 sm:gap-6 -mt-10 sm:-mt-12">
-          <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-3xl flex items-center justify-center bg-gradient-to-tr ${community.bannerColor || 'from-pink-500 to-purple-500'} text-white shadow-xl ring-4 ring-white dark:ring-gray-850 shrink-0`}>
+          <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-3xl flex items-center justify-center bg-gradient-to-tr ${gradientClass} text-white shadow-xl ring-4 ring-white dark:ring-gray-850 shrink-0`}>
             <IconComponent className="w-10 h-10 sm:w-12 sm:h-12" />
           </div>
 
