@@ -58,6 +58,7 @@ const en = {
     noVideosFound: "No videos found for '{query}'.",
     noArticlesFound: "No articles found for '{query}'.",
     noVideosForInterest: "No content available for your selected interest yet.",
+    noVideosForLanguage: "No recommended videos are currently available in {language}.",
     noArticlesForInterest: "No articles available for your selected interest yet.",
     noContinueLearning: "No more content available for your selected interest yet."
   },

@@ -58,6 +58,7 @@ const hi = {
     noVideosFound: "'{query}' के लिए कोई वीडियो नहीं मिला।",
     noArticlesFound: "'{query}' के लिए कोई लेख नहीं मिला।",
     noVideosForInterest: "आपकी चुनी हुई रुचि के लिए अभी कोई सामग्री उपलब्ध नहीं है।",
+    noVideosForLanguage: "{language} में वर्तमान में कोई अनुशंसित वीडियो उपलब्ध नहीं है।",
     noArticlesForInterest: "आपकी चुनी हुई रुचि के लिए अभी कोई लेख उपलब्ध नहीं है।",
     noContinueLearning: "आपकी चुनी हुई रुचि के लिए और सामग्री उपलब्ध नहीं है।"
   },

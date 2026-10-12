@@ -12,8 +12,10 @@ const recommendationService = {
    * Uses: Content-Based + Time-Aware + Collaborative Filtering + K-Means signal.
    * @param {number} limit - Max number of videos to return
    */
-  getHybridRecommendations: async (limit = 20) => {
-    const res = await api.get('/recommendations/videos', { params: { limit } });
+  getHybridRecommendations: async (limit = 20, language) => {
+    const res = await api.get('/recommendations/videos', {
+      params: { limit, ...(language ? { language } : {}) }
+    });
     return res.data;
   },
 
