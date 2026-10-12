@@ -1,9 +1,11 @@
 import api from './api';
 
 export const videoService = {
-  // Fetch recommended videos (matching user interest)
-  getRecommendedVideos: async () => {
-    const res = await api.get('/videos/recommendations');
+  // Fetch recommended videos (matching user interest and selected language)
+  getRecommendedVideos: async (language) => {
+    const res = await api.get('/videos/recommendations', {
+      params: language ? { language } : {}
+    });
     return res.data;
   },
 

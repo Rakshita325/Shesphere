@@ -58,6 +58,7 @@ const kn = {
     noVideosFound: "'{query}' ಗಾಗಿ ಯಾವುದೇ ವೀಡಿಯೊಗಳು ಕಂಡುಬಂದಿಲ್ಲ.",
     noArticlesFound: "'{query}' ಗಾಗಿ ಯಾವುದೇ ಲೇಖನಗಳು ಕಂಡುಬಂದಿಲ್ಲ.",
     noVideosForInterest: "ನಿಮ್ಮ ಆಯ್ಕೆಯ ಆಸಕ್ತಿಗೆ ಇನ್ನೂ ಯಾವುದೇ ವಿಷಯ ಲಭ್ಯವಿಲ್ಲ.",
+    noVideosForLanguage: "{language}ದಲ್ಲಿ ಪ್ರಸ್ತುತ ಯಾವುದೇ ಶಿಫಾರಸು ಮಾಡಿದ ವೀಡಿಯೊಗಳು ಲಭ್ಯವಿಲ್ಲ.",
     noArticlesForInterest: "ನಿಮ್ಮ ಆಯ್ಕೆಯ ಆಸಕ್ತಿಗೆ ಇನ್ನೂ ಯಾವುದೇ ಲೇಖನಗಳು ಲಭ್ಯವಿಲ್ಲ.",
     noContinueLearning: "ನಿಮ್ಮ ಆಯ್ಕೆಯ ಆಸಕ್ತಿಗೆ ಮತ್ತಷ್ಟು ವಿಷಯಗಳು ಲಭ್ಯವಿಲ್ಲ."
   },

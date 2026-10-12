@@ -9,10 +9,18 @@ import { Play, Eye, Tag, ChevronLeft, ChevronRight, Video, Clock, Sparkles } fro
 import { useSearch } from '../../context/SearchContext';
 import { getYouTubeThumbnail } from '../../utils/imageUrl';
 
+const getLanguageDisplayName = (lang) => {
+  if (!lang) return 'English';
+  const l = String(lang).toLowerCase().trim();
+  if (l === 'hi' || l === 'hindi') return 'Hindi';
+  if (l === 'kn' || l === 'kannada') return 'Kannada';
+  return 'English';
+};
+
 const RecommendedVideos = () => {
   const { userData } = useUser();
   const { searchQuery } = useSearch();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -31,7 +39,7 @@ const RecommendedVideos = () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await videoService.getRecommendedVideos();
+        const response = await videoService.getRecommendedVideos(language);
         if (cancelled) return;
         if (response && response.success) {
           setVideos(response.data);
@@ -54,7 +62,7 @@ const RecommendedVideos = () => {
     return () => {
       cancelled = true;
     };
-  }, [userData?._id, userData?.interest, userData?.dailyFreeTime]);
+  }, [userData?._id, userData?.interest, userData?.dailyFreeTime, language]);
 
   const filteredVideos = searchQuery.trim()
     ? videos.filter((v) => {
@@ -137,7 +145,7 @@ const RecommendedVideos = () => {
           <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
             {searchQuery.trim()
               ? t('dashboard.noVideosFound', { query: searchQuery })
-              : t('dashboard.noVideosForInterest')}
+              : t('dashboard.noVideosForLanguage', { language: getLanguageDisplayName(language) })}
           </p>
         </div>
       ) : (
