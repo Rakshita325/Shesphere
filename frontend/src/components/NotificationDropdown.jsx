@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingBag, Flame, MessageSquare, MessageCircle, Bell, CheckCheck, X, Trash2 } from 'lucide-react';
+import { ShoppingBag, Flame, MessageSquare, MessageCircle, Bell, CheckCheck, X, Trash2, RefreshCw } from 'lucide-react';
 import { useNotifications } from '../context/NotificationContext';
 
 // Helper for human-readable relative time format
@@ -51,6 +51,13 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
     };
   }, [isOpen, onClose]);
 
+  // Refresh notifications every time the dropdown opens
+  useEffect(() => {
+    if (isOpen) {
+      fetchNotifications();
+    }
+  }, [isOpen, fetchNotifications]);
+
   if (!isOpen) return null;
 
   const getIcon = (type) => {
@@ -83,24 +90,43 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
     }
   };
 
+  /**
+   * Determine smart navigation target based on notification type and message context.
+   *
+   * Marketplace routing:
+   *  - Vendor notifications (New Order received, Cancelled by Buyer) →
+   *    /marketplace/my-purchases?tab=sellerOrders  (opens the Seller Orders tab directly)
+   *  - Buyer notifications (Order Confirmed, Shipped, Delivered, Cancelled by Seller) →
+   *    /marketplace/my-purchases  (opens the My Purchases tab, which is the default)
+   */
+  const getNavigationPath = (n) => {
+    if (n.type === 'MARKETPLACE') {
+      // Vendor notification: new incoming order
+      if (n.title && n.title.includes('New Order')) {
+        return '/marketplace/my-purchases?tab=sellerOrders';
+      }
+      // Vendor notification: buyer cancelled their order
+      if (n.title && n.title.includes('Cancelled by Buyer')) {
+        return '/marketplace/my-purchases?tab=sellerOrders';
+      }
+      // Buyer notification: order status updates → purchases tab (default)
+      return '/marketplace/my-purchases';
+    }
+    if (n.type === 'STREAK') return '/dashboard/streaks';
+    if (n.type === 'COMMUNITY') return '/dashboard/community';
+    if (n.type === 'MESSAGE') return '/marketplace/my-purchases';
+    return null;
+  };
+
   const handleNotificationClick = (n) => {
+    // Mark as read (optimistic — fire-and-forget)
     if (!n.isRead) {
       markAsRead(n._id);
     }
 
-    // Optional navigation based on notification type
-    if (n.type === 'MARKETPLACE') {
-      navigate('/marketplace/orders');
-      onClose();
-    } else if (n.type === 'STREAK') {
-      navigate('/dashboard/streaks');
-      onClose();
-    } else if (n.type === 'COMMUNITY') {
-      navigate('/dashboard/community');
-      onClose();
-    } else if (n.type === 'MESSAGE') {
-      // Navigate to orders page where the user can open the relevant chat
-      navigate('/marketplace/orders');
+    const path = getNavigationPath(n);
+    if (path) {
+      navigate(path);
       onClose();
     }
   };
@@ -123,6 +149,17 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
         </div>
 
         <div className="flex items-center gap-1.5">
+          {/* Refresh button */}
+          <button
+            onClick={fetchNotifications}
+            className={`p-1.5 text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 rounded-lg hover:bg-pink-50 dark:hover:bg-gray-800 transition-colors ${loading ? 'animate-spin' : ''}`}
+            title="Refresh notifications"
+            aria-label="Refresh notifications"
+            disabled={loading}
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+          </button>
+
           {unreadCount > 0 && (
             <button
               onClick={markAllAsRead}
@@ -143,9 +180,10 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
         </div>
       </div>
 
-      {/* Scrollable Notification List Container */}
+      {/* Scrollable Notification List Container — only this div scrolls */}
       <div className="max-h-[360px] sm:max-h-[440px] overflow-y-auto divide-y divide-gray-100/60 dark:divide-gray-800/60 custom-scrollbar">
         {loading && notifications.length === 0 ? (
+          /* ── Loading skeleton ── */
           <div className="p-4 space-y-3">
             {[1, 2, 3].map((i) => (
               <div key={i} className="flex gap-3 animate-pulse">
@@ -158,6 +196,7 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
             ))}
           </div>
         ) : error ? (
+          /* ── Error state ── */
           <div className="p-6 text-center text-sm text-gray-500 dark:text-gray-400">
             <p className="mb-2 text-rose-500 font-medium">{error}</p>
             <button
@@ -168,6 +207,7 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
             </button>
           </div>
         ) : notifications.length === 0 ? (
+          /* ── Empty state ── */
           <div className="p-8 text-center flex flex-col items-center justify-center">
             <div className="w-12 h-12 rounded-2xl bg-pink-50 dark:bg-gray-800 flex items-center justify-center mb-3">
               <Bell className="w-6 h-6 text-pink-400" />
@@ -178,10 +218,15 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
             </p>
           </div>
         ) : (
+          /* ── Notification list ── */
           notifications.map((n) => (
             <div
               key={n._id}
               onClick={() => handleNotificationClick(n)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && handleNotificationClick(n)}
+              aria-label={`${n.isRead ? '' : 'Unread: '}${n.title}`}
               className={`group relative flex items-start gap-3 p-3.5 transition-colors cursor-pointer ${
                 !n.isRead
                   ? 'bg-pink-50/40 dark:bg-pink-950/15 hover:bg-pink-50/70 dark:hover:bg-pink-950/25'

@@ -2,6 +2,7 @@ const Notification = require('../models/Notification');
 
 /**
  * @desc    Get notifications for the current user (most recent first, limit 50)
+ *          Also returns the accurate unread count from the full dataset (not just the page).
  * @route   GET /api/notifications
  * @access  Private
  */
@@ -9,17 +10,35 @@ const getNotifications = async (req, res) => {
   try {
     const userId = req.user.id || req.user._id;
 
-    const notifications = await Notification.find({ userId })
-      .sort({ createdAt: -1 })
-      .limit(50)
-      .lean();
-
-    const unreadCount = notifications.filter((n) => !n.isRead).length;
+    // Run both queries in parallel for performance
+    const [notifications, unreadCount] = await Promise.all([
+      Notification.find({ userId })
+        .sort({ createdAt: -1 })
+        .limit(50)
+        .lean(),
+      Notification.countDocuments({ userId, isRead: false })
+    ]);
 
     return res.status(200).json({ success: true, notifications, unreadCount });
   } catch (error) {
     console.error('❌ Error fetching notifications:', error);
     return res.status(500).json({ success: false, message: 'Server error fetching notifications' });
+  }
+};
+
+/**
+ * @desc    Get just the unread notification count (lightweight poll endpoint)
+ * @route   GET /api/notifications/count
+ * @access  Private
+ */
+const getUnreadCount = async (req, res) => {
+  try {
+    const userId = req.user.id || req.user._id;
+    const unreadCount = await Notification.countDocuments({ userId, isRead: false });
+    return res.status(200).json({ success: true, unreadCount });
+  } catch (error) {
+    console.error('❌ Error fetching unread count:', error);
+    return res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 
@@ -35,7 +54,7 @@ const markAsRead = async (req, res) => {
     const notification = await Notification.findOneAndUpdate(
       { _id: req.params.id, userId },
       { isRead: true },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     if (!notification) {
@@ -93,4 +112,4 @@ const deleteNotification = async (req, res) => {
   }
 };
 
-module.exports = { getNotifications, markAsRead, markAllAsRead, deleteNotification };
+module.exports = { getNotifications, getUnreadCount, markAsRead, markAllAsRead, deleteNotification };

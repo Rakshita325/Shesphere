@@ -5,6 +5,7 @@ import articleService from '../../services/articleService';
 import { useUser } from '../../context/UserContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { ChevronLeft, ChevronRight, PenTool, BookOpen, Clock } from 'lucide-react';
+import { getImageUrl } from '../../utils/imageUrl';
 
 import { useSearch } from '../../context/SearchContext';
 
@@ -150,7 +151,7 @@ const RecommendedArticles = () => {
                 {/* Fixed Height Image */}
                 <div className="relative h-36 w-full overflow-hidden bg-gray-100 dark:bg-gray-700">
                   <img
-                    src={article.coverImage || 'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&q=80&w=800'}
+                    src={getImageUrl(article.coverImage, 'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&q=80&w=800')}
                     alt={article.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />

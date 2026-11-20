@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { protect } = require('../middleware/authMiddleware');
+const { protect, optionalAuth } = require('../middleware/authMiddleware');
 const { upload } = require('../middleware/uploadMiddleware');
 
 const {
@@ -19,7 +19,7 @@ const {
 const { addReview, getProductReviews } = require('../controllers/reviewController');
 
 // ── Special named routes BEFORE /:id ─────────────────────────────────────────
-router.get('/products/search', protect, searchProducts);   // pass user to filter own products
+router.get('/products/search', optionalAuth, searchProducts); // optionalAuth: pass user context when available, allow guests
 router.get('/products/featured', getFeaturedProducts);
 router.get('/products/recommended', protect, getRecommendedProducts);
 router.get('/products/my-products', protect, getMyProducts);
@@ -27,7 +27,7 @@ router.get('/products/my-products', protect, getMyProducts);
 // ── Product CRUD ──────────────────────────────────────────────────────────────
 router
   .route('/products')
-  .get(protect, getProducts)            // pass user context to hide own products
+  .get(optionalAuth, getProducts)      // optionalAuth: pass user context when available, allow guests
   .post(protect, upload.array('images', 5), createProduct);
 
 router

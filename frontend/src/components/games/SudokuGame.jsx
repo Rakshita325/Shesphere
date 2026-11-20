@@ -1,5 +1,7 @@
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { RotateCcw, CheckCircle, PlusCircle, Clock, Sparkles } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+
 
 // ─── Sudoku Generator ────────────────────────────────────────────────
 const EMPTY = 0;

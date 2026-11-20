@@ -20,6 +20,47 @@ const { calculateTimeCompatibilityScore } = require('./timeAwareService');
 const { predictCollaborativeScore, buildInteractionMatrix, calculateUserCosineSimilarity } = require('./collaborativeService');
 const { normalizeLanguage } = require('./kmeansService');
 
+/**
+ * Maps any language string, name, or code to standard canonical code ('en', 'hi', 'kn').
+ * Returns null if missing or unrecognized (ensures unknown/missing metadata is not treated as a match).
+ */
+const toCanonicalLanguage = (val) => {
+  if (!val || typeof val !== 'string') return null;
+  const s = val.trim().toLowerCase();
+  if (s === 'en' || s.startsWith('eng')) return 'en';
+  if (s === 'hi' || s.startsWith('hin')) return 'hi';
+  if (s === 'kn' || s.startsWith('kan')) return 'kn';
+  return null;
+};
+
+/**
+ * Returns database query representation aliases for a canonical language code.
+ * Matches exact values in DB ('English', 'Hindi', 'Kannada') as well as common variations.
+ */
+const getLanguageQueryAliases = (langCode) => {
+  switch (langCode) {
+    case 'hi':
+      return ['Hindi', 'hindi', 'hi', 'HI'];
+    case 'kn':
+      return ['Kannada', 'kannada', 'kn', 'KN'];
+    case 'en':
+    default:
+      return ['English', 'english', 'en', 'EN'];
+  }
+};
+
+/**
+ * Safely verifies if a video's language metadata matches the target language.
+ * Handles capitalization differences ('Hindi' vs 'hindi') and code differences ('hi' vs 'Hindi').
+ * Videos with missing or unknown language safely return false.
+ */
+const matchesVideoLanguage = (videoLanguage, targetLanguageCode) => {
+  if (!videoLanguage || !targetLanguageCode) return false;
+  const videoCanon = toCanonicalLanguage(videoLanguage);
+  return videoCanon !== null && videoCanon === targetLanguageCode;
+};
+
+
 const INTEREST_TO_CATEGORY_MAP = {
   'cooking': 'Cooking',
   'Cooking': 'Cooking',
@@ -78,9 +119,10 @@ const calculateContentBasedScore = (video, targetCategory, watchedMeta) => {
  * 
  * @param {string} userId - User ObjectId string
  * @param {number} limit - Number of recommendations to return
+ * @param {string|null} requestedLanguage - Optional explicit language code/name from client
  * @returns {Promise<Object>} Recommendation payload
  */
-const getHybridRecommendations = async (userId, limit = 20) => {
+const getHybridRecommendations = async (userId, limit = 20, requestedLanguage = null) => {
   try {
     const user = await User.findById(userId);
     if (!user) {
@@ -90,7 +132,8 @@ const getHybridRecommendations = async (userId, limit = 20) => {
     const userInterest = user.interest;
     const userFreeTime = user.dailyFreeTime;
     const targetCategory = userInterest ? (INTEREST_TO_CATEGORY_MAP[userInterest] || userInterest) : null;
-    const userLang = normalizeLanguage(user.language);
+    const targetLangCode = toCanonicalLanguage(requestedLanguage) || toCanonicalLanguage(user.language) || 'en';
+    const langAliases = getLanguageQueryAliases(targetLangCode);
 
     // 1. Fetch current user watch history & likes
     const userHistory = await WatchHistory.find({ userId }).populate('videoId').lean();
@@ -198,22 +241,29 @@ const getHybridRecommendations = async (userId, limit = 20) => {
     }
 
     // 5. MERGE CANDIDATE POOL (Content Candidates + Collaborative Candidates)
-    const contentQuery = targetCategory ? { category: targetCategory } : {};
+    // Filter candidates by target language BEFORE scoring and ranking
+    const contentQuery = {
+      ...(targetCategory ? { category: targetCategory } : {}),
+      language: { $in: langAliases }
+    };
     const contentCandidates = await Video.find(contentQuery).lean();
     const collabCandidates = collabVideoIdSet.size > 0
-      ? await Video.find({ _id: { $in: Array.from(collabVideoIdSet) } }).lean()
+      ? await Video.find({
+          _id: { $in: Array.from(collabVideoIdSet) },
+          language: { $in: langAliases }
+        }).lean()
       : [];
 
     const candidateMap = new Map();
     for (const v of contentCandidates) {
       const vId = v._id.toString();
-      if (!excludedVideoIds.has(vId)) {
+      if (!excludedVideoIds.has(vId) && matchesVideoLanguage(v.language, targetLangCode)) {
         candidateMap.set(vId, v);
       }
     }
     for (const v of collabCandidates) {
       const vId = v._id.toString();
-      if (!excludedVideoIds.has(vId)) {
+      if (!excludedVideoIds.has(vId) && matchesVideoLanguage(v.language, targetLangCode)) {
         candidateMap.set(vId, v);
       }
     }
@@ -233,7 +283,9 @@ const getHybridRecommendations = async (userId, limit = 20) => {
         const timeScore = calculateTimeCompatibilityScore(videoDuration, userFreeTime);
 
         // C. Collaborative Filtering Score
-        const cfScore = await predictCollaborativeScore(userId, videoIdStr, interactionMatrixData.matrix);
+        // Pass video.category so the category-level fallback can activate when language
+        // filtering restricts candidates to videos that similar users haven't directly watched.
+        const cfScore = await predictCollaborativeScore(userId, videoIdStr, interactionMatrixData.matrix, video.category);
 
         // Hybrid Combination Weights
         let finalScore = 0;
@@ -343,6 +395,7 @@ const getHybridRecommendations = async (userId, limit = 20) => {
       userInterest: userInterest || 'None selected',
       matchedCategory: targetCategory || 'All',
       userFreeTime: userFreeTime || 'Not set',
+      selectedLanguage: targetLangCode,
       isColdStart: false,
       data: result
     };
@@ -355,5 +408,8 @@ const getHybridRecommendations = async (userId, limit = 20) => {
 
 module.exports = {
   getHybridRecommendations,
-  calculateContentBasedScore
+  calculateContentBasedScore,
+  toCanonicalLanguage,
+  getLanguageQueryAliases,
+  matchesVideoLanguage
 };

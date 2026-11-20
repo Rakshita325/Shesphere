@@ -40,7 +40,9 @@ const INTEREST_TO_CATEGORY_MAP = {
 const getRecommendedVideos = async (req, res) => {
   try {
     const userId = req.user.id;
-    const recommendationPayload = await getHybridRecommendations(userId, 20);
+    const limit = Number(req.query.limit) || 20;
+    const language = req.query.language || req.query.lang;
+    const recommendationPayload = await getHybridRecommendations(userId, limit, language);
 
     return res.status(200).json(recommendationPayload);
   } catch (error) {

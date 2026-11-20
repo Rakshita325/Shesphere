@@ -13,15 +13,12 @@ export const articleService = {
     return res.data;
   },
 
-  // Create article (supports FormData for images or json payload)
+  // Create article (supports FormData for image upload or plain JSON payload)
+  // IMPORTANT: Do NOT manually set Content-Type for FormData.
+  // Axios automatically sets 'multipart/form-data; boundary=...' which multer needs
+  // to correctly parse uploaded files. Overriding it breaks the multipart boundary.
   createArticle: async (articleData) => {
-    let config = {};
-    if (articleData instanceof FormData) {
-      config = {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      };
-    }
-    const res = await api.post('/articles', articleData, config);
+    const res = await api.post('/articles', articleData);
     return res.data;
   },
 

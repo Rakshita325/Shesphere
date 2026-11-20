@@ -1,5 +1,13 @@
 const Order = require('../models/Order');
 const Product = require('../models/Product');
+const {
+  notifyNewOrder,
+  notifyOrderConfirmed,
+  notifyOrderShipped,
+  notifyOrderDelivered,
+  notifyOrderCancelledBySeller,
+  notifyOrderCancelledByBuyer
+} = require('../utils/notificationHelper');
 
 // Valid seller-controlled status transitions
 const SELLER_TRANSITIONS = {
@@ -100,6 +108,15 @@ const createOrder = async (req, res) => {
       .populate('seller', 'fullName profilePicture email')
       .populate('buyer', 'fullName profilePicture email');
 
+    // ── Notifications (fire-and-forget, runs in background) ─────────────────
+    const productName = product.productName || 'Product';
+    const orderId = order._id;
+
+    Promise.allSettled([
+      notifyNewOrder(product.seller, productName, orderQty, orderId),
+      notifyOrderConfirmed(buyerId, productName, orderId)
+    ]);
+
     return res.status(201).json({
       success: true,
       message: 'Order placed successfully',
@@ -163,7 +180,7 @@ const updateOrderStatus = async (req, res) => {
     const userId = req.user.id || req.user._id;
     const { status } = req.body;
 
-    const order = await Order.findById(req.params.id);
+    const order = await Order.findById(req.params.id).populate('product', 'productName');
     if (!order) {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
@@ -183,7 +200,7 @@ const updateOrderStatus = async (req, res) => {
 
     // Restore stock if seller cancels
     if (status === 'Cancelled') {
-      const product = await Product.findById(order.product);
+      const product = await Product.findById(order.product._id || order.product);
       if (product) {
         product.quantity += order.quantity;
         if (product.quantity > 0) product.isAvailable = true;
@@ -191,6 +208,7 @@ const updateOrderStatus = async (req, res) => {
       }
     }
 
+    const prevStatus = order.status;
     order.status = status;
     await order.save();
 
@@ -198,6 +216,19 @@ const updateOrderStatus = async (req, res) => {
       .populate('product', 'productName images price category')
       .populate('seller', 'fullName profilePicture email')
       .populate('buyer', 'fullName profilePicture email');
+
+    // ── Notifications (fire-and-forget) ──────────────────────────────────────
+    const productName = order.product?.productName || 'your product';
+    const orderId = order._id;
+    const buyerId = order.buyer;
+
+    if (status === 'Shipped') {
+      notifyOrderShipped(buyerId, productName, orderId);
+    } else if (status === 'Delivered') {
+      notifyOrderDelivered(buyerId, productName, orderId);
+    } else if (status === 'Cancelled') {
+      notifyOrderCancelledBySeller(buyerId, productName, orderId);
+    }
 
     return res.status(200).json({
       success: true,
@@ -219,7 +250,7 @@ const cancelOrder = async (req, res) => {
   try {
     const userId = req.user.id || req.user._id;
 
-    const order = await Order.findById(req.params.id);
+    const order = await Order.findById(req.params.id).populate('product', 'productName');
     if (!order) {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
@@ -237,7 +268,7 @@ const cancelOrder = async (req, res) => {
     }
 
     // Restore stock
-    const product = await Product.findById(order.product);
+    const product = await Product.findById(order.product._id || order.product);
     if (product) {
       product.quantity += order.quantity;
       if (product.quantity > 0 && product.isActive) product.isAvailable = true;
@@ -251,6 +282,13 @@ const cancelOrder = async (req, res) => {
       .populate('product', 'productName images price category')
       .populate('seller', 'fullName profilePicture email')
       .populate('buyer', 'fullName profilePicture email');
+
+    // ── Notifications (fire-and-forget) ──────────────────────────────────────
+    const productName = order.product?.productName || 'your product';
+    const orderId = order._id;
+    const sellerId = order.seller;
+
+    notifyOrderCancelledByBuyer(sellerId, productName, orderId);
 
     return res.status(200).json({
       success: true,
