@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8008/api/marketplace';
+const API_BASE_URL = `${(import.meta.env.VITE_API_URL || 'http://localhost:8008/api').replace(/\/+$/, '')}/marketplace`;
 
 // Helper to get Authorization Header with JWT Token
 const getAuthHeader = () => {
