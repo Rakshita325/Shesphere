@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const { notifyStreakMilestone } = require('./notificationHelper');
 
 /**
  * All milestone badge definitions
@@ -35,6 +36,7 @@ const getYesterdayDate = () => {
 /**
  * Core utility to update user streak upon activity completion.
  * Caps streak increment to once per calendar day.
+ * Fires streak milestone notifications when badges are newly unlocked.
  */
 const updateUserStreak = async (userId) => {
   const user = await User.findById(userId);
@@ -101,7 +103,7 @@ const updateUserStreak = async (userId) => {
         earnedAt: new Date(),
       };
       user.badges.push(badgeData);
-      newBadges.push(badgeData);
+      newBadges.push({ ...milestone, ...badgeData });
     }
   }
 
@@ -110,6 +112,13 @@ const updateUserStreak = async (userId) => {
     streak: user.streak,
     lastActiveDate: user.lastActiveDate
   });
+
+  // ── Fire milestone notifications (fire-and-forget) ────────────────────────
+  // Done AFTER user.save() so notifications only go out for badges that were
+  // successfully persisted.
+  for (const badge of newBadges) {
+    notifyStreakMilestone(userId, badge);
+  }
 
   return {
     updated: true,

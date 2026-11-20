@@ -16,8 +16,9 @@ const getRecommendations = async (req, res) => {
   try {
     const userId = req.user.id;
     const limit = Number(req.query.limit) || 20;
+    const language = req.query.language || req.query.lang;
 
-    const payload = await getHybridRecommendations(userId, limit);
+    const payload = await getHybridRecommendations(userId, limit, language);
     return res.status(200).json(payload);
   } catch (error) {
     console.error('❌ Error getting hybrid recommendations:', error);

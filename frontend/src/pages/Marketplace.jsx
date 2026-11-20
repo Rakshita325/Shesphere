@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MarketplaceHeader from '../components/Marketplace/MarketplaceHeader';
 import SearchFilter from '../components/Marketplace/SearchFilter';
 import CategoryFilter from '../components/Marketplace/CategoryFilter';
@@ -10,9 +10,20 @@ import { CheckCircle2, ChevronDown } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 const Marketplace = () => {
-  const { notification } = useMarketplace();
+  const { notification, loadProducts, loading } = useMarketplace();
   const { t } = useLanguage();
   const [loadMoreCount, setLoadMoreCount] = useState(12);
+
+  // Re-fetch products every time the Marketplace page is mounted (i.e., on every navigation visit).
+  // The MarketplaceContext loads products once on provider mount, but when the user navigates
+  // away and back, no new fetch fires because the loadProducts reference doesn't change.
+  // This useEffect ensures a fresh fetch on every page visit without causing infinite loops.
+  useEffect(() => {
+    loadProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // intentionally empty — run once per mount, not on every filter change (context handles those)
+
+
 
   return (
     <div className="max-w-7xl mx-auto pb-12">

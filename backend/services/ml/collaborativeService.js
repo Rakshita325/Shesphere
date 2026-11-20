@@ -14,6 +14,7 @@
 const WatchHistory = require('../../models/WatchHistory');
 const VideoLike = require('../../models/VideoLike');
 const User = require('../../models/User');
+const Video = require('../../models/Video');
 
 /**
  * Calculates implicit interaction score R(u, v) in range [0.0 - 1.0]
@@ -119,12 +120,18 @@ const calculateUserCosineSimilarity = (ratingsA, ratingsB) => {
  * Same-cluster users identified by K-Means receive a base cluster similarity weight (0.50+),
  * allowing same-cluster interactions to surface recommendations even for users with limited or 0 watch history.
  *
+ * When no similar user has directly watched the candidate video (which can happen after language
+ * filtering restricts the candidate pool), a category-level collaborative fallback signal is
+ * computed from same-cluster users' engagement with ANY video in the same category. This
+ * preserves the collaborative nature of the score without bypassing language filtering.
+ *
  * @param {string} targetUserId
  * @param {string} candidateVideoId
  * @param {Map<string, Map<string, number>>} [prebuiltMatrix]
+ * @param {string|null} [candidateVideoCategory] - Optional: category of candidate video for category-level fallback
  * @returns {Promise<number>} Predicted CF score [0.0 - 1.0]
  */
-const predictCollaborativeScore = async (targetUserId, candidateVideoId, prebuiltMatrix = null) => {
+const predictCollaborativeScore = async (targetUserId, candidateVideoId, prebuiltMatrix = null, candidateVideoCategory = null) => {
   try {
     const { matrix } = prebuiltMatrix ? { matrix: prebuiltMatrix } : await buildInteractionMatrix();
 
@@ -143,6 +150,7 @@ const predictCollaborativeScore = async (targetUserId, candidateVideoId, prebuil
     if (neighborIds.length > 0) {
       const neighbors = await User.find({ _id: { $in: neighborIds } }).select('_id clusterId').lean();
       for (const n of neighbors) {
+        // Store all clustered users, including those in cluster 0
         if (n.clusterId !== null && n.clusterId !== undefined) {
           clusterMap.set(n._id.toString(), n.clusterId);
         }
@@ -152,13 +160,20 @@ const predictCollaborativeScore = async (targetUserId, candidateVideoId, prebuil
     let totalWeight = 0;
     let weightedScoreSum = 0;
 
+    // ─── Primary scoring: exact video match in interaction matrix ───
     for (const [otherUserId, otherRatings] of matrix.entries()) {
       if (otherUserId === targetUserId.toString()) continue;
       if (!otherRatings.has(candidateVideoId.toString())) continue;
 
       const cosineSim = calculateUserCosineSimilarity(targetRatings, otherRatings);
       const otherClusterId = clusterMap.get(otherUserId);
-      const isSameCluster = (targetClusterId !== null && otherClusterId !== undefined && targetClusterId === otherClusterId);
+      // Explicitly check otherClusterId is not null/undefined before comparing
+      const isSameCluster = (
+        targetClusterId !== null &&
+        otherClusterId !== null &&
+        otherClusterId !== undefined &&
+        targetClusterId === otherClusterId
+      );
 
       // Same-cluster users are identified as similar users!
       let sim = 0;
@@ -175,10 +190,83 @@ const predictCollaborativeScore = async (targetUserId, candidateVideoId, prebuil
       }
     }
 
-    if (totalWeight === 0) return 0.0;
+    // ─── Return primary score if direct video interaction match found ───
+    if (totalWeight > 0) {
+      const predicted = weightedScoreSum / totalWeight;
+      return Math.min(1.0, Math.round(predicted * 100) / 100);
+    }
 
-    const predicted = weightedScoreSum / totalWeight;
-    return Math.min(1.0, Math.round(predicted * 100) / 100);
+    // ─── Category-level collaborative fallback ───────────────────────────────
+    // When language filtering restricts the candidate pool such that no similar user
+    // has directly watched the specific candidate video, fall back to measuring how
+    // much same-cluster users have engaged with ANY video in the same category.
+    //
+    // This preserves language filtering (the final recommendation pool is still
+    // language-filtered) while allowing collaborative signals to flow through even
+    // when the exact video hasn't been watched by cluster neighbors in the requested language.
+    //
+    // Activates only when:
+    //   1. targetUser has an assigned K-Means cluster (clusterId !== null)
+    //   2. candidateVideoCategory is provided (passed from hybridRecommendationService)
+    //   3. No direct video match was found (totalWeight === 0)
+    // ─────────────────────────────────────────────────────────────────────────
+    if (targetClusterId !== null && candidateVideoCategory) {
+      // Fetch all video IDs in the same category (across all languages)
+      const categoryVideoIds = await Video.find(
+        { category: candidateVideoCategory },
+        { _id: 1 }
+      ).lean();
+      const categoryVideoIdSet = new Set(categoryVideoIds.map(v => v._id.toString()));
+
+      let categoryTotalWeight = 0;
+      let categoryWeightedSum = 0;
+
+      for (const [otherUserId, otherRatings] of matrix.entries()) {
+        if (otherUserId === targetUserId.toString()) continue;
+
+        const otherClusterId = clusterMap.get(otherUserId);
+        const isSameCluster = (
+          targetClusterId !== null &&
+          otherClusterId !== null &&
+          otherClusterId !== undefined &&
+          targetClusterId === otherClusterId
+        );
+        // Category-level fallback only uses same-cluster users
+        if (!isSameCluster) continue;
+
+        // Find all category videos this same-cluster user has watched (any language)
+        let categoryRatingSum = 0;
+        let categoryRatingCount = 0;
+        for (const [vId, rating] of otherRatings.entries()) {
+          if (categoryVideoIdSet.has(vId)) {
+            categoryRatingSum += rating;
+            categoryRatingCount++;
+          }
+        }
+
+        if (categoryRatingCount === 0) continue;
+
+        // Average category engagement score for this same-cluster user
+        const avgCategoryRating = categoryRatingSum / categoryRatingCount;
+        const cosineSim = calculateUserCosineSimilarity(targetRatings, otherRatings);
+        // Same-cluster base weight of 0.50 (boosted by cosine if available)
+        const sim = cosineSim > 0 ? Math.min(1.0, 0.50 + (0.50 * cosineSim)) : 0.50;
+
+        if (sim > 0.05) {
+          // Attenuate category-level signal to keep it weaker than direct video scores.
+          // Direct video cfScore can reach 1.0; category fallback is capped at 0.60.
+          categoryWeightedSum += sim * avgCategoryRating * 0.60;
+          categoryTotalWeight += sim;
+        }
+      }
+
+      if (categoryTotalWeight > 0) {
+        const predicted = categoryWeightedSum / categoryTotalWeight;
+        return Math.min(0.60, Math.round(predicted * 100) / 100);
+      }
+    }
+
+    return 0.0;
 
   } catch (error) {
     console.error('❌ Error in predictCollaborativeScore:', error);

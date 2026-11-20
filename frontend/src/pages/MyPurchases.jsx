@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useMarketplace } from '../context/MarketplaceContext';
 import { useLanguage } from '../context/LanguageContext';
 import MarketplaceHeader from '../components/Marketplace/MarketplaceHeader';
@@ -16,9 +16,15 @@ const canChat = (status) => ['Shipped', 'Delivered'].includes(status);
 
 const MyPurchases = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { userData } = useUser();
   const { t } = useLanguage();
   const currentUserId = userData?._id || userData?.id || null;
+
+  // Read ?tab= from URL so notification deep-links can open the correct tab
+  const initialTab = new URLSearchParams(location.search).get('tab') === 'sellerOrders'
+    ? 'sellerOrders'
+    : 'purchases';
 
   const {
     purchases, purchasesLoading, loadPurchases,
@@ -26,7 +32,7 @@ const MyPurchases = () => {
     cancelOrder, updateOrderStatus
   } = useMarketplace();
 
-  const [activeTab, setActiveTab] = useState('purchases'); // 'purchases' or 'sellerOrders'
+  const [activeTab, setActiveTab] = useState(initialTab); // 'purchases' or 'sellerOrders'
   const [cancellingId, setCancellingId] = useState(null);
   const [updatingId, setUpdatingId] = useState(null);
   const [chatOrder, setChatOrder] = useState(null); // order currently open in chat

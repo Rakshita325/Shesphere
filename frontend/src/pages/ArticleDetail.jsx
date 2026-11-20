@@ -193,7 +193,7 @@ const ArticleDetail = () => {
         {article.coverImage && (
           <div className="w-full h-72 sm:h-96 overflow-hidden bg-gray-100 dark:bg-gray-800">
             <img
-              src={article.coverImage}
+              src={getImageUrl(article.coverImage)}
               alt={article.title}
               className="w-full h-full object-cover"
             />
@@ -242,7 +242,7 @@ const ArticleDetail = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
               {article.images.map((img, idx) => (
                 <div key={idx} className="rounded-2xl overflow-hidden max-h-64 bg-gray-100">
-                  <img src={img} alt={`Article detail ${idx + 1}`} className="w-full h-full object-cover" />
+                  <img src={getImageUrl(img)} alt={`Article detail ${idx + 1}`} className="w-full h-full object-cover" />
                 </div>
               ))}
             </div>

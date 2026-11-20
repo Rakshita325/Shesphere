@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { X, ShoppingBag, ShieldCheck, Loader2, CheckCircle2, AlertCircle, CreditCard, Lock } from 'lucide-react';
 import { useMarketplace } from '../../context/MarketplaceContext';
+import { useNotifications } from '../../context/NotificationContext';
 import { marketplaceService } from '../../services/marketplaceService';
 import loadRazorpay from '../../utils/loadRazorpay';
+import { getImageUrl } from '../../utils/imageUrl';
 
 const BuyModal = ({ product, defaultQty = 1, onClose, onSuccess }) => {
   const { loadPurchases, loadProducts, showToast } = useMarketplace();
+  const { fetchNotifications } = useNotifications();
 
   const [step, setStep] = useState(1); // 1 = Address & Checkout, 2 = Payment Success Screen
   const [qty, setQty] = useState(defaultQty);
@@ -69,7 +72,7 @@ const BuyModal = ({ product, defaultQty = 1, onClose, onSuccess }) => {
         currency: currency || 'INR',
         name: 'SheSphere Marketplace',
         description: `Payment for ${product.name || product.productName}`,
-        image: product.images?.[0] || 'https://placehold.co/128x128?text=SheSphere',
+        image: getImageUrl(product.images?.[0], 'https://placehold.co/128x128?text=SheSphere'),
         order_id: razorpayOrderId,
         handler: async (response) => {
           // Triggered on successful payment completion in Razorpay Checkout modal
@@ -92,7 +95,10 @@ const BuyModal = ({ product, defaultQty = 1, onClose, onSuccess }) => {
               setStep(2);
               loadPurchases();
               loadProducts();
+              // Refresh notification bell so the buyer sees their confirmation immediately
+              fetchNotifications();
               showToast('🎉 Payment Successful! Order confirmed.');
+
             } else {
               setError(verifyRes.message || 'Payment verification failed on server.');
             }
@@ -217,7 +223,7 @@ const BuyModal = ({ product, defaultQty = 1, onClose, onSuccess }) => {
             {/* Product summary */}
             <div className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-700">
               <img
-                src={product.images?.[0] || 'https://placehold.co/64x64?text=?'}
+                src={getImageUrl(product.images?.[0], 'https://placehold.co/64x64?text=?')}
                 alt={product.name || product.productName}
                 className="w-16 h-16 rounded-xl object-cover border border-gray-200 dark:border-gray-700 shrink-0"
                 onError={(e) => { e.target.src = 'https://placehold.co/64x64?text=?'; }}

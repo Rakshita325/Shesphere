@@ -178,7 +178,7 @@ const ProductDetails = () => {
         <div className="space-y-4">
           <div className="aspect-4/3 rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-inner relative group">
             <img
-              src={images[activeImageIndex]}
+              src={getImageUrl(images[activeImageIndex], 'https://placehold.co/800x600?text=No+Image')}
               alt={product.productName}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               onError={(e) => { e.target.src = 'https://placehold.co/800x600?text=No+Image'; }}
@@ -204,7 +204,7 @@ const ProductDetails = () => {
                       : 'border-gray-200 dark:border-gray-700 opacity-70 hover:opacity-100'
                   }`}
                 >
-                  <img src={img} alt="thumb" className="w-full h-full object-cover"
+                  <img src={getImageUrl(img, 'https://placehold.co/80x80?text=?')} alt="thumb" className="w-full h-full object-cover"
                     onError={(e) => { e.target.src = 'https://placehold.co/80x80?text=?'; }} />
                 </button>
               ))}
@@ -404,7 +404,7 @@ const ProductDetails = () => {
               >
                 <div className="aspect-square rounded-xl overflow-hidden mb-2 bg-gray-100 dark:bg-gray-900">
                   <img
-                    src={rp.images?.[0] || 'https://placehold.co/200x200?text=?'}
+                    src={getImageUrl(rp.images?.[0], 'https://placehold.co/200x200?text=?')}
                     alt={rp.productName}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     onError={(e) => { e.target.src = 'https://placehold.co/200x200?text=?'; }}
